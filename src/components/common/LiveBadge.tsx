@@ -2,12 +2,13 @@
 import React from "react";
 
 interface LiveBadgeProps {
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   className?: string;
 }
 
 const LiveBadge: React.FC<LiveBadgeProps> = ({ size = "md", className = "" }) => {
   const sizeClasses = {
+    xs: "text-[10px] px-1 py-0.5",
     sm: "text-xs px-1.5 py-0.5",
     md: "text-sm px-2 py-0.5",
     lg: "text-base px-3 py-1",
