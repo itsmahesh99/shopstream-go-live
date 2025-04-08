@@ -1,62 +1,39 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
+import Index from "./pages/Index";
 import WelcomePage from "./pages/WelcomePage";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import LiveStreamPage from "./pages/LiveStreamPage";
+import ShopPage from "./pages/ShopPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProductPage from "./pages/ProductPage";
-import CartPage from "./pages/CartPage";
-import SearchPage from "./pages/SearchPage";
+import LiveStreamPage from "./pages/LiveStreamPage";
 import WishlistPage from "./pages/WishlistPage";
-import SellerDashboardPage from "./pages/SellerDashboardPage";
-import KeinLivePage from "./pages/KeinLivePage";
-import MobileLandingPage from "./pages/MobileLandingPage";
-import ShopPage from "./pages/ShopPage";
-import ClothingPage from "./pages/ClothingPage";
+import SearchPage from "./pages/SearchPage";
 import PlayPage from "./pages/PlayPage";
-import LimitedDealPage from "./pages/LimitedDealPage";
+import SellerDashboardPage from "./pages/SellerDashboardPage";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<WelcomePage />} />
-          <Route path="/mobile" element={<MobileLandingPage />} />
-          <Route path="/" element={<Layout />}>
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/shop" element={<ShopPage />} />
-            <Route path="/shop/clothing" element={<ClothingPage />} />
-            <Route path="/live" element={<KeinLivePage />} />
-            <Route path="/live/:id" element={<LiveStreamPage />} />
-            <Route path="/play" element={<PlayPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/product/:id" element={<ProductPage />} />
-            <Route path="/limited-deal/:id" element={<LimitedDealPage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/wishlist" element={<WishlistPage />} />
-            <Route path="/seller" element={<SellerDashboardPage />} />
-          </Route>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/welcome" element={<WelcomePage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route element={<Layout />}>
+        <Route path="/home" element={<ShopPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/product/:id" element={<ProductPage />} />
+        <Route path="/livestream/:id" element={<LiveStreamPage />} />
+        <Route path="/wishlist" element={<WishlistPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/play" element={<PlayPage />} />
+        <Route path="/seller" element={<SellerDashboardPage />} />
+      </Route>
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
 
 export default App;

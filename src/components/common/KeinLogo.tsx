@@ -1,37 +1,33 @@
 
 import React from "react";
-import { cn } from "@/lib/utils";
-import { ShoppingBag, Play } from "lucide-react";
 
 interface KeinLogoProps {
   className?: string;
   variant?: "full" | "icon";
 }
 
-const KeinLogo: React.FC<KeinLogoProps> = ({ 
-  className, 
-  variant = "full" 
-}) => {
+const KeinLogo: React.FC<KeinLogoProps> = ({ className = "", variant = "full" }) => {
   if (variant === "icon") {
     return (
-      <div className={cn("flex items-center justify-center rounded-full bg-kein-blue p-2", className)}>
-        <div className="relative">
-          <ShoppingBag className="h-6 w-6 text-white" />
-          <Play className="h-3 w-3 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" fill="white" />
-        </div>
+      <div className={`flex items-center justify-center ${className}`}>
+        <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+          <rect width="120" height="120" rx="40" fill="#1D4ED8" />
+          <path d="M41.5 42H35V78H41.5V62.5L57.5 78H66L46 58L65 42H57L41.5 57V42Z" fill="white" />
+          <rect x="70" y="42" width="6.5" height="36" fill="white" />
+          <rect x="81" y="42" width="6.5" height="36" fill="white" />
+        </svg>
       </div>
     );
   }
 
   return (
-    <div className={cn("flex items-center", className)}>
-      <div className="flex items-center justify-center rounded-full bg-kein-blue p-1 mr-2">
-        <div className="relative">
-          <ShoppingBag className="h-5 w-5 text-white" />
-          <Play className="h-2.5 w-2.5 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" fill="white" />
-        </div>
-      </div>
-      <span className="font-bold text-kein-blue text-xl">Kein</span>
+    <div className={`flex items-center ${className}`}>
+      <svg viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full">
+        <path d="M19.5 4H13V40H19.5V24.5L35.5 40H44L24 20L43 4H35L19.5 19V4Z" fill="#1D4ED8" />
+        <path d="M50 4H56.5V40H50V4Z" fill="#1D4ED8" />
+        <path d="M63 4H69.5V40H63V4Z" fill="#1D4ED8" />
+        <path d="M76 4H107V10.5H96V40H89.5V10.5H76V4Z" fill="#1D4ED8" />
+      </svg>
     </div>
   );
 };

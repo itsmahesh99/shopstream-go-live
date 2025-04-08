@@ -1,9 +1,9 @@
 
 import React from "react";
-import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Product {
   id: string;
@@ -17,91 +17,85 @@ export interface Product {
 
 interface ProductCardProps {
   product: Product;
-  className?: string;
-  variant?: "default" | "horizontal";
   showAddToCart?: boolean;
+  className?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
-  className,
-  variant = "default",
-  showAddToCart = false
+  showAddToCart = true,
+  className = "",
 }) => {
-  const {
-    id,
-    title,
-    price,
-    discountPrice,
-    discountPercentage,
-    image,
-    category
-  } = product;
+  const { toast } = useToast();
 
-  const isHorizontal = variant === "horizontal";
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toast({
+      title: "Added to cart",
+      description: `${product.title} has been added to your cart`,
+    });
+  };
+
+  const handleAddToWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toast({
+      title: "Added to wishlist",
+      description: `${product.title} has been added to your wishlist`,
+    });
+  };
 
   return (
-    <div 
-      className={cn(
-        "product-card",
-        isHorizontal ? "flex" : "flex flex-col",
-        className
-      )}
-    >
-      <div 
-        className={cn(
-          "relative overflow-hidden",
-          isHorizontal ? "w-1/3" : "w-full aspect-square"
-        )}
-      >
-        <Link to={`/product/${id}`}>
+    <Link to={`/product/${product.id}`} className={`block ${className}`}>
+      <div className="bg-white rounded-lg overflow-hidden">
+        <div className="relative">
           <img
-            src={image}
-            alt={title}
-            className="w-full h-full object-cover"
+            src={product.image}
+            alt={product.title}
+            className="w-full aspect-square object-cover"
           />
-        </Link>
-        <button className="absolute top-2 right-2 bg-white p-1.5 rounded-full shadow-md">
-          <Heart className="h-4 w-4 text-gray-500" />
-        </button>
-        {discountPercentage && (
-          <div className="absolute top-2 left-2 bg-kein-coral text-white text-xs font-bold px-2 py-1 rounded">
-            -{discountPercentage}%
-          </div>
-        )}
-      </div>
-
-      <div className={cn(
-        "flex flex-col p-3",
-        isHorizontal ? "w-2/3" : "w-full"
-      )}>
-        <span className="text-xs text-gray-500 mb-1">{category}</span>
-        <Link to={`/product/${id}`} className="hover:text-kein-blue">
-          <h3 className="font-medium text-sm line-clamp-2">{title}</h3>
-        </Link>
-        <div className="mt-2 flex items-center">
-          {discountPrice ? (
-            <>
-              <span className="font-bold text-kein-coral">₹{discountPrice}</span>
-              <span className="text-gray-400 text-sm line-through ml-2">₹{price}</span>
-            </>
-          ) : (
-            <span className="font-bold">₹{price}</span>
+          <button
+            onClick={handleAddToWishlist}
+            className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm"
+          >
+            <Heart className="h-4 w-4 text-gray-400" />
+          </button>
+          
+          {product.discountPercentage && (
+            <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-medium px-1.5 py-0.5 rounded">
+              -{product.discountPercentage}%
+            </div>
           )}
         </div>
-
-        {showAddToCart && (
-          <div className="mt-3 flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1">
+        
+        <div className="p-2">
+          <h3 className="text-sm font-medium line-clamp-2 mb-1">{product.title}</h3>
+          <div className="flex items-center">
+            {product.discountPrice ? (
+              <>
+                <span className="font-bold text-sm">${product.discountPrice}</span>
+                <span className="ml-1 text-xs text-gray-500 line-through">${product.price}</span>
+              </>
+            ) : (
+              <span className="font-bold text-sm">${product.price}</span>
+            )}
+          </div>
+          
+          {showAddToCart && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full mt-2 h-8 text-xs border border-gray-200"
+              onClick={handleAddToCart}
+            >
+              <ShoppingCart className="h-3 w-3 mr-1" />
               Add to cart
             </Button>
-            <Button size="sm" className="flex-1 bg-kein-blue text-white">
-              Buy now
-            </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

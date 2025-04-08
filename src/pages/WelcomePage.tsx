@@ -6,9 +6,9 @@ import KeinLogo from "@/components/common/KeinLogo";
 
 const WelcomePage = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-white to-blue-50 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
       <div className="w-full max-w-md flex flex-col items-center">
-        <div className="flex flex-col items-center justify-center mb-12">
+        <div className="flex flex-col items-center justify-center mb-16">
           <KeinLogo className="h-32 w-32" variant="icon" />
           <h1 className="text-5xl font-bold text-gray-900 mt-6">welcome!</h1>
           <p className="text-gray-600 mt-2 text-lg">Shop Live, buy Instant!</p>
