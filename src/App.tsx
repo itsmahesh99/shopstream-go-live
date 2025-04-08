@@ -14,6 +14,8 @@ import SearchPage from "./pages/SearchPage";
 import PlayPage from "./pages/PlayPage";
 import SellerDashboardPage from "./pages/SellerDashboardPage";
 import NotFound from "./pages/NotFound";
+import LoginPage from "./pages/LoginPage";
+import MobileLandingPage from "./pages/MobileLandingPage";
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
       <Route path="/" element={<Index />} />
       <Route path="/welcome" element={<WelcomePage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/m" element={<MobileLandingPage />} />
       <Route element={<Layout />}>
         <Route path="/home" element={<ShopPage />} />
         <Route path="/profile" element={<ProfilePage />} />

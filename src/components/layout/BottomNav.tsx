@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Heart, Play, ShoppingCart, User } from "lucide-react";
+import { Home, Heart, Play, ShoppingBag, User } from "lucide-react";
 
 const BottomNav = () => {
   const location = useLocation();
@@ -35,11 +35,11 @@ const BottomNav = () => {
         
         <Link
           to="/play"
-          className={`flex flex-col items-center justify-center w-full h-full ${
+          className={`flex flex-col items-center justify-center w-full h-full relative ${
             isActive("/play") ? "text-kein-blue" : "text-gray-500"
           }`}
         >
-          <div className="bg-kein-blue rounded-full p-3 -mt-5 mb-1">
+          <div className="bg-kein-blue rounded-full p-3 -mt-6 mb-1 shadow-md">
             <Play className="h-5 w-5 text-white" fill="white" />
           </div>
           <span className="text-xs">Play</span>
@@ -51,7 +51,7 @@ const BottomNav = () => {
             isActive("/cart") ? "text-kein-blue" : "text-gray-500"
           }`}
         >
-          <ShoppingCart className="h-5 w-5" />
+          <ShoppingBag className="h-5 w-5" />
           <span className="text-xs mt-1">Cart</span>
         </Link>
         

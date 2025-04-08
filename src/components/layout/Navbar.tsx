@@ -1,8 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Search, ShoppingCart, Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search, ShoppingBag } from "lucide-react";
 import KeinLogo from "../common/KeinLogo";
 
 const Navbar = () => {
@@ -20,14 +19,11 @@ const Navbar = () => {
             <Search className="h-5 w-5 text-gray-600" />
           </Link>
           <Link to="/cart" className="relative">
-            <ShoppingCart className="h-5 w-5 text-gray-600" />
+            <ShoppingBag className="h-5 w-5 text-gray-600" />
             <span className="absolute -top-1 -right-1 bg-kein-coral text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
               2
             </span>
           </Link>
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-5 w-5" />
-          </Button>
         </div>
       </div>
     </header>
