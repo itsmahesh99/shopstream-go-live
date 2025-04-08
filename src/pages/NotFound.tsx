@@ -1,37 +1,33 @@
 
-import { useLocation, Link } from "react-router-dom";
-import { useEffect } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag } from "lucide-react";
+import { Home } from "lucide-react";
 
 const NotFound = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
-  }, [location.pathname]);
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 py-8">
-      <div className="text-center">
-        <div className="flex flex-col items-center">
-          <div className="bg-kein-blue rounded-full p-5 mb-6">
-            <ShoppingBag className="h-10 w-10 text-white" />
-          </div>
-          <h1 className="text-6xl font-bold mb-4 text-kein-blue">404</h1>
-        </div>
-        <p className="text-xl text-gray-600 mb-8">Oops! We couldn't find that page</p>
-        <p className="text-gray-500 mb-8 max-w-md mx-auto">
-          The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 py-12 text-center">
+      <div className="max-w-md">
+        <h1 className="text-9xl font-bold text-kein-blue">404</h1>
+        <h2 className="text-2xl font-semibold mt-6 mb-2">Page not found</h2>
+        <p className="text-gray-600 mb-8">
+          The page you are looking for doesn't exist or has been moved.
         </p>
-        <Link to="/home">
-          <Button className="bg-kein-blue text-white px-8">
-            Return to Home
-          </Button>
-        </Link>
+        
+        <div className="flex flex-col space-y-3">
+          <Link to="/home">
+            <Button className="w-full bg-kein-blue hover:bg-kein-blue/90">
+              <Home className="h-4 w-4 mr-2" />
+              Back to home
+            </Button>
+          </Link>
+          
+          <Link to="/search">
+            <Button variant="outline" className="w-full border-gray-300">
+              Search for products
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
 
-import React from "react";
-import { Trash2, ShoppingBag } from "lucide-react";
+import React, { useState } from "react";
+import { Trash2, ShoppingBag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 // Mock data
 const wishlistItems = [
@@ -16,54 +17,44 @@ const wishlistItems = [
   },
   {
     id: "2",
-    title: "Women solid top and jeans",
+    title: "Men's casual shirt",
     price: 1200,
     image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-    color: "Pink",
-    size: "M",
+    color: "Blue",
+    size: "L",
   },
   {
     id: "3",
-    title: "Women solid top and jeans",
+    title: "Women's summer dress",
     price: 2700,
     image: "/lovable-uploads/d9b61dc1-74ba-423d-8b21-9e83e8e1ff97.png",
-    color: "Pink",
-    size: "M",
+    color: "Green",
+    size: "S",
   },
   {
     id: "4",
-    title: "Women solid top and jeans",
+    title: "Denim jacket",
     price: 1900,
     image: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
-    color: "Pink",
-    size: "M",
+    color: "Blue",
+    size: "XL",
   },
   {
     id: "5",
-    title: "Women solid top and jeans",
+    title: "Casual T-shirt",
     price: 999,
     image: "/lovable-uploads/bcb73b7f-2144-4a7d-aaca-a22c1dce107d.png",
-    color: "Pink",
+    color: "White",
     size: "M",
   },
-];
-
-const recentlyViewed = [
-  {
-    id: "6",
-    title: "Women solid top and jeans",
-    price: 999,
-    image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png",
-    color: "Pink",
-    size: "M",
-  },
-  // ... more items
 ];
 
 const WishlistPage = () => {
   const { toast } = useToast();
+  const [items, setItems] = useState(wishlistItems);
   
   const handleRemoveFromWishlist = (id: string) => {
+    setItems(items.filter(item => item.id !== id));
     toast({
       title: "Removed from wishlist",
       description: "Item has been removed from your wishlist",
@@ -77,58 +68,100 @@ const WishlistPage = () => {
     });
   };
 
+  const handleClearWishlist = () => {
+    setItems([]);
+    toast({
+      title: "Wishlist cleared",
+      description: "All items have been removed from your wishlist",
+    });
+  };
+
   return (
-    <div className="min-h-screen pb-20">
-      <div className="px-4 py-4 border-b">
-        <h1 className="text-2xl font-bold">Wishlist</h1>
+    <div className="min-h-screen pb-20 bg-gray-50">
+      <div className="sticky top-0 z-30 bg-white border-b">
+        <div className="px-4 py-4 flex justify-between items-center">
+          <h1 className="text-xl font-semibold">My Wishlist</h1>
+          {items.length > 0 && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-kein-coral hover:text-kein-coral/80 hover:bg-transparent px-2"
+              onClick={handleClearWishlist}
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Clear all
+            </Button>
+          )}
+        </div>
       </div>
       
       <div className="px-4 py-4">
-        <h2 className="font-medium mb-4">Recently viewed</h2>
-        
-        {wishlistItems.map(item => (
-          <div key={item.id} className="flex border-b py-4">
-            <div className="w-1/4 relative">
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-full aspect-square object-cover rounded"
-              />
-              <button 
-                className="absolute top-1 left-1 bg-white rounded-full p-1"
-                onClick={() => handleRemoveFromWishlist(item.id)}
-              >
-                <Trash2 className="h-4 w-4 text-gray-400" />
-              </button>
-            </div>
-            
-            <div className="ml-4 flex-1">
-              <h3 className="text-sm font-medium line-clamp-2">{item.title}</h3>
-              <div className="mt-2 font-bold">₹{item.price}</div>
-              
-              <div className="flex space-x-2 mt-2">
-                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                  {item.color}
-                </span>
-                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                  {item.size}
-                </span>
+        {items.length > 0 ? (
+          <div className="space-y-4">
+            {items.map(item => (
+              <div key={item.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div className="flex p-3">
+                  <div className="w-24 h-24 relative rounded-md overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  
+                  <div className="ml-3 flex-1">
+                    <div className="flex justify-between">
+                      <h3 className="text-sm font-medium line-clamp-2">{item.title}</h3>
+                      <button 
+                        className="text-gray-400 hover:text-gray-600"
+                        onClick={() => handleRemoveFromWishlist(item.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                    
+                    <div className="mt-1 font-bold text-kein-coral">₹{item.price}</div>
+                    
+                    <div className="flex space-x-2 mt-2">
+                      <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
+                        {item.size}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
+                        {item.color}
+                      </Badge>
+                    </div>
+                    
+                    <div className="mt-2">
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        className="h-8 rounded-full w-full bg-kein-blue"
+                        onClick={() => handleAddToCart(item.id)}
+                      >
+                        <ShoppingBag className="h-3 w-3 mr-2" />
+                        Add to cart
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
-              
-              <div className="mt-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="h-8 rounded w-full border-gray-300"
-                  onClick={() => handleAddToCart(item.id)}
-                >
-                  <ShoppingBag className="h-3 w-3 mr-2" />
-                  Add to cart
-                </Button>
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <ShoppingBag className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">Your wishlist is empty</h3>
+            <p className="text-gray-500 mb-6">Items added to your wishlist will appear here</p>
+            <Button 
+              className="bg-kein-blue hover:bg-kein-blue/90"
+              onClick={() => window.location.href = '/home'}
+            >
+              Continue shopping
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
