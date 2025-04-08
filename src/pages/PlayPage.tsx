@@ -1,9 +1,10 @@
 
-import React, { useState } from "react";
-import { Heart, MessageCircle, Share2 } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { Heart, MessageCircle, Share2, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import InfluencerAvatar from "@/components/common/InfluencerAvatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Mock data for review videos
 const reviewVideos = [
@@ -70,19 +71,56 @@ const reviewVideos = [
 const PlayPage = () => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [liked, setLiked] = useState<{ [key: string]: boolean }>({});
+  const [saved, setSaved] = useState<{ [key: string]: boolean }>({});
+  const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
   
-  const currentVideo = reviewVideos[currentVideoIndex];
-  
-  const handleNextVideo = () => {
-    setCurrentVideoIndex((prev) => (prev + 1) % reviewVideos.length);
-  };
-  
-  const handlePrevVideo = () => {
-    setCurrentVideoIndex((prev) => (prev - 1 + reviewVideos.length) % reviewVideos.length);
-  };
+  // Initialize the refs array
+  useEffect(() => {
+    videoRefs.current = videoRefs.current.slice(0, reviewVideos.length);
+  }, []);
+
+  // Handle intersection observer for videos
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Find the index of the video that is in view
+            const index = videoRefs.current.findIndex(
+              (ref) => ref === entry.target
+            );
+            if (index !== -1) {
+              setCurrentVideoIndex(index);
+              // If we had real videos, we would play the current video here
+              console.log(`Video ${index} is now playing`);
+            }
+          }
+        });
+      },
+      { threshold: 0.6 } // When 60% of the video is visible
+    );
+
+    // Observe all video elements
+    videoRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => {
+      videoRefs.current.forEach((ref) => {
+        if (ref) observer.unobserve(ref);
+      });
+    };
+  }, []);
   
   const toggleLike = (videoId: string) => {
     setLiked((prev) => ({
+      ...prev,
+      [videoId]: !prev[videoId]
+    }));
+  };
+  
+  const toggleSave = (videoId: string) => {
+    setSaved((prev) => ({
       ...prev,
       [videoId]: !prev[videoId]
     }));
@@ -98,90 +136,109 @@ const PlayPage = () => {
   };
 
   return (
-    <div className="h-screen bg-black overflow-hidden pb-16">
-      {/* Video Container */}
-      <div className="relative h-full w-full">
-        {/* Video (using image as placeholder) */}
-        <img 
-          src={currentVideo.video} 
-          alt="Video content"
-          className="h-full w-full object-cover"
-        />
-        
-        {/* Overlay content */}
-        <div className="absolute inset-0 flex flex-col justify-between p-4">
-          {/* Top section - navigation gestures */}
-          <div className="flex-1" onClick={handleNextVideo}></div>
-          
-          {/* Bottom section with content */}
-          <div className="flex items-end">
-            {/* Left side - Video info */}
-            <div className="flex-1 text-white pr-4">
-              <div className="flex items-center mb-3">
+    <div className="h-screen overflow-hidden bg-black">
+      <ScrollArea className="h-screen w-full snap-y snap-mandatory pb-16">
+        {reviewVideos.map((video, index) => (
+          <div 
+            key={video.id}
+            ref={(el) => (videoRefs.current[index] = el)}
+            className="relative h-screen w-full snap-start snap-always"
+          >
+            {/* Video (using image as placeholder) */}
+            <img 
+              src={video.video} 
+              alt={`${video.influencer.name}'s video`}
+              className="h-full w-full object-cover"
+            />
+            
+            {/* Content Overlay */}
+            <div className="absolute inset-0 flex flex-col justify-between p-4">
+              {/* Top Section - Influencer Info */}
+              <div className="flex items-center">
                 <InfluencerAvatar 
-                  src={currentVideo.influencer.image} 
-                  name={currentVideo.influencer.name}
+                  src={video.influencer.image} 
+                  name={video.influencer.name}
                   size="sm"
                   className="mr-3"
                 />
-                <Button variant="outline" size="sm" className="text-xs text-white bg-transparent border-white">
-                  Follow
-                </Button>
+                <div className="text-white">
+                  <h3 className="font-medium text-sm">{video.influencer.name}</h3>
+                  <Button variant="outline" size="sm" className="mt-1 h-6 text-xs text-white bg-transparent border-white hover:bg-white/20">
+                    Follow
+                  </Button>
+                </div>
               </div>
               
-              <p className="text-sm mb-3 line-clamp-2">
-                {currentVideo.description}
-              </p>
-            </div>
-            
-            {/* Right side - Action buttons */}
-            <div className="flex flex-col items-center gap-4">
-              <button 
-                className="flex flex-col items-center" 
-                onClick={() => toggleLike(currentVideo.id)}
-              >
-                <Heart className={`w-7 h-7 ${liked[currentVideo.id] ? 'fill-red-500 text-red-500' : 'text-white'}`} />
-                <span className="text-white text-xs mt-1">{formatCount(currentVideo.likes)}</span>
-              </button>
+              {/* Middle Section - Empty for video visibility */}
+              <div className="flex-1"></div>
               
-              <button className="flex flex-col items-center">
-                <MessageCircle className="w-7 h-7 text-white" />
-                <span className="text-white text-xs mt-1">{formatCount(currentVideo.comments)}</span>
-              </button>
+              {/* Bottom Section - Description, Actions, Product */}
+              <div className="flex items-end">
+                {/* Left side - Video info */}
+                <div className="flex-1 text-white pr-4">
+                  <p className="text-sm mb-3 line-clamp-2">
+                    {video.description}
+                  </p>
+                </div>
+                
+                {/* Right side - Action buttons */}
+                <div className="flex flex-col items-center gap-6 mr-2">
+                  <button 
+                    className="flex flex-col items-center" 
+                    onClick={() => toggleLike(video.id)}
+                  >
+                    <Heart className={`w-7 h-7 ${liked[video.id] ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                    <span className="text-white text-xs mt-1">{formatCount(video.likes)}</span>
+                  </button>
+                  
+                  <button className="flex flex-col items-center">
+                    <MessageCircle className="w-7 h-7 text-white" />
+                    <span className="text-white text-xs mt-1">{formatCount(video.comments)}</span>
+                  </button>
+                  
+                  <button className="flex flex-col items-center">
+                    <Share2 className="w-7 h-7 text-white" />
+                    <span className="text-white text-xs mt-1">{formatCount(video.shares)}</span>
+                  </button>
+                  
+                  <button 
+                    className="flex flex-col items-center"
+                    onClick={() => toggleSave(video.id)}
+                  >
+                    <Bookmark className={`w-7 h-7 ${saved[video.id] ? 'fill-white text-white' : 'text-white'}`} />
+                    <span className="text-white text-xs mt-1">Save</span>
+                  </button>
+                </div>
+              </div>
               
-              <button className="flex flex-col items-center">
-                <Share2 className="w-7 h-7 text-white" />
-                <span className="text-white text-xs mt-1">{formatCount(currentVideo.shares)}</span>
-              </button>
+              {/* Product card overlay */}
+              <Card className="mt-4 p-3 flex items-center bg-white/90 backdrop-blur-sm">
+                <img 
+                  src={video.product.image} 
+                  alt={video.product.title}
+                  className="w-16 h-16 object-cover rounded-md mr-3"
+                />
+                <div className="flex-1">
+                  <h3 className="font-medium text-sm line-clamp-1">{video.product.title}</h3>
+                  <div className="flex items-center mt-1">
+                    {video.product.discountPrice ? (
+                      <>
+                        <span className="font-bold text-kein-coral">₹{video.product.discountPrice}</span>
+                        <span className="text-gray-400 text-xs line-through ml-2">₹{video.product.price}</span>
+                      </>
+                    ) : (
+                      <span className="font-bold">₹{video.product.price}</span>
+                    )}
+                  </div>
+                </div>
+                <Button size="sm" className="bg-kein-blue text-white">
+                  Shop
+                </Button>
+              </Card>
             </div>
           </div>
-          
-          {/* Product card overlay */}
-          <Card className="mt-4 p-3 flex items-center bg-white/90 backdrop-blur-sm">
-            <img 
-              src={currentVideo.product.image} 
-              alt={currentVideo.product.title}
-              className="w-16 h-16 object-cover rounded-md mr-3"
-            />
-            <div className="flex-1">
-              <h3 className="font-medium text-sm line-clamp-1">{currentVideo.product.title}</h3>
-              <div className="flex items-center mt-1">
-                {currentVideo.product.discountPrice ? (
-                  <>
-                    <span className="font-bold text-kein-coral">₹{currentVideo.product.discountPrice}</span>
-                    <span className="text-gray-400 text-xs line-through ml-2">₹{currentVideo.product.price}</span>
-                  </>
-                ) : (
-                  <span className="font-bold">₹{currentVideo.product.price}</span>
-                )}
-              </div>
-            </div>
-            <Button size="sm" className="bg-kein-blue text-white">
-              Shop
-            </Button>
-          </Card>
-        </div>
-      </div>
+        ))}
+      </ScrollArea>
     </div>
   );
 };
