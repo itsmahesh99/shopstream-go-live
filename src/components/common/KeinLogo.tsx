@@ -21,7 +21,7 @@ const KeinLogo: React.FC<KeinLogoProps> = ({ className = "", variant = "full" })
   return (
     <div className={`flex items-center ${className}`}>
       <img
-        src="/lovable-uploads/4ddbe42d-1f4d-429c-8684-768339decf0e.png"
+        src="/lovable-uploads/68ddc85b-2fc9-4bc2-b503-2a1a3b95821b.png"
         alt="Kein Logo"
         className="h-full w-auto max-h-14"
       />
