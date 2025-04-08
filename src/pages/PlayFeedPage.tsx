@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Heart, MessageCircle, Share2, ShoppingBag, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Mock data for the play feed
 const playFeedData = [
@@ -75,6 +75,7 @@ const playFeedData = [
 const VideoItem = ({ item, isActive, onVideoEnd }) => {
   const videoRef = useRef(null);
   const [liked, setLiked] = useState(false);
+  const navigate = useNavigate();
   
   // Simulating video controls - in a real app, use proper video player
   useEffect(() => {
@@ -98,6 +99,11 @@ const VideoItem = ({ item, isActive, onVideoEnd }) => {
       return (num / 1000).toFixed(1) + 'K';
     }
     return num;
+  };
+
+  const handleShopClick = (e) => {
+    e.preventDefault();
+    navigate(`/product/${item.product.id}`);
   };
 
   return (
@@ -180,6 +186,7 @@ const VideoItem = ({ item, isActive, onVideoEnd }) => {
           </div>
           <Button 
             className="bg-kein-blue text-white px-4 h-9"
+            onClick={handleShopClick}
           >
             <ShoppingBag className="h-4 w-4 mr-1" />
             Shop
