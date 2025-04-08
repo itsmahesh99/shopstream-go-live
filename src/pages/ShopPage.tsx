@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ChevronRight } from "lucide-react";
@@ -39,12 +38,12 @@ const promotions = [
 ];
 
 const categories = [
-  { id: "1", name: "Clothing", icon: "👕" },
-  { id: "2", name: "Shoes", icon: "👟" },
-  { id: "3", name: "Electronics", icon: "📱" },
-  { id: "4", name: "Home", icon: "🏠" },
-  { id: "5", name: "Beauty", icon: "💄" },
-  { id: "6", name: "Sports", icon: "🏀" },
+  { id: "1", name: "Clothing", icon: "👕", link: "/shop/clothing" },
+  { id: "2", name: "Shoes", icon: "👟", link: "/shop" },
+  { id: "3", name: "Electronics", icon: "📱", link: "/shop" },
+  { id: "4", name: "Home", icon: "🏠", link: "/shop" },
+  { id: "5", name: "Beauty", icon: "💄", link: "/shop" },
+  { id: "6", name: "Sports", icon: "🏀", link: "/shop" },
 ];
 
 const subcategories = [
@@ -194,8 +193,9 @@ const ShopPage = () => {
           <h2 className="text-lg font-bold mb-3">Categories</h2>
           <div className="grid grid-cols-3 gap-3">
             {categories.map((category) => (
-              <button
+              <Link
                 key={category.id}
+                to={category.link}
                 className={`p-4 rounded-lg flex flex-col items-center justify-center transition-all ${
                   selectedCategory === category.id
                     ? "bg-kein-lightblue text-kein-blue border border-kein-blue/30"
@@ -205,7 +205,7 @@ const ShopPage = () => {
               >
                 <span className="text-2xl mb-1">{category.icon}</span>
                 <span className="text-sm font-medium">{category.name}</span>
-              </button>
+              </Link>
             ))}
           </div>
         </div>
