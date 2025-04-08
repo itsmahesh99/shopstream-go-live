@@ -10,7 +10,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/home" className="mr-4">
-            <KeinLogo className="h-12" />
+            <KeinLogo className="h-16" />
           </Link>
         </div>
         
