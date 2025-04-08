@@ -9,7 +9,7 @@ const WelcomePage = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
       <div className="w-full max-w-md flex flex-col items-center">
         <div className="flex flex-col items-center justify-center mb-16">
-          <KeinLogo className="h-60 w-auto" />
+          <KeinLogo className="h-48 w-auto" />
           <h1 className="text-5xl font-bold text-gray-900 mt-6">welcome!</h1>
           <p className="text-gray-600 mt-2 text-lg">Shop Live, buy Instant!</p>
         </div>
