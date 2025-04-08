@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +6,7 @@ import { Bell, ChevronRight, Settings } from "lucide-react";
 import InfluencerAvatar from "@/components/common/InfluencerAvatar";
 import ProductCard from "@/components/common/ProductCard";
 import { useToast } from "@/hooks/use-toast";
+import KeinLogo from "@/components/common/KeinLogo";
 
 // Mock data
 const user = {
@@ -178,17 +178,7 @@ const ProfilePage = () => {
       <div className="mt-8 bg-gray-100 pt-6 pb-20">
         <div className="container mx-auto px-4">
           <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="relative">
-                <div className="h-8 w-8 bg-kein-blue rounded-full flex items-center justify-center mr-2">
-                  <ShoppingBag className="h-4 w-4 text-white" />
-                </div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <Play className="h-2 w-2 text-white" fill="white" />
-                </div>
-              </div>
-              <span className="font-bold text-kein-blue">Kein</span>
-            </div>
+            <KeinLogo className="h-8" variant="full" />
             <Button variant="outline" size="sm" className="text-sm border-kein-blue text-kein-blue">
               Get the app
             </Button>
@@ -230,32 +220,3 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
-
-// Helper components
-const ShoppingBag = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-    <path d="M3 6h18" />
-    <path d="M16 10a4 4 0 0 1-8 0" />
-  </svg>
-);
-
-const Play = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={className}
-  >
-    <polygon points="5 3 19 12 5 21 5 3" />
-  </svg>
-);
