@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -122,26 +123,28 @@ const ProfilePage = () => {
       {/* Order status tabs */}
       <div className="px-4 mb-6">
         <h3 className="font-medium mb-3">My Orders</h3>
-        <div className="flex justify-between bg-gray-100 rounded-lg p-1">
-          <Link 
-            to="/orders?status=to-pay"
-            className="flex-1 py-2 px-1 text-center text-sm font-medium text-kein-blue"
-          >
-            To Pay
-          </Link>
-          <Link 
-            to="/orders?status=to-receive"
-            className="flex-1 py-2 px-1 text-center text-sm text-gray-600"
-          >
-            To Receive
-          </Link>
-          <Link 
-            to="/orders?status=to-review"
-            className="flex-1 py-2 px-1 text-center text-sm text-gray-600"
-          >
-            To Review
-          </Link>
-        </div>
+        <Tabs defaultValue="to-pay" className="w-full">
+          <TabsList className="grid grid-cols-3 w-full bg-gray-100 p-1">
+            <TabsTrigger value="to-pay" className="text-sm">To Pay</TabsTrigger>
+            <TabsTrigger value="to-receive" className="text-sm">To Receive</TabsTrigger>
+            <TabsTrigger value="to-review" className="text-sm">To Review</TabsTrigger>
+          </TabsList>
+          <TabsContent value="to-pay" className="mt-2">
+            <div className="bg-white rounded-lg p-4 text-center">
+              <p className="text-gray-500 text-sm">No orders waiting for payment</p>
+            </div>
+          </TabsContent>
+          <TabsContent value="to-receive" className="mt-2">
+            <div className="bg-white rounded-lg p-4 text-center">
+              <p className="text-gray-500 text-sm">No orders to receive</p>
+            </div>
+          </TabsContent>
+          <TabsContent value="to-review" className="mt-2">
+            <div className="bg-white rounded-lg p-4 text-center">
+              <p className="text-gray-500 text-sm">No orders to review</p>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
       
       {/* Following */}
