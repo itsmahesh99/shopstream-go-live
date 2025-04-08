@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Heart, Play, ShoppingBag, User } from "lucide-react";
+import { Home, Heart, Play, ShoppingBag, User, ShoppingCart } from "lucide-react";
 
 const BottomNav = () => {
   const location = useLocation();
@@ -24,13 +24,13 @@ const BottomNav = () => {
         </Link>
         
         <Link
-          to="/wishlist"
+          to="/shop"
           className={`flex flex-col items-center justify-center w-full h-full ${
-            isActive("/wishlist") ? "text-kein-blue" : "text-gray-500"
+            isActive("/shop") ? "text-kein-blue" : "text-gray-500"
           }`}
         >
-          <Heart className="h-5 w-5" />
-          <span className="text-xs mt-1">Wishlist</span>
+          <ShoppingCart className="h-5 w-5" />
+          <span className="text-xs mt-1">Shop</span>
         </Link>
         
         <Link
@@ -46,13 +46,13 @@ const BottomNav = () => {
         </Link>
         
         <Link
-          to="/orders"
+          to="/wishlist"
           className={`flex flex-col items-center justify-center w-full h-full ${
-            isActive("/orders") || location.pathname.includes("/order") ? "text-kein-blue" : "text-gray-500"
+            isActive("/wishlist") ? "text-kein-blue" : "text-gray-500"
           }`}
         >
-          <ShoppingBag className="h-5 w-5" />
-          <span className="text-xs mt-1">Orders</span>
+          <Heart className="h-5 w-5" />
+          <span className="text-xs mt-1">Wishlist</span>
         </Link>
         
         <Link
