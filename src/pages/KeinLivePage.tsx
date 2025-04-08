@@ -1,188 +1,229 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import InfluencerAvatar from "@/components/common/InfluencerAvatar";
-import LiveBadge from "@/components/common/LiveBadge";
 import { Button } from "@/components/ui/button";
-
-// Mock data
-const influencers = [
-  { id: "1", name: "Sophie Lin", image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png", isLive: true },
-  { id: "2", name: "Alex Wang", image: "/lovable-uploads/9f9465c9-14a1-4b53-b185-257751bc97c5.png", isLive: true },
-  { id: "3", name: "Art vintage", image: "/lovable-uploads/4448d6cf-1254-4262-a2a2-cb90ffd97796.png", isLive: false },
-  { id: "4", name: "Mike Chen", image: "/lovable-uploads/a758d528-4f86-47ab-8952-b84d3f2e2b2c.png", isLive: false },
-  { id: "5", name: "Ryan Lee", image: "/lovable-uploads/0652f2bb-af03-464d-856b-32325f54b8c6.png", isLive: false },
-  { id: "6", name: "Emma Lou", image: "/lovable-uploads/bcb73b7f-2144-4a7d-aaca-a22c1dce107d.png", isLive: true },
-  { id: "7", name: "David Kim", image: "/lovable-uploads/521c827c-efca-4963-a702-2af0e528830c.png", isLive: false },
-];
-
-const liveStreams = [
-  {
-    id: "1",
-    title: "Tech Review - Latest smartphones",
-    influencer: "Mike Chen",
-    thumbnail: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
-    viewCount: 2530,
-    isLive: true,
-  },
-  {
-    id: "2",
-    title: "Women's Fashion Summer Collection",
-    influencer: "Sophie Lin",
-    thumbnail: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-    viewCount: 1845,
-    isLive: true,
-  },
-  {
-    id: "3",
-    title: "Beauty Product Reviews",
-    influencer: "Emma Lou",
-    thumbnail: "/lovable-uploads/d9b61dc1-74ba-423d-8b21-9e83e8e1ff97.png",
-    viewCount: 1267,
-    isLive: true,
-  },
-];
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  Calendar, ChevronLeft, ChevronRight, Clock, Heart, MessageCircle, Send, Share, ShoppingBag, ThumbsUp 
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import LiveBadge from "@/components/common/LiveBadge";
 
 const KeinLivePage = () => {
+  const { toast } = useToast();
+  const [isLiked, setIsLiked] = useState(false);
+  const [viewCount, setViewCount] = useState(1534);
+  const [message, setMessage] = useState("");
+  
+  // Mock data for products shown in livestream
+  const liveProducts = [
+    {
+      id: "1",
+      title: "Floral Summer Dress",
+      price: 1299,
+      discountPrice: 999,
+      image: "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
+    },
+    {
+      id: "2",
+      title: "Blue Denim Jacket",
+      price: 1899,
+      discountPrice: 1599,
+      image: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
+    },
+  ];
+  
+  // Mock data for chat messages
+  const chatMessages = [
+    { id: "1", user: "Sophie", message: "Love this collection! 😍", time: "2m ago" },
+    { id: "2", user: "Mike", message: "Is the dress available in blue?", time: "1m ago" },
+    { id: "3", user: "Jessica", message: "Just ordered the jacket! Can't wait to receive it", time: "Just now" },
+  ];
+  
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+    if (!isLiked) {
+      setViewCount(viewCount + 1);
+      toast({
+        title: "Liked!",
+        description: "You liked this livestream",
+      });
+    } else {
+      setViewCount(viewCount - 1);
+    }
+  };
+  
+  const handleAddToCart = (productId: string) => {
+    toast({
+      title: "Added to cart",
+      description: "Product has been added to your cart",
+    });
+  };
+  
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (message.trim()) {
+      toast({
+        description: "Message sent",
+      });
+      setMessage("");
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Influencers scrollable row */}
-      <div className="pt-4 pb-2 overflow-x-auto scrollbar-hide flex space-x-4 px-4">
-        <div className="flex-shrink-0">
-          <div className="flex flex-col items-center justify-center w-16 h-16 rounded-full bg-gray-100 border border-dashed border-gray-300">
-            <span className="text-2xl text-gray-400">+</span>
-          </div>
-          <span className="text-xs mt-2 text-center">Follow</span>
-        </div>
+    <div className="relative h-screen flex flex-col bg-black">
+      {/* Live stream video */}
+      <div className="relative flex-grow">
+        <img
+          src="/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png"
+          alt="Live stream"
+          className="w-full h-full object-cover"
+        />
         
-        {influencers.map((influencer) => (
-          <div key={influencer.id} className="flex-shrink-0">
-            <InfluencerAvatar
-              src={influencer.image}
-              name={influencer.name}
-              isLive={influencer.isLive}
-            />
-          </div>
-        ))}
-      </div>
-      
-      {/* Hero banner */}
-      <div className="bg-kein-blue text-white p-6 mb-6">
-        <h1 className="text-2xl font-bold mb-2">Kein Live</h1>
-        <p className="text-lg">Watch live streams and shop instantly</p>
-      </div>
-      
-      {/* Live shopping section */}
-      <div className="px-4 mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Live shopping</h2>
-          <Link to="/live/all" className="text-sm text-kein-blue">
-            View all
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {liveStreams.map((stream) => (
-            <Link to={`/live/${stream.id}`} key={stream.id} className="relative rounded-lg overflow-hidden aspect-[3/4] shadow-md">
-              <img 
-                src={stream.thumbnail} 
-                alt={stream.title} 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-2 left-2">
-                <LiveBadge />
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                <div className="flex items-center mb-1">
-                  <span className="text-white text-xs mr-2">
-                    <span className="inline-block w-2 h-2 bg-red-500 rounded-full mr-1"></span>
-                    {stream.viewCount.toLocaleString()}
-                  </span>
-                </div>
-                <h3 className="text-white font-medium text-sm line-clamp-2">
-                  {stream.title}
-                </h3>
-                <p className="text-white/80 text-xs mt-1">
-                  {stream.influencer}
-                </p>
-              </div>
+        {/* Header */}
+        <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center">
+          <div className="flex items-center">
+            <Link to="/play" className="mr-2">
+              <ChevronLeft className="h-6 w-6 text-white" />
             </Link>
+            <Avatar className="h-10 w-10 border-2 border-white">
+              <AvatarImage src="/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png" />
+              <AvatarFallback>SD</AvatarFallback>
+            </Avatar>
+            <div className="ml-2">
+              <div className="flex items-center">
+                <p className="text-white font-medium text-sm">Sophie Davis</p>
+                <Button variant="ghost" size="sm" className="h-6 ml-2 px-2 py-0 text-xs rounded-full bg-white/20 text-white">
+                  Follow
+                </Button>
+              </div>
+              <div className="flex items-center text-white/80 text-xs">
+                <LiveBadge size="xs" />
+                <span className="ml-2">{viewCount} watching</span>
+              </div>
+            </div>
+          </div>
+          <Button variant="ghost" size="icon" className="text-white">
+            <Share className="h-5 w-5" />
+          </Button>
+        </div>
+        
+        {/* Live indicator */}
+        <div className="absolute top-4 right-4">
+          <LiveBadge />
+        </div>
+        
+        {/* Stream info overlay (bottom) */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent pt-20 pb-4 px-4">
+          <div className="flex justify-between items-end">
+            <div>
+              <h1 className="text-white text-lg font-bold">Summer Fashion Collection 2024</h1>
+              <div className="flex items-center mt-1 text-white/80 text-xs">
+                <Calendar className="h-3 w-3 mr-1" />
+                <span>April 8, 2025</span>
+                <Clock className="h-3 w-3 ml-3 mr-1" />
+                <span>7:00 PM</span>
+              </div>
+            </div>
+            <div className="flex space-x-4">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="bg-black/30 text-white rounded-full"
+                onClick={handleLike}
+              >
+                <ThumbsUp className={`h-5 w-5 ${isLiked ? "text-kein-blue fill-kein-blue" : ""}`} />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="bg-black/30 text-white rounded-full"
+              >
+                <Heart className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Products in stream */}
+      <div className="bg-black px-4 py-2">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-white text-sm font-medium">Products in stream</h3>
+          <Button variant="ghost" size="sm" className="h-7 text-xs text-white">
+            View all
+            <ChevronRight className="h-3 w-3 ml-1" />
+          </Button>
+        </div>
+        <div className="flex overflow-x-auto space-x-3 scrollbar-hide pb-2">
+          {liveProducts.map((product) => (
+            <div 
+              key={product.id} 
+              className="relative flex-shrink-0 w-[140px] bg-white/10 rounded-lg overflow-hidden"
+            >
+              <div className="h-20 overflow-hidden">
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-2">
+                <h4 className="text-white text-xs font-medium truncate">{product.title}</h4>
+                <div className="flex items-center mt-1">
+                  <span className="text-kein-coral text-xs font-bold">₹{product.discountPrice}</span>
+                  <span className="text-white/60 text-xs line-through ml-1">₹{product.price}</span>
+                </div>
+                <Button 
+                  size="sm" 
+                  className="mt-2 w-full h-7 rounded-full bg-kein-blue text-xs"
+                  onClick={() => handleAddToCart(product.id)}
+                >
+                  <ShoppingBag className="h-3 w-3 mr-1" />
+                  Add to cart
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       </div>
       
-      {/* Featured creators section */}
-      <div className="px-4 mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Featured creators</h2>
-          <Link to="/creators" className="text-sm text-kein-blue">
-            View all
-          </Link>
+      {/* Chat section */}
+      <div className="bg-white flex-grow overflow-hidden flex flex-col">
+        <div className="p-3 border-b">
+          <h3 className="font-medium text-sm">Live Chat</h3>
         </div>
         
-        <Carousel className="w-full">
-          <CarouselContent>
-            {influencers.filter(i => i.isLive).map((influencer) => (
-              <CarouselItem key={influencer.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5">
-                <div className="p-1">
-                  <Link to={`/creator/${influencer.id}`} className="block">
-                    <div className="relative aspect-square rounded-lg overflow-hidden">
-                      <img 
-                        src={influencer.image} 
-                        alt={influencer.name} 
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                      <div className="absolute bottom-2 left-2">
-                        <h3 className="text-white font-medium text-sm">{influencer.name}</h3>
-                      </div>
-                      {influencer.isLive && (
-                        <div className="absolute top-2 right-2">
-                          <LiveBadge size="sm" />
-                        </div>
-                      )}
-                    </div>
-                  </Link>
+        <div className="flex-grow overflow-y-auto p-3 space-y-3">
+          {chatMessages.map((chat) => (
+            <div key={chat.id} className="flex items-start">
+              <Avatar className="h-6 w-6 mr-2">
+                <AvatarFallback>{chat.user[0]}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-xs">{chat.user}</span>
+                  <span className="text-gray-400 text-[10px]">{chat.time}</span>
                 </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-      </div>
-      
-      {/* Upcoming streams section */}
-      <div className="px-4 mb-8">
-        <h2 className="text-xl font-bold mb-4">Upcoming streams</h2>
-        <div className="space-y-4">
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <div className="flex justify-between">
-              <h3 className="font-bold text-sm">Fashion Week Special</h3>
-              <span className="text-xs text-gray-500">Fashion</span>
+                <p className="text-xs mt-0.5">{chat.message}</p>
+              </div>
             </div>
-            <p className="text-xs text-gray-600 mt-1">Summer Collection Reveal with Sophie Lin</p>
-            <div className="flex justify-between mt-2">
-              <span className="text-xs text-gray-500">Tomorrow, 7PM</span>
-              <Button variant="ghost" size="sm" className="text-xs h-6 px-2 py-0 text-kein-blue hover:text-kein-blue hover:bg-blue-50">
-                Remind me
-              </Button>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <div className="flex justify-between">
-              <h3 className="font-bold text-sm">Tech Talk Live</h3>
-              <span className="text-xs text-gray-500">Electronics</span>
-            </div>
-            <p className="text-xs text-gray-600 mt-1">Latest Gadget Reviews with Mike Chen</p>
-            <div className="flex justify-between mt-2">
-              <span className="text-xs text-gray-500">Apr 12, 8PM</span>
-              <Button variant="ghost" size="sm" className="text-xs h-6 px-2 py-0 text-kein-blue hover:text-kein-blue hover:bg-blue-50">
-                Remind me
-              </Button>
-            </div>
-          </div>
+          ))}
         </div>
+        
+        <form onSubmit={handleSendMessage} className="border-t p-3 flex items-center">
+          <input
+            type="text"
+            placeholder="Type a message..."
+            className="flex-1 text-sm border-0 focus:outline-none bg-transparent"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+          <Button type="submit" size="icon" variant="ghost" className="text-kein-blue">
+            <Send className="h-5 w-5" />
+          </Button>
+        </form>
       </div>
     </div>
   );

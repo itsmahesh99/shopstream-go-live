@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import MobileLandingPage from "./pages/MobileLandingPage";
 import KeinLivePage from "./pages/KeinLivePage";
+import CartPage from "./pages/CartPage";
 import { Toaster } from "@/components/ui/toaster";
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
           <Route path="/play" element={<PlayPage />} />
           <Route path="/seller" element={<SellerDashboardPage />} />
           <Route path="/kein-live" element={<KeinLivePage />} />
+          <Route path="/cart" element={<CartPage />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
