@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Heart, Play, ShoppingBag, User } from "lucide-react";
+import { Home, Heart, Play, ShoppingBag, User, Square } from "lucide-react";
 
 const BottomNav = () => {
   const location = useLocation();
@@ -30,7 +30,7 @@ const BottomNav = () => {
         
         <Link to="/play/feed" className={`flex flex-col items-center justify-center w-full h-full ${isActive("/play/feed") ? "text-kein-blue" : "text-gray-500"}`}>
           <div className="relative">
-            <ShoppingBag className="h-5 w-5" />
+            <Square className="h-5 w-5" />
             <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
               <div className="w-2.5 h-2.5 text-white bg-gray-500" style={{ clipPath: 'polygon(0% 0%, 0% 100%, 100% 50%)' }}></div>
             </div>
