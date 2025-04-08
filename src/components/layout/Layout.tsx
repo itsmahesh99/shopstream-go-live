@@ -1,16 +1,19 @@
 
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import BottomNav from "./BottomNav";
 
 const Layout = () => {
+  const location = useLocation();
+  const isPlayFeedPage = location.pathname === "/play/feed";
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <Navbar />
-      <main className="flex-grow pb-16">
+      {!isPlayFeedPage && <Navbar />}
+      <main className={`flex-grow ${!isPlayFeedPage ? 'pb-16' : ''}`}>
         <Outlet />
       </main>
-      <BottomNav />
+      {!isPlayFeedPage && <BottomNav />}
     </div>
   );
 };

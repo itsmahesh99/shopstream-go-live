@@ -1,7 +1,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Heart, MessageCircle, Share2, ShoppingBag } from "lucide-react";
+import { Heart, MessageCircle, Share2, ShoppingBag, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 // Mock data for the play feed
 const playFeedData = [
@@ -223,7 +224,20 @@ const PlayFeedPage = () => {
   }, [activeVideoIndex]);
 
   return (
-    <div className="h-screen w-full bg-black overflow-hidden pb-16">
+    <div className="h-screen w-full bg-black overflow-hidden">
+      {/* Back button */}
+      <div className="absolute top-4 left-4 z-20">
+        <Link to="/home">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 rounded-full"
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
+        </Link>
+      </div>
+      
       <div 
         id="video-container"
         className="h-full overflow-y-auto snap-y snap-mandatory"
