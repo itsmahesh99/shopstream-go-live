@@ -21,33 +21,36 @@ import MobileLandingPage from "./pages/MobileLandingPage";
 import KeinLivePage from "./pages/KeinLivePage";
 import CartPage from "./pages/CartPage";
 import { Toaster } from "@/components/ui/toaster";
+import { CartProvider } from "./contexts/CartContext";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/welcome" element={<WelcomePage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/m" element={<MobileLandingPage />} />
-        <Route element={<Layout />}>
-          <Route path="/home" element={<ShopPage />} />
-          <Route path="/shop/clothing" element={<ClothingPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/product/:id" element={<ProductPage />} />
-          <Route path="/livestream/:id" element={<LiveStreamPage />} />
-          <Route path="/wishlist" element={<WishlistPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/play" element={<PlayPage />} />
-          <Route path="/play/feed" element={<PlayFeedPage />} />
-          <Route path="/seller" element={<SellerDashboardPage />} />
-          <Route path="/kein-live" element={<KeinLivePage />} />
-          <Route path="/cart" element={<CartPage />} />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster />
+      <CartProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/welcome" element={<WelcomePage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/m" element={<MobileLandingPage />} />
+          <Route element={<Layout />}>
+            <Route path="/home" element={<ShopPage />} />
+            <Route path="/shop/clothing" element={<ClothingPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/product/:id" element={<ProductPage />} />
+            <Route path="/livestream/:id" element={<LiveStreamPage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/play" element={<PlayPage />} />
+            <Route path="/play/feed" element={<PlayFeedPage />} />
+            <Route path="/seller" element={<SellerDashboardPage />} />
+            <Route path="/kein-live" element={<KeinLivePage />} />
+            <Route path="/cart" element={<CartPage />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster />
+      </CartProvider>
     </BrowserRouter>
   );
 }

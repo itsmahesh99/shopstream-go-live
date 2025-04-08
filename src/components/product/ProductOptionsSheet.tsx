@@ -13,6 +13,8 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
+import { useNavigate } from "react-router-dom";
 
 interface ProductOptionsSheetProps {
   product: {
@@ -42,14 +44,28 @@ const ProductOptionsSheet = ({
   onBuyNow,
 }: ProductOptionsSheetProps) => {
   const { toast } = useToast();
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [selectedColor, setSelectedColor] = useState(product.colors[0] || "");
   const [selectedSize, setSelectedSize] = useState("M");
   const [quantity, setQuantity] = useState(1);
   
   const handleAddToCart = () => {
+    const cartItem = {
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      discountPrice: product.discountPrice,
+      image: getColorImage(selectedColor),
+      color: selectedColor,
+      size: selectedSize,
+      quantity: quantity
+    };
+    
     if (onAddToCart) {
       onAddToCart({ color: selectedColor, size: selectedSize, quantity });
     } else {
+      addToCart(cartItem);
       toast({
         title: "Added to cart",
         description: `${product.title} (${selectedColor}, ${selectedSize}) has been added to your cart`,
@@ -58,13 +74,26 @@ const ProductOptionsSheet = ({
   };
   
   const handleBuyNow = () => {
+    const cartItem = {
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      discountPrice: product.discountPrice,
+      image: getColorImage(selectedColor),
+      color: selectedColor,
+      size: selectedSize,
+      quantity: quantity
+    };
+    
     if (onBuyNow) {
       onBuyNow({ color: selectedColor, size: selectedSize, quantity });
     } else {
+      addToCart(cartItem);
       toast({
         title: "Proceeding to checkout",
         description: "Taking you to the checkout page",
       });
+      navigate("/cart");
     }
   };
   

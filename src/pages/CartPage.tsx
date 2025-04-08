@@ -1,40 +1,20 @@
 
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-
-// Mock data
-const cartItems = [
-  {
-    id: "1",
-    title: "Women solid top and jeans",
-    price: 999,
-    image: "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
-    color: "Pink",
-    size: "M",
-    quantity: 1,
-  },
-  {
-    id: "2",
-    title: "Men's casual shirt",
-    price: 1200,
-    image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-    color: "Blue",
-    size: "L",
-    quantity: 2,
-  },
-];
+import { useCart } from "@/contexts/CartContext";
 
 const CartPage = () => {
   const { toast } = useToast();
-  const [items, setItems] = useState(cartItems);
+  const { items, removeFromCart, updateQuantity, clearCart } = useCart();
+  const navigate = useNavigate();
   
   const handleRemoveFromCart = (id: string) => {
-    setItems(items.filter(item => item.id !== id));
+    removeFromCart(id);
     toast({
       title: "Removed from cart",
       description: "Item has been removed from your cart",
@@ -42,17 +22,14 @@ const CartPage = () => {
   };
   
   const handleQuantityChange = (id: string, change: number) => {
-    setItems(items.map(item => {
-      if (item.id === id) {
-        const newQuantity = Math.max(1, item.quantity + change);
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    }));
+    const item = items.find(item => item.id === id);
+    if (item) {
+      updateQuantity(id, item.quantity + change);
+    }
   };
 
   const handleClearCart = () => {
-    setItems([]);
+    clearCart();
     toast({
       title: "Cart cleared",
       description: "All items have been removed from your cart",
@@ -64,12 +41,16 @@ const CartPage = () => {
       title: "Checkout",
       description: "Proceeding to checkout",
     });
+    // In a real app, this would navigate to a checkout page
   };
   
   // Calculate subtotal
-  const subtotal = items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const subtotal = items.reduce((total, item) => {
+    const price = item.discountPrice || item.price;
+    return total + (price * item.quantity);
+  }, 0);
   const shipping = items.length > 0 ? 99 : 0;
-  const discount = -199;
+  const discount = items.length > 0 ? -199 : 0;
   const total = subtotal + shipping + discount;
 
   return (
@@ -116,7 +97,9 @@ const CartPage = () => {
                       </button>
                     </div>
                     
-                    <div className="mt-1 font-bold text-kein-coral">₹{item.price}</div>
+                    <div className="mt-1 font-bold text-kein-coral">
+                      ₹{item.discountPrice || item.price}
+                    </div>
                     
                     <div className="flex space-x-2 mt-2">
                       <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
@@ -144,7 +127,9 @@ const CartPage = () => {
                           <Plus className="h-3 w-3" />
                         </button>
                       </div>
-                      <span className="font-bold">₹{item.price * item.quantity}</span>
+                      <span className="font-bold">
+                        ₹{(item.discountPrice || item.price) * item.quantity}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -209,7 +194,7 @@ const CartPage = () => {
             <p className="text-gray-500 mb-6">Items added to your cart will appear here</p>
             <Button 
               className="bg-kein-blue hover:bg-kein-blue/90"
-              onClick={() => window.location.href = '/home'}
+              onClick={() => navigate('/home')}
             >
               Continue shopping
             </Button>

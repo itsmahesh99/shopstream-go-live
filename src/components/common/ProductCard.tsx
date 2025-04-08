@@ -2,6 +2,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Product {
   id: string;
@@ -24,6 +26,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
   className = "",
   showAddToCart = false 
 }) => {
+  const { addToCart } = useCart();
+  const { toast } = useToast();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation to product page
+    e.stopPropagation();
+    
+    addToCart({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      discountPrice: product.discountPrice,
+      image: product.image,
+      color: "Default", // Default color since we don't have color selection in card
+      size: "M", // Default size since we don't have size selection in card
+      quantity: 1
+    });
+    
+    toast({
+      title: "Added to cart",
+      description: `${product.title} has been added to your cart`,
+    });
+  };
+
   return (
     <Link to={`/product/${product.id}`} className={`block ${className}`}>
       <div className="bg-white rounded-lg overflow-hidden shadow-sm h-full">
@@ -55,7 +81,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </div>
           {showAddToCart && (
-            <button className="mt-2 w-full py-1.5 bg-kein-blue text-white text-xs rounded-md">
+            <button 
+              onClick={handleAddToCart} 
+              className="mt-2 w-full py-1.5 bg-kein-blue text-white text-xs rounded-md"
+            >
               Add to Cart
             </button>
           )}

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,9 +8,11 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import LiveBadge from "@/components/common/LiveBadge";
+import { useCart } from "@/contexts/CartContext";
 
 const KeinLivePage = () => {
   const { toast } = useToast();
+  const { addToCart } = useCart();
   const [isLiked, setIsLiked] = useState(false);
   const [viewCount, setViewCount] = useState(1534);
   const [message, setMessage] = useState("");
@@ -55,10 +56,24 @@ const KeinLivePage = () => {
   };
   
   const handleAddToCart = (productId: string) => {
-    toast({
-      title: "Added to cart",
-      description: "Product has been added to your cart",
-    });
+    const product = liveProducts.find(p => p.id === productId);
+    if (product) {
+      addToCart({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        discountPrice: product.discountPrice,
+        image: product.image,
+        color: "Default", // Default color since we don't know from the live stream
+        size: "M", // Default size since we don't know from the live stream
+        quantity: 1
+      });
+      
+      toast({
+        title: "Added to cart",
+        description: "Product has been added to your cart",
+      });
+    }
   };
   
   const handleSendMessage = (e: React.FormEvent) => {
