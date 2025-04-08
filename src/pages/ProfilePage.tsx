@@ -3,9 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Bell, ChevronRight, Settings } from "lucide-react";
-import InfluencerAvatar from "@/components/common/InfluencerAvatar";
-import ProductCard from "@/components/common/ProductCard";
+import { Bell, ChevronRight, Settings, Package, CreditCard, Star, MessageCircle, ShoppingBag } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import KeinLogo from "@/components/common/KeinLogo";
 
@@ -14,59 +12,6 @@ const user = {
   name: "Romina",
   image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
 };
-
-const following = [
-  { id: "1", name: "Sophie Lin", image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png", isLive: true },
-  { id: "2", name: "Alex Wang", image: "/lovable-uploads/9f9465c9-14a1-4b53-b185-257751bc97c5.png", isLive: false },
-  { id: "3", name: "Art vintage", image: "/lovable-uploads/4448d6cf-1254-4262-a2a2-cb90ffd97796.png", isLive: false },
-  { id: "4", name: "Mike Chen", image: "/lovable-uploads/a758d528-4f86-47ab-8952-b84d3f2e2b2c.png", isLive: false },
-  { id: "5", name: "Ryan Lee", image: "/lovable-uploads/0652f2bb-af03-464d-856b-32325f54b8c6.png", isLive: false },
-];
-
-const savedProducts = [
-  {
-    id: "1",
-    title: "Women solid top and jeans",
-    price: 999,
-    image: "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
-    category: "Clothing"
-  },
-  {
-    id: "2",
-    title: "Women solid top and jeans",
-    price: 999,
-    image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-    category: "Clothing"
-  },
-  {
-    id: "3",
-    title: "Women solid top and jeans",
-    price: 999,
-    image: "/lovable-uploads/d9b61dc1-74ba-423d-8b21-9e83e8e1ff97.png",
-    category: "Clothing"
-  },
-  {
-    id: "4",
-    title: "Women solid top and jeans",
-    price: 999,
-    image: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
-    category: "Clothing"
-  },
-  {
-    id: "5",
-    title: "Women solid top and jeans",
-    price: 999,
-    image: "/lovable-uploads/bcb73b7f-2144-4a7d-aaca-a22c1dce107d.png",
-    category: "Clothing"
-  },
-  {
-    id: "6",
-    title: "Women solid top and jeans",
-    price: 999,
-    image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png",
-    category: "Clothing"
-  },
-];
 
 const ProfilePage = () => {
   const { toast } = useToast();
@@ -79,9 +24,9 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="pb-20">
+    <div className="pb-20 bg-gray-50">
       {/* Profile header */}
-      <div className="flex items-center justify-between px-4 py-4">
+      <div className="flex items-center justify-between px-4 py-4 bg-white">
         <div className="flex items-center">
           <img
             src={user.image}
@@ -94,7 +39,8 @@ const ProfilePage = () => {
         <div className="flex items-center space-x-3">
           <Button 
             variant="outline"
-            className="border-kein-blue text-kein-blue"
+            size="sm"
+            className="border-kein-blue text-kein-blue h-8"
             onClick={handleBecomeSeller}
           >
             Become seller
@@ -106,8 +52,8 @@ const ProfilePage = () => {
       </div>
       
       {/* Announcements */}
-      <div className="px-4 mb-4">
-        <div className="bg-blue-50 rounded-lg px-4 py-3 flex items-start justify-between">
+      <div className="px-4 mt-4 mb-4">
+        <div className="bg-kein-lightblue rounded-lg px-4 py-3 flex items-start justify-between">
           <div>
             <h3 className="font-medium text-sm">Announcement</h3>
             <p className="text-xs text-gray-600 mt-1">
@@ -120,60 +66,124 @@ const ProfilePage = () => {
         </div>
       </div>
       
+      {/* User activity menu */}
+      <div className="px-4 mb-6">
+        <div className="bg-white rounded-lg overflow-hidden">
+          <div className="grid grid-cols-4 text-center">
+            <Link to="/orders" className="flex flex-col items-center justify-center p-3">
+              <div className="bg-kein-lightblue rounded-full p-2 mb-1">
+                <Package className="h-5 w-5 text-kein-blue" />
+              </div>
+              <span className="text-xs">Orders</span>
+            </Link>
+            <Link to="/payments" className="flex flex-col items-center justify-center p-3">
+              <div className="bg-kein-lightblue rounded-full p-2 mb-1">
+                <CreditCard className="h-5 w-5 text-kein-blue" />
+              </div>
+              <span className="text-xs">Payments</span>
+            </Link>
+            <Link to="/reviews" className="flex flex-col items-center justify-center p-3">
+              <div className="bg-kein-lightblue rounded-full p-2 mb-1">
+                <Star className="h-5 w-5 text-kein-blue" />
+              </div>
+              <span className="text-xs">Reviews</span>
+            </Link>
+            <Link to="/chat" className="flex flex-col items-center justify-center p-3">
+              <div className="bg-kein-lightblue rounded-full p-2 mb-1">
+                <MessageCircle className="h-5 w-5 text-kein-blue" />
+              </div>
+              <span className="text-xs">Chat</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+      
       {/* Order status tabs */}
       <div className="px-4 mb-6">
         <h3 className="font-medium mb-3">My Orders</h3>
         <Tabs defaultValue="to-pay" className="w-full">
-          <TabsList className="grid grid-cols-3 w-full bg-gray-100 p-1">
-            <TabsTrigger value="to-pay" className="text-sm">To Pay</TabsTrigger>
-            <TabsTrigger value="to-receive" className="text-sm">To Receive</TabsTrigger>
-            <TabsTrigger value="to-review" className="text-sm">To Review</TabsTrigger>
+          <TabsList className="grid grid-cols-4 w-full bg-gray-100 p-1">
+            <TabsTrigger value="to-pay" className="text-xs">To Pay</TabsTrigger>
+            <TabsTrigger value="to-ship" className="text-xs">To Ship</TabsTrigger>
+            <TabsTrigger value="to-receive" className="text-xs">To Receive</TabsTrigger>
+            <TabsTrigger value="to-review" className="text-xs">To Review</TabsTrigger>
           </TabsList>
           <TabsContent value="to-pay" className="mt-2">
             <div className="bg-white rounded-lg p-4 text-center">
-              <p className="text-gray-500 text-sm">No orders waiting for payment</p>
+              <div className="flex flex-col items-center justify-center py-6">
+                <ShoppingBag className="h-12 w-12 text-gray-300 mb-2" />
+                <p className="text-gray-500 text-sm">No orders waiting for payment</p>
+              </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="to-ship" className="mt-2">
+            <div className="bg-white rounded-lg p-4 text-center">
+              <div className="flex flex-col items-center justify-center py-6">
+                <ShoppingBag className="h-12 w-12 text-gray-300 mb-2" />
+                <p className="text-gray-500 text-sm">No orders waiting to ship</p>
+              </div>
             </div>
           </TabsContent>
           <TabsContent value="to-receive" className="mt-2">
             <div className="bg-white rounded-lg p-4 text-center">
-              <p className="text-gray-500 text-sm">No orders to receive</p>
+              <div className="flex flex-col items-center justify-center py-6">
+                <ShoppingBag className="h-12 w-12 text-gray-300 mb-2" />
+                <p className="text-gray-500 text-sm">No orders to receive</p>
+              </div>
             </div>
           </TabsContent>
           <TabsContent value="to-review" className="mt-2">
             <div className="bg-white rounded-lg p-4 text-center">
-              <p className="text-gray-500 text-sm">No orders to review</p>
+              <div className="flex flex-col items-center justify-center py-6">
+                <ShoppingBag className="h-12 w-12 text-gray-300 mb-2" />
+                <p className="text-gray-500 text-sm">No orders to review</p>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
       </div>
       
-      {/* Following */}
+      {/* Services */}
       <div className="px-4 mb-6">
-        <h3 className="font-medium mb-3">Following</h3>
-        <div className="flex overflow-x-auto space-x-4 pb-2 scrollbar-hide">
-          {following.map((influencer) => (
-            <InfluencerAvatar
-              key={influencer.id}
-              src={influencer.image}
-              name={influencer.name}
-              isLive={influencer.isLive}
-              size="sm"
-            />
-          ))}
+        <div className="bg-white rounded-lg overflow-hidden">
+          <h3 className="font-medium p-4 border-b">Services</h3>
+          
+          <div className="divide-y">
+            <Link to="/help-center" className="flex items-center justify-between p-4">
+              <span className="text-sm">Help Center</span>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            </Link>
+            <Link to="/payment-methods" className="flex items-center justify-between p-4">
+              <span className="text-sm">Payment Methods</span>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            </Link>
+            <Link to="/shipping-delivery" className="flex items-center justify-between p-4">
+              <span className="text-sm">Shipping & Delivery</span>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            </Link>
+          </div>
         </div>
       </div>
       
-      {/* Saved items */}
-      <div className="px-4">
-        <h3 className="font-medium mb-3">Saved</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {savedProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              className="mb-4"
-            />
-          ))}
+      {/* About */}
+      <div className="px-4 mb-6">
+        <div className="bg-white rounded-lg overflow-hidden">
+          <h3 className="font-medium p-4 border-b">About</h3>
+          
+          <div className="divide-y">
+            <Link to="/privacy-policy" className="flex items-center justify-between p-4">
+              <span className="text-sm">Privacy Policy</span>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            </Link>
+            <Link to="/terms-conditions" className="flex items-center justify-between p-4">
+              <span className="text-sm">Terms & Conditions</span>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            </Link>
+            <Link to="/about-us" className="flex items-center justify-between p-4">
+              <span className="text-sm">About Us</span>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            </Link>
+          </div>
         </div>
       </div>
       
