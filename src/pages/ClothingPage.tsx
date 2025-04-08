@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Filter, ChevronLeft } from "lucide-react";
@@ -153,7 +152,7 @@ const ClothingPage = () => {
           </div>
         </div>
       </div>
-
+      
       {/* Products list */}
       <div className="px-4 py-4">
         <div className="mb-4">
@@ -168,7 +167,6 @@ const ClothingPage = () => {
               <ProductCard
                 key={product.id}
                 product={product}
-                showAddToCart={false}
               />
             ))}
           </div>

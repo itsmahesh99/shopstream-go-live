@@ -249,7 +249,6 @@ const ShopPage = () => {
               <ProductCard
                 key={product.id}
                 product={product}
-                showAddToCart={false}
               />
             ))}
           </div>

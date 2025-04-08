@@ -3,19 +3,27 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
 
-interface ProductCardProps {
-  product: {
-    id: string;
-    title: string;
-    price: number;
-    discountPrice?: number;
-    image: string;
-    category?: string;
-  };
-  className?: string;
+export interface Product {
+  id: string;
+  title: string;
+  price: number;
+  discountPrice?: number;
+  discountPercentage?: number;
+  image: string;
+  category?: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, className = "" }) => {
+export interface ProductCardProps {
+  product: Product;
+  className?: string;
+  showAddToCart?: boolean;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ 
+  product, 
+  className = "",
+  showAddToCart = false 
+}) => {
   return (
     <Link to={`/product/${product.id}`} className={`block ${className}`}>
       <div className="bg-white rounded-lg overflow-hidden shadow-sm h-full">
@@ -46,6 +54,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = "" }) =>
               <span className="font-bold">₹{product.price}</span>
             )}
           </div>
+          {showAddToCart && (
+            <button className="mt-2 w-full py-1.5 bg-kein-blue text-white text-xs rounded-md">
+              Add to Cart
+            </button>
+          )}
         </div>
       </div>
     </Link>
