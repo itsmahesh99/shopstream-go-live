@@ -6,6 +6,7 @@ import Index from "./pages/Index";
 import WelcomePage from "./pages/WelcomePage";
 import SignupPage from "./pages/SignupPage";
 import ShopPage from "./pages/ShopPage";
+import ClothingPage from "./pages/ClothingPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProductPage from "./pages/ProductPage";
 import LiveStreamPage from "./pages/LiveStreamPage";
@@ -16,6 +17,7 @@ import SellerDashboardPage from "./pages/SellerDashboardPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import MobileLandingPage from "./pages/MobileLandingPage";
+import KeinLivePage from "./pages/KeinLivePage";
 
 function App() {
   return (
@@ -27,6 +29,7 @@ function App() {
       <Route path="/m" element={<MobileLandingPage />} />
       <Route element={<Layout />}>
         <Route path="/home" element={<ShopPage />} />
+        <Route path="/shop/clothing" element={<ClothingPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/livestream/:id" element={<LiveStreamPage />} />
@@ -34,6 +37,7 @@ function App() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/play" element={<PlayPage />} />
         <Route path="/seller" element={<SellerDashboardPage />} />
+        <Route path="/kein-live" element={<KeinLivePage />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>

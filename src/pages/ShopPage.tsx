@@ -141,7 +141,7 @@ const ShopPage = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search products..."
-            className="pl-10 py-2 w-full rounded-full"
+            className="pl-10 py-2 w-full rounded-full bg-gray-50 border-gray-200"
           />
         </div>
       </div>
@@ -239,7 +239,7 @@ const ShopPage = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-lg font-bold">Popular {selectedCategoryName}</h2>
-            <Link to="#" className="text-kein-blue text-sm flex items-center">
+            <Link to={categories.find(cat => cat.id === selectedCategory)?.link || "#"} className="text-kein-blue text-sm flex items-center">
               View All
               <ChevronRight className="h-4 w-4 ml-1" />
             </Link>
@@ -249,6 +249,7 @@ const ShopPage = () => {
               <ProductCard
                 key={product.id}
                 product={product}
+                showAddToCart={true}
               />
             ))}
           </div>

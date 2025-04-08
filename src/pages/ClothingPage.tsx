@@ -1,6 +1,7 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Filter, ChevronLeft } from "lucide-react";
+import { Search, Filter, ChevronLeft, ArrowDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ProductCard, { Product } from "@/components/common/ProductCard";
@@ -70,10 +71,23 @@ const clothingProducts: Product[] = [
 const ClothingPage = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState("1");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSortOptions, setShowSortOptions] = useState(false);
+  const [sortBy, setSortBy] = useState("popular");
 
   // Handle subcategory selection
   const handleSubcategoryClick = (subcategoryId: string) => {
     setSelectedSubcategory(subcategoryId);
+  };
+
+  // Toggle sort options
+  const toggleSortOptions = () => {
+    setShowSortOptions(!showSortOptions);
+  };
+
+  // Handle sort option selection
+  const handleSortOptionClick = (option: string) => {
+    setSortBy(option);
+    setShowSortOptions(false);
   };
 
   // Filter products based on search and selected subcategory
@@ -99,6 +113,24 @@ const ClothingPage = () => {
     );
   });
 
+  // Sort products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortBy === "price-low") {
+      const priceA = a.discountPrice || a.price;
+      const priceB = b.discountPrice || b.price;
+      return priceA - priceB;
+    } else if (sortBy === "price-high") {
+      const priceA = a.discountPrice || a.price;
+      const priceB = b.discountPrice || b.price;
+      return priceB - priceA;
+    } else if (sortBy === "newest") {
+      // In a real app, you would sort by date
+      return 0;
+    }
+    // Default: sort by popularity (which in a real app would be based on ratings/sales)
+    return 0;
+  });
+
   return (
     <div className="pb-20">
       {/* Top navigation */}
@@ -108,7 +140,7 @@ const ClothingPage = () => {
           <Link to="/shop" className="mr-2">
             <ChevronLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-lg font-bold flex-1">Clothing</h1>
+          <h1 className="text-lg font-semibold flex-1">Clothing</h1>
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -128,7 +160,7 @@ const ClothingPage = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search clothing..."
-              className="pl-10 py-2 w-full rounded-full"
+              className="pl-10 py-2 w-full rounded-full bg-gray-50 border-gray-200"
             />
           </div>
         </div>
@@ -151,22 +183,63 @@ const ClothingPage = () => {
             ))}
           </div>
         </div>
+
+        {/* Sort by section */}
+        <div className="px-4 py-2 border-b">
+          <button
+            onClick={toggleSortOptions}
+            className="flex items-center text-sm text-gray-600"
+          >
+            Sort by: <span className="font-medium ml-1">{sortBy === "popular" ? "Most Popular" : sortBy === "price-low" ? "Price: Low to High" : sortBy === "price-high" ? "Price: High to Low" : "Newest"}</span>
+            <ArrowDown className="h-4 w-4 ml-1" />
+          </button>
+          
+          {showSortOptions && (
+            <div className="mt-2 bg-white shadow-lg rounded-md border border-gray-200 p-2 absolute z-40 left-4 right-4">
+              <button
+                className={`block w-full text-left px-3 py-2 rounded ${sortBy === "popular" ? "bg-kein-lightblue text-kein-blue" : "hover:bg-gray-50"}`}
+                onClick={() => handleSortOptionClick("popular")}
+              >
+                Most Popular
+              </button>
+              <button
+                className={`block w-full text-left px-3 py-2 rounded ${sortBy === "price-low" ? "bg-kein-lightblue text-kein-blue" : "hover:bg-gray-50"}`}
+                onClick={() => handleSortOptionClick("price-low")}
+              >
+                Price: Low to High
+              </button>
+              <button
+                className={`block w-full text-left px-3 py-2 rounded ${sortBy === "price-high" ? "bg-kein-lightblue text-kein-blue" : "hover:bg-gray-50"}`}
+                onClick={() => handleSortOptionClick("price-high")}
+              >
+                Price: High to Low
+              </button>
+              <button
+                className={`block w-full text-left px-3 py-2 rounded ${sortBy === "newest" ? "bg-kein-lightblue text-kein-blue" : "hover:bg-gray-50"}`}
+                onClick={() => handleSortOptionClick("newest")}
+              >
+                Newest
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       
       {/* Products list */}
       <div className="px-4 py-4">
         <div className="mb-4">
           <p className="text-sm text-gray-500">
-            {filteredProducts.length} products found
+            {sortedProducts.length} products found
           </p>
         </div>
         
-        {filteredProducts.length > 0 ? (
+        {sortedProducts.length > 0 ? (
           <div className="grid grid-cols-2 gap-4">
-            {filteredProducts.map((product) => (
+            {sortedProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
+                showAddToCart={true}
               />
             ))}
           </div>
