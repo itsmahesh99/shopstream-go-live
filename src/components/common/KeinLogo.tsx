@@ -10,9 +10,10 @@ const KeinLogo: React.FC<KeinLogoProps> = ({ className = "", variant = "full" })
   if (variant === "icon") {
     return (
       <div className={`flex items-center justify-center ${className}`}>
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-          <path fillRule="evenodd" clipRule="evenodd" d="M84 50C84 68.2254 69.2254 83 51 83C32.7746 83 18 68.2254 18 50C18 31.7746 32.7746 17 51 17C69.2254 17 84 31.7746 84 50ZM50 68C65.464 68 78 55.464 78 40C78 24.536 65.464 12 50 12C34.536 12 22 24.536 22 40C22 55.464 34.536 68 50 68Z" fill="#003366"/>
-          <path d="M38 40L55 30V50L38 40Z" fill="#003366"/>
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+          <path d="M30 20C30 25.5228 25.5228 30 20 30C14.4772 30 10 25.5228 10 20C10 14.4772 14.4772 10 20 10C25.5228 10 30 14.4772 30 20Z" 
+            fill="#003366" fillOpacity="0.1" />
+          <path d="M23.3333 20L16.6667 16.6667V23.3333L23.3333 20Z" fill="#003366" />
         </svg>
       </div>
     );
@@ -20,11 +21,16 @@ const KeinLogo: React.FC<KeinLogoProps> = ({ className = "", variant = "full" })
 
   return (
     <div className={`flex items-center ${className}`}>
-      <img
-        src="/lovable-uploads/b7e76bc3-5adb-4a3e-8daf-f6dd0c33d805.png"
-        alt="Kein Logo"
-        className="h-full w-auto max-h-14"
-      />
+      <div className="flex items-center">
+        <div className="mr-2">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M30 20C30 25.5228 25.5228 30 20 30C14.4772 30 10 25.5228 10 20C10 14.4772 14.4772 10 20 10C25.5228 10 30 14.4772 30 20Z" 
+              fill="#003366" fillOpacity="0.1" />
+            <path d="M23.3333 20L16.6667 16.6667V23.3333L23.3333 20Z" fill="#003366" />
+          </svg>
+        </div>
+        <div className="text-2xl font-bold text-[#003366]">kein</div>
+      </div>
     </div>
   );
 };
