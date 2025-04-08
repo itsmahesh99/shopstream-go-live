@@ -1,13 +1,11 @@
 
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Send, Heart, Share2, ShoppingBag, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Send, Heart, Share2, ShoppingBag, X, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LiveBadge from "@/components/common/LiveBadge";
-import ProductCard from "@/components/common/ProductCard";
-import { Product } from "@/components/common/ProductCard";
 import { useToast } from "@/hooks/use-toast";
 
 // Mock data
@@ -18,7 +16,7 @@ const streamer = {
   followers: 45600,
 };
 
-const products: Product[] = [
+const products = [
   {
     id: "1",
     title: "Women solid top and jeans",
