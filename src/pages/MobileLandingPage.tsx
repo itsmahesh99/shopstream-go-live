@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
@@ -89,7 +88,7 @@ const MobileLandingPage = () => {
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header with Search */}
       <div className="bg-white p-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-        <KeinLogo className="h-8" />
+        <KeinLogo className="h-10" />
         <div className="flex items-center">
           <Link to="/search" className="p-2">
             <Search className="h-5 w-5 text-gray-600" />
@@ -243,7 +242,7 @@ const MobileLandingPage = () => {
             <div className="ml-4">
               <h3 className="font-bold text-lg">Sophie Lin</h3>
               <p className="text-sm text-gray-600">Fashion & Lifestyle</p>
-              <Button size="sm" className="mt-2 bg-kein-coral text-white">
+              <Button size="sm" className="bg-kein-coral text-white">
                 Follow
               </Button>
             </div>

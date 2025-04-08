@@ -23,7 +23,7 @@ const KeinLogo: React.FC<KeinLogoProps> = ({ className = "", variant = "full" })
       <img
         src="/lovable-uploads/b70ed579-11af-4d52-af36-34b2f78386c0.png"
         alt="Kein Logo"
-        className="h-full w-auto"
+        className="h-full w-auto max-h-10"
       />
     </div>
   );
