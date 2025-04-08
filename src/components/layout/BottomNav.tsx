@@ -31,8 +31,8 @@ const BottomNav = () => {
         <Link to="/play/feed" className={`flex flex-col items-center justify-center w-full h-full ${isActive("/play/feed") ? "text-kein-blue" : "text-gray-500"}`}>
           <div className="relative">
             <ShoppingBag className="h-5 w-5" />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-2 h-2 bg-gray-500 rotate-90" style={{ clipPath: 'polygon(0% 0%, 0% 100%, 100% 50%)' }}></div>
+            <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
+              <div className="w-2.5 h-2.5 text-white bg-gray-500" style={{ clipPath: 'polygon(0% 0%, 0% 100%, 100% 50%)' }}></div>
             </div>
           </div>
           <span className="text-xs mt-1">Shop</span>
