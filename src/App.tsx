@@ -20,6 +20,7 @@ import KeinLivePage from "./pages/KeinLivePage";
 import MobileLandingPage from "./pages/MobileLandingPage";
 import ShopPage from "./pages/ShopPage";
 import ClothingPage from "./pages/ClothingPage";
+import PlayPage from "./pages/PlayPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/shop/clothing" element={<ClothingPage />} />
             <Route path="/live" element={<KeinLivePage />} />
             <Route path="/live/:id" element={<LiveStreamPage />} />
+            <Route path="/play" element={<PlayPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/product/:id" element={<ProductPage />} />
             <Route path="/cart" element={<CartPage />} />
