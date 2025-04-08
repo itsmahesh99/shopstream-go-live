@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Heart, Minus, Plus, Star, Truck, Package, Clock, MessageSquare } from "lucide-react";
@@ -8,6 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProductCard from "@/components/common/ProductCard";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
+import { useCart } from "@/contexts/CartContext";
+import ProductOptionsSheet from "@/components/product/ProductOptionsSheet";
+import PaymentOptionsSheet from "@/components/payment/PaymentOptionsSheet";
 
 // Mock data
 const product = {
@@ -138,6 +140,8 @@ const ProductPage = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
   
+  const { addToCart } = useCart();
+  
   const handleLike = () => {
     setIsLiked(!isLiked);
     toast({
@@ -147,6 +151,17 @@ const ProductPage = () => {
   };
   
   const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      discountPrice: product.discountPrice,
+      image: product.images[product.colors.indexOf(selectedColor) % product.images.length],
+      color: selectedColor,
+      size: selectedSize,
+      quantity: quantity
+    });
+    
     toast({
       title: "Added to cart",
       description: `${product.title} (${selectedColor}, ${selectedSize}) has been added to your cart`,
@@ -154,6 +169,19 @@ const ProductPage = () => {
   };
   
   const handleBuyNow = () => {
+    // First add to cart
+    addToCart({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      discountPrice: product.discountPrice,
+      image: product.images[product.colors.indexOf(selectedColor) % product.images.length],
+      color: selectedColor,
+      size: selectedSize,
+      quantity: quantity
+    });
+    
+    // Then toast notification
     toast({
       title: "Proceeding to checkout",
       description: "Taking you to the checkout page",
@@ -368,19 +396,45 @@ const ProductPage = () => {
       
       {/* Action buttons */}
       <div className="px-4 py-5 flex space-x-2">
-        <Button
-          variant="outline"
-          className="flex-1 border-kein-blue text-kein-blue h-12"
-          onClick={handleAddToCart}
-        >
-          Add to cart
-        </Button>
-        <Button
-          className="flex-1 bg-kein-blue text-white h-12"
-          onClick={handleBuyNow}
-        >
-          Buy now
-        </Button>
+        <ProductOptionsSheet
+          product={product}
+          triggerButton={
+            <Button
+              variant="outline"
+              className="flex-1 border-kein-blue text-kein-blue h-12"
+            >
+              Add to cart
+            </Button>
+          }
+          onAddToCart={({ color, size, quantity }) => {
+            addToCart({
+              id: product.id,
+              title: product.title,
+              price: product.price,
+              discountPrice: product.discountPrice,
+              image: product.images[product.colors.indexOf(color) % product.images.length],
+              color,
+              size,
+              quantity
+            });
+            
+            toast({
+              title: "Added to cart",
+              description: `${product.title} (${color}, ${size}) has been added to your cart`,
+            });
+          }}
+          onBuyNow={() => {}}
+        />
+        
+        <PaymentOptionsSheet
+          triggerButton={
+            <Button
+              className="flex-1 bg-kein-blue text-white h-12"
+            >
+              Buy now
+            </Button>
+          }
+        />
       </div>
       
       {/* Product details tabs */}
