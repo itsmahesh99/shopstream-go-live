@@ -1,12 +1,13 @@
 
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Heart, Minus, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Minus, Plus, Star, Truck, Package, Clock, MessageSquare } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProductCard from "@/components/common/ProductCard";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
 
 // Mock data
 const product = {
@@ -15,7 +16,7 @@ const product = {
   price: 999,
   discountPrice: 499,
   discountPercentage: 50,
-  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam arcu mauris, pretium pulvinar sapien.",
+  description: "This stylish women's outfit features a comfortable solid top paired with well-fitted jeans. Perfect for casual outings or everyday wear. The breathable fabric ensures comfort throughout the day.",
   images: [
     "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
     "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
@@ -29,6 +30,13 @@ const product = {
   specifications: {
     material: "Cotton 95%, Nylon 5%",
     origin: "EU",
+    care: "Machine wash, tumble dry low",
+    fit: "Regular fit"
+  },
+  delivery: {
+    standard: "3-5 business days",
+    express: "1-2 business days (additional charges apply)",
+    return: "30-day easy returns"
   },
   category: "Clothing",
 };
@@ -64,6 +72,63 @@ const relatedProducts = [
   },
 ];
 
+const popularProducts = [
+  {
+    id: "6",
+    title: "Stylish Summer Dress",
+    price: 799,
+    discountPrice: 599,
+    image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
+    category: "Clothing"
+  },
+  {
+    id: "7",
+    title: "Casual Denim Jacket",
+    price: 1299,
+    image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png",
+    category: "Clothing"
+  },
+  {
+    id: "8",
+    title: "Trendy Handbag",
+    price: 899,
+    discountPrice: 699,
+    image: "/lovable-uploads/d9b61dc1-74ba-423d-8b21-9e83e8e1ff97.png",
+    category: "Accessories"
+  },
+  {
+    id: "9",
+    title: "Floral Print Skirt",
+    price: 599,
+    image: "/lovable-uploads/a758d528-4f86-47ab-8952-b84d3f2e2b2c.png",
+    category: "Clothing"
+  },
+];
+
+const reviewsData = [
+  {
+    id: "1",
+    user: "Sarah J.",
+    rating: 5,
+    date: "March 15, 2023",
+    comment: "Love this outfit! The material is so comfortable and the fit is perfect. Will definitely buy more colors."
+  },
+  {
+    id: "2",
+    user: "Michael T.",
+    rating: 4,
+    date: "February 28, 2023",
+    comment: "Bought this for my wife and she loves it. Good quality for the price."
+  },
+  {
+    id: "3",
+    user: "Emma L.",
+    rating: 5,
+    date: "January 10, 2023",
+    comment: "The top and jeans combo is exactly as pictured. Very happy with my purchase!"
+  }
+];
+
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
@@ -71,6 +136,7 @@ const ProductPage = () => {
   const [selectedSize, setSelectedSize] = useState("M");
   const [quantity, setQuantity] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
+  const [activeTab, setActiveTab] = useState("description");
   
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -102,6 +168,27 @@ const ProductPage = () => {
   
   const increaseQuantity = () => {
     setQuantity(quantity + 1);
+  };
+
+  const renderStars = (rating: number) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<Star key={`star-${i}`} className="h-4 w-4 fill-yellow-400 text-yellow-400" />);
+    }
+    
+    if (hasHalfStar) {
+      stars.push(<Star key="half-star" className="h-4 w-4 text-yellow-400" />);
+    }
+    
+    const remainingStars = 5 - stars.length;
+    for (let i = 0; i < remainingStars; i++) {
+      stars.push(<Star key={`empty-star-${i}`} className="h-4 w-4 text-gray-300" />);
+    }
+    
+    return stars;
   };
 
   return (
@@ -164,6 +251,17 @@ const ProductPage = () => {
         >
           <Heart className={`h-5 w-5 ${isLiked ? 'text-red-500 fill-current' : 'text-gray-400'}`} />
         </button>
+      </div>
+      
+      {/* Title and rating */}
+      <div className="px-4 py-2">
+        <h1 className="text-xl font-semibold">{product.title}</h1>
+        <div className="flex items-center mt-1">
+          <div className="flex mr-2">
+            {renderStars(product.rating)}
+          </div>
+          <span className="text-sm text-gray-600">{product.rating} ({product.reviews} reviews)</span>
+        </div>
       </div>
       
       {/* Color options */}
@@ -240,8 +338,36 @@ const ProductPage = () => {
         </div>
       </div>
       
+      {/* Delivery options */}
+      <div className="px-4 pb-5 bg-gray-50 pt-5">
+        <h3 className="font-medium mb-3">Delivery Options</h3>
+        <div className="space-y-3">
+          <div className="flex items-center">
+            <Truck className="h-5 w-5 text-kein-blue mr-3" />
+            <div>
+              <p className="text-sm font-medium">Standard Delivery</p>
+              <p className="text-xs text-gray-500">{product.delivery.standard}</p>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <Package className="h-5 w-5 text-kein-blue mr-3" />
+            <div>
+              <p className="text-sm font-medium">Express Delivery</p>
+              <p className="text-xs text-gray-500">{product.delivery.express}</p>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <Clock className="h-5 w-5 text-kein-blue mr-3" />
+            <div>
+              <p className="text-sm font-medium">Return Policy</p>
+              <p className="text-xs text-gray-500">{product.delivery.return}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       {/* Action buttons */}
-      <div className="px-4 pb-6 flex space-x-2">
+      <div className="px-4 py-5 flex space-x-2">
         <Button
           variant="outline"
           className="flex-1 border-kein-blue text-kein-blue h-12"
@@ -257,7 +383,69 @@ const ProductPage = () => {
         </Button>
       </div>
       
-      {/* Related products */}
+      {/* Product details tabs */}
+      <div className="px-4 pb-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="w-full grid grid-cols-3 bg-gray-100">
+            <TabsTrigger value="description">Description</TabsTrigger>
+            <TabsTrigger value="specs">Specifications</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews ({reviewsData.length})</TabsTrigger>
+          </TabsList>
+          <TabsContent value="description" className="pt-4">
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {product.description}
+            </p>
+          </TabsContent>
+          <TabsContent value="specs" className="pt-4">
+            <div className="space-y-3">
+              {Object.entries(product.specifications).map(([key, value]) => (
+                <div key={key} className="flex justify-between border-b pb-2">
+                  <span className="text-sm text-gray-500 capitalize">{key}</span>
+                  <span className="text-sm font-medium">{value}</span>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="reviews" className="pt-4">
+            <div className="space-y-4">
+              {reviewsData.map((review) => (
+                <div key={review.id} className="border-b pb-3">
+                  <div className="flex justify-between">
+                    <h4 className="font-medium">{review.user}</h4>
+                    <span className="text-xs text-gray-500">{review.date}</span>
+                  </div>
+                  <div className="flex mt-1 mb-2">
+                    {renderStars(review.rating)}
+                  </div>
+                  <p className="text-sm text-gray-700">{review.comment}</p>
+                </div>
+              ))}
+              <Button variant="outline" className="w-full" size="sm">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Write a Review
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+      
+      {/* Most Popular section */}
+      <div className="px-4 pb-8">
+        <h3 className="font-medium mb-4">Most Popular</h3>
+        <Carousel className="w-full">
+          <CarouselContent>
+            {popularProducts.map((product) => (
+              <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3">
+                <ProductCard product={product} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="left-0" />
+          <CarouselNext className="right-0" />
+        </Carousel>
+      </div>
+      
+      {/* You Might Like section */}
       <div className="px-4 pb-8">
         <h3 className="font-medium mb-4">You Might Like</h3>
         <div className="grid grid-cols-2 gap-4">
