@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Heart, Play, Video, User } from "lucide-react";
+import { Home, Heart, Play, ShoppingBag, User } from "lucide-react";
 
 const BottomNav = () => {
   const location = useLocation();
@@ -29,8 +29,13 @@ const BottomNav = () => {
         </Link>
         
         <Link to="/play/feed" className={`flex flex-col items-center justify-center w-full h-full ${isActive("/play/feed") ? "text-kein-blue" : "text-gray-500"}`}>
-          <Video className="h-5 w-5" />
-          <span className="text-xs mt-1">Play</span>
+          <div className="relative">
+            <ShoppingBag className="h-5 w-5" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="w-2 h-2 bg-gray-500 rotate-90" style={{ clipPath: 'polygon(0% 0%, 0% 100%, 100% 50%)' }}></div>
+            </div>
+          </div>
+          <span className="text-xs mt-1">Shop</span>
         </Link>
         
         <Link to="/profile" className={`flex flex-col items-center justify-center w-full h-full ${isActive("/profile") ? "text-kein-blue" : "text-gray-500"}`}>
