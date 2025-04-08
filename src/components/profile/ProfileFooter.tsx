@@ -8,7 +8,7 @@ const ProfileFooter = () => {
     <div className="mt-8 bg-gray-100 pt-6 pb-20">
       <div className="container mx-auto px-4">
         <div className="mb-4 flex items-center justify-between">
-          <KeinLogo className="h-8" variant="full" />
+          <KeinLogo className="h-8" />
           <Button variant="outline" size="sm" className="text-sm border-[#003366] text-[#003366]">
             Get the app
           </Button>
