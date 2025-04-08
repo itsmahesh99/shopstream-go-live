@@ -68,7 +68,8 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				kein: {
-					blue: '#002855',
+					blue: '#003366',
+					darkblue: '#002244',
 					coral: '#FF5D5D',
 					peach: '#FFB6A3',
 					yellow: '#FFD166',

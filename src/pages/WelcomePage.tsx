@@ -16,7 +16,7 @@ const WelcomePage = () => {
 
         <div className="w-full space-y-4">
           <Link to="/signup" className="w-full block">
-            <Button className="w-full bg-kein-blue hover:bg-kein-blue/90 text-white py-6 text-lg">
+            <Button className="w-full bg-kein-blue hover:bg-kein-darkblue text-white py-6 text-lg">
               Let's get started
             </Button>
           </Link>

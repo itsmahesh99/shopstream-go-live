@@ -24,7 +24,8 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         kein: {
-          blue: "#1D4ED8",
+          blue: "#003366",
+          darkblue: "#002244",
           coral: "#F97316",
           yellow: "#FBBF24",
           lightblue: "#EFF6FF",
