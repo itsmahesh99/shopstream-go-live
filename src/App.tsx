@@ -16,6 +16,7 @@ import CartPage from "./pages/CartPage";
 import SearchPage from "./pages/SearchPage";
 import WishlistPage from "./pages/WishlistPage";
 import SellerDashboardPage from "./pages/SellerDashboardPage";
+import KeinLivePage from "./pages/KeinLivePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/" element={<WelcomePage />} />
           <Route path="/" element={<Layout />}>
             <Route path="/home" element={<HomePage />} />
+            <Route path="/live" element={<KeinLivePage />} />
             <Route path="/live/:id" element={<LiveStreamPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/product/:id" element={<ProductPage />} />

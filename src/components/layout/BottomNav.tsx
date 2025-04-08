@@ -34,7 +34,7 @@ const BottomNav = () => {
         </Link>
         
         <Link
-          to="/live/featured"
+          to="/live"
           className={`flex flex-col items-center justify-center w-full h-full ${
             location.pathname.includes("/live") ? "text-kein-blue" : "text-gray-500"
           }`}
@@ -46,13 +46,13 @@ const BottomNav = () => {
         </Link>
         
         <Link
-          to="/cart"
+          to="/orders"
           className={`flex flex-col items-center justify-center w-full h-full ${
-            isActive("/cart") ? "text-kein-blue" : "text-gray-500"
+            isActive("/orders") || location.pathname.includes("/order") ? "text-kein-blue" : "text-gray-500"
           }`}
         >
           <ShoppingBag className="h-5 w-5" />
-          <span className="text-xs mt-1">Cart</span>
+          <span className="text-xs mt-1">Orders</span>
         </Link>
         
         <Link
