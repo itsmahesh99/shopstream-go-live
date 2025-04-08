@@ -13,6 +13,7 @@ import LiveStreamPage from "./pages/LiveStreamPage";
 import WishlistPage from "./pages/WishlistPage";
 import SearchPage from "./pages/SearchPage";
 import PlayPage from "./pages/PlayPage";
+import PlayFeedPage from "./pages/PlayFeedPage";
 import SellerDashboardPage from "./pages/SellerDashboardPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
@@ -39,6 +40,7 @@ function App() {
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/play" element={<PlayPage />} />
+          <Route path="/play/feed" element={<PlayFeedPage />} />
           <Route path="/seller" element={<SellerDashboardPage />} />
           <Route path="/kein-live" element={<KeinLivePage />} />
           <Route path="/cart" element={<CartPage />} />
