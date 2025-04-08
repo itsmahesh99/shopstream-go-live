@@ -1,35 +1,36 @@
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { Search, X, Camera, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/common/ProductCard";
 
 // Mock data
-const searchHistory = ["Socks", "Red Dress", "Sunglasses", "Mustard Pants", "80-s Skirt"];
-const recommendations = ["Skirt", "Accessories", "Black T-Shirt", "Jeans", "White Shoes"];
+const searchHistory = ["Red Dress", "Socks", "Sunglasses", "Summer Dress", "Denim"];
+const recommendations = ["Trending", "Sale", "New Arrivals", "Summer Collection", "Winter"];
 
-const discoveryProducts = [
+const trendingProducts = [
   {
     id: "1",
-    title: "Women solid top and jeans",
-    price: 1250,
+    title: "Summer Dress",
+    price: 1299,
+    discountPrice: 999,
+    discountPercentage: 23,
     image: "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
     category: "Clothing"
   },
   {
     id: "2",
-    title: "Women solid top and jeans",
-    price: 320,
+    title: "Casual T-Shirt",
+    price: 599,
     image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
     category: "Clothing"
   },
   {
     id: "3",
-    title: "Women solid top and jeans",
-    price: 2100,
-    image: "/lovable-uploads/d9b61dc1-74ba-423d-8b21-9e83e8e1ff97.png",
+    title: "Denim Jacket",
+    price: 1999,
+    image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png",
     category: "Clothing"
   },
 ];
@@ -99,7 +100,7 @@ const SearchPage = () => {
           </div>
           
           <div className="grid grid-cols-2 gap-4">
-            {discoveryProducts.map(product => (
+            {trendingProducts.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
@@ -150,13 +151,17 @@ const SearchPage = () => {
             </div>
           </div>
           
-          {/* Discover */}
+          {/* Discover - Trending products */}
           <div>
             <h3 className="font-medium mb-4">Discover</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {discoveryProducts.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            <div className="overflow-x-auto pb-4">
+              <div className="flex gap-4" style={{ minWidth: "min-content" }}>
+                {trendingProducts.map(product => (
+                  <div key={product.id} className="min-w-[160px] max-w-[160px]">
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
