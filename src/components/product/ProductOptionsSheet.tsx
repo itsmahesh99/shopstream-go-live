@@ -7,6 +7,13 @@ import {
   DrawerFooter,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { 
+  Carousel, 
+  CarouselContent, 
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext
+} from "@/components/ui/carousel";
 
 import ProductInfoPanel from "./options/ProductInfoPanel";
 import ColorSelector from "./options/ColorSelector";
@@ -45,6 +52,27 @@ const ProductOptionsSheet = ({
       </DrawerTrigger>
       <DrawerContent className="max-h-[85vh]">
         <div className="px-4">
+          {/* Image slider */}
+          <div className="my-4">
+            <Carousel className="w-full">
+              <CarouselContent>
+                {product.images?.map((image, index) => (
+                  <CarouselItem key={index}>
+                    <div className="aspect-square w-full rounded-xl overflow-hidden">
+                      <img 
+                        src={image} 
+                        alt={`${product.title} - Image ${index + 1}`} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-2" />
+              <CarouselNext className="right-2" />
+            </Carousel>
+          </div>
+          
           {/* Quick product info panel */}
           <ProductInfoPanel 
             title={product.title}
