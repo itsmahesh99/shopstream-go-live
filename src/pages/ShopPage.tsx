@@ -41,6 +41,7 @@ const promotions = [{
   buttonText: "Shop Now",
   buttonLink: "/shop"
 }];
+
 const categories = [{
   id: "1",
   name: "Clothing",
@@ -72,6 +73,7 @@ const categories = [{
   icon: "🏀",
   link: "/shop"
 }];
+
 const subcategories = [{
   id: "1",
   name: "T-shirts",
@@ -109,6 +111,7 @@ const subcategories = [{
   name: "Accessories",
   categoryId: "3"
 }];
+
 const products: Product[] = [{
   id: "1",
   title: "Women's Summer Dress",
@@ -164,7 +167,7 @@ const ShopPage = () => {
     setSelectedCategory(categoryId);
   };
   
-  const handleWatchNowClick = (link: string) => (event: React.MouseEvent) => {
+  const handleButtonClick = (link: string) => (event: React.MouseEvent) => {
     event.preventDefault();
     navigate(link);
   };
@@ -213,7 +216,12 @@ const ShopPage = () => {
                       <Button 
                         variant="secondary" 
                         className="mt-2 bg-white text-blue-600 hover:bg-gray-100 font-bold text-lg"
-                        onClick={handleWatchNowClick(promo.buttonLink)}
+                        onClick={promo.buttonText === "Shop Now" 
+                          ? handleButtonClick("/play/feed") 
+                          : promo.buttonText === "Explore" 
+                            ? handleButtonClick("/shop/clothing")
+                            : handleButtonClick(promo.buttonLink)
+                        }
                       >
                         {promo.buttonText}
                       </Button>
@@ -234,7 +242,17 @@ const ShopPage = () => {
         <div className="mb-6">
           <h2 className="text-lg font-bold mb-3">Categories</h2>
           <div className="grid grid-cols-3 gap-3">
-            {categories.map(category => <Link key={category.id} to={category.link} className={`p-4 rounded-lg flex flex-col items-center justify-center transition-all ${selectedCategory === category.id ? "bg-kein-lightblue text-kein-blue border border-kein-blue/30" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`} onClick={() => handleCategoryClick(category.id)}>
+            {categories.map(category => <Link key={category.id} to={category.link} className={`p-4 rounded-lg flex flex-col items-center justify-center transition-all ${selectedCategory === category.id ? "bg-kein-lightblue text-kein-blue border border-kein-blue/30" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`} onClick={(e) => {
+                if (category.id === "1") {
+                  // For clothing, navigate directly to shop/clothing
+                  e.preventDefault();
+                  navigate("/shop/clothing");
+                } else {
+                  // For other categories, just select them
+                  e.preventDefault();
+                  handleCategoryClick(category.id);
+                }
+              }}>
                 <span className="text-2xl mb-1">{category.icon}</span>
                 <span className="text-sm font-medium">{category.name}</span>
               </Link>)}
