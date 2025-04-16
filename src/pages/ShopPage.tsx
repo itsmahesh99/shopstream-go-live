@@ -16,24 +16,39 @@ import {
 const promotions = [
   {
     id: "1",
-    title: "Big Sale",
-    description: "Up to 50% off on all products",
+    title: "Welcome to Kein!",
+    description: "Watch live streams from your favorite influencers and shop your desired products with just one click!",
     color: "bg-gradient-to-r from-kein-blue to-blue-400",
     image: "/lovable-uploads/f570e76e-9e2b-48d1-b582-8f7c2732629c.png",
+    buttonText: "Watch Now",
+    buttonLink: "/play",
   },
   {
     id: "2",
-    title: "New Arrivals",
-    description: "Check out our latest collection",
+    title: "Big Sale",
+    description: "Up to 50% off on all products",
     color: "bg-gradient-to-r from-kein-coral to-red-400",
     image: "/lovable-uploads/5112d7a4-a073-42da-9f08-2f9ad3a1c2ce.png",
+    buttonText: "Shop Now",
+    buttonLink: "/shop",
   },
   {
     id: "3",
-    title: "Flash Deals",
-    description: "Limited time offers",
+    title: "New Arrivals",
+    description: "Check out our latest collection",
     color: "bg-gradient-to-r from-kein-yellow to-yellow-400",
     image: "/lovable-uploads/2840b6e9-4e3c-4070-8eb6-13ed21836285.png",
+    buttonText: "Explore",
+    buttonLink: "/shop",
+  },
+  {
+    id: "4",
+    title: "Flash Deals",
+    description: "Limited time offers",
+    color: "bg-gradient-to-r from-purple-500 to-purple-300",
+    image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png",
+    buttonText: "Shop Now",
+    buttonLink: "/shop",
   },
 ];
 
@@ -112,6 +127,7 @@ const products: Product[] = [
 const ShopPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("1");
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeSlide, setActiveSlide] = useState(0);
 
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -149,22 +165,34 @@ const ShopPage = () => {
       <div className="px-4 py-4">
         {/* Promotions carousel */}
         <div className="mb-6">
-          <Carousel className="w-full">
+          <Carousel 
+            className="w-full"
+            opts={{
+              loop: true,
+            }}
+            onSelect={(api) => {
+              if (api) {
+                setActiveSlide(api.selectedScrollSnap());
+              }
+            }}
+          >
             <CarouselContent>
               {promotions.map((promo) => (
                 <CarouselItem key={promo.id} className="pl-1">
                   <div
-                    className={`rounded-lg p-6 ${promo.color} text-white h-40 relative overflow-hidden`}
+                    className={`rounded-lg p-6 ${promo.color} text-white h-44 relative overflow-hidden`}
                   >
-                    <div className="relative z-10">
-                      <h3 className="text-2xl font-bold">{promo.title}</h3>
-                      <p className="mt-1 text-white/90">{promo.description}</p>
-                      <Button
-                        variant="secondary"
-                        className="mt-4 bg-white text-blue-600 hover:bg-gray-100"
-                      >
-                        Shop Now
-                      </Button>
+                    <div className="relative z-10 max-w-[70%]">
+                      <h3 className={`${promo.id === "1" ? "text-3xl" : "text-2xl"} font-bold mb-2`}>{promo.title}</h3>
+                      <p className="mt-1 text-white/90 text-sm mb-3">{promo.description}</p>
+                      <Link to={promo.buttonLink}>
+                        <Button
+                          variant="secondary"
+                          className="mt-2 bg-white text-blue-600 hover:bg-gray-100"
+                        >
+                          {promo.buttonText}
+                        </Button>
+                      </Link>
                     </div>
                     <img
                       src={promo.image}
@@ -175,12 +203,14 @@ const ShopPage = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <div className="flex justify-center gap-1 mt-2">
+            <CarouselPrevious className="left-1" />
+            <CarouselNext className="right-1" />
+            <div className="flex justify-center gap-1 mt-3">
               {promotions.map((_, index) => (
                 <div
                   key={index}
-                  className={`h-1.5 w-5 rounded-full ${
-                    index === 0 ? "bg-kein-blue" : "bg-gray-300"
+                  className={`h-1.5 w-5 rounded-full transition-colors duration-300 ${
+                    index === activeSlide ? "bg-kein-blue" : "bg-gray-300"
                   }`}
                 />
               ))}
