@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, ChevronRight } from "lucide-react";
@@ -185,8 +186,10 @@ const ShopPage = () => {
         <div className="mb-6">
           <Carousel className="w-full" opts={{
           loop: true
-        }} onSelect={(index) => {
-          setActiveSlide(index);
+        }} onSelect={(api) => {
+          if (api) {
+            setActiveSlide(api.selectedScrollSnap());
+          }
         }}>
             <CarouselContent>
               {promotions.map(promo => <CarouselItem key={promo.id} className="pl-1">
