@@ -187,7 +187,7 @@ const ShopPage = () => {
           <Carousel className="w-full" opts={{
           loop: true
         }} onSelect={(api) => {
-          if (api) {
+          if (api && typeof api.selectedScrollSnap === 'function') {
             setActiveSlide(api.selectedScrollSnap());
           }
         }}>
