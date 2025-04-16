@@ -4,6 +4,7 @@ import { Trash2, ShoppingBag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { useCart } from "@/contexts/CartContext";
 
 // Mock data
 const wishlistItems = [
@@ -51,6 +52,7 @@ const wishlistItems = [
 
 const WishlistPage = () => {
   const { toast } = useToast();
+  const { addToCart } = useCart();
   const [items, setItems] = useState(wishlistItems);
   
   const handleRemoveFromWishlist = (id: string) => {
@@ -61,10 +63,21 @@ const WishlistPage = () => {
     });
   };
   
-  const handleAddToCart = (id: string) => {
+  const handleAddToCart = (item: typeof wishlistItems[0]) => {
+    // Add the item to cart using the CartContext
+    addToCart({
+      id: item.id,
+      title: item.title,
+      price: item.price,
+      image: item.image,
+      color: item.color,
+      size: item.size,
+      quantity: 1
+    });
+    
     toast({
       title: "Added to cart",
-      description: "Item has been added to your cart",
+      description: `${item.title} has been added to your cart`,
     });
   };
 
@@ -136,7 +149,7 @@ const WishlistPage = () => {
                         variant="default" 
                         size="sm" 
                         className="h-8 rounded-full w-full bg-kein-blue"
-                        onClick={() => handleAddToCart(item.id)}
+                        onClick={() => handleAddToCart(item)}
                       >
                         <ShoppingBag className="h-3 w-3 mr-2" />
                         Add to cart
