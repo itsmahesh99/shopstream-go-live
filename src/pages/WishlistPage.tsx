@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // Mock data
 const wishlistItems = [
@@ -14,7 +15,9 @@ const wishlistItems = [
     price: 999,
     image: "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
     color: "Pink",
+    availableColors: ["Pink", "Blue", "Black"],
     size: "M",
+    availableSizes: ["S", "M", "L", "XL"],
   },
   {
     id: "2",
@@ -22,7 +25,9 @@ const wishlistItems = [
     price: 1200,
     image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
     color: "Blue",
+    availableColors: ["Blue", "White", "Black"],
     size: "L",
+    availableSizes: ["M", "L", "XL"],
   },
   {
     id: "3",
@@ -30,7 +35,9 @@ const wishlistItems = [
     price: 2700,
     image: "/lovable-uploads/d9b61dc1-74ba-423d-8b21-9e83e8e1ff97.png",
     color: "Green",
+    availableColors: ["Green", "Yellow", "Pink"],
     size: "S",
+    availableSizes: ["XS", "S", "M"],
   },
   {
     id: "4",
@@ -38,7 +45,9 @@ const wishlistItems = [
     price: 1900,
     image: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
     color: "Blue",
+    availableColors: ["Blue", "Black", "Gray"],
     size: "XL",
+    availableSizes: ["L", "XL", "XXL"],
   },
   {
     id: "5",
@@ -46,7 +55,9 @@ const wishlistItems = [
     price: 999,
     image: "/lovable-uploads/bcb73b7f-2144-4a7d-aaca-a22c1dce107d.png",
     color: "White",
+    availableColors: ["White", "Black", "Gray", "Blue"],
     size: "M",
+    availableSizes: ["S", "M", "L", "XL"],
   },
 ];
 
@@ -63,7 +74,7 @@ const WishlistPage = () => {
     });
   };
   
-  const handleAddToCart = (item: typeof wishlistItems[0]) => {
+  const handleAddToCart = (item: typeof items[0]) => {
     // Add the item to cart using the CartContext
     addToCart({
       id: item.id,
@@ -87,6 +98,22 @@ const WishlistPage = () => {
       title: "Wishlist cleared",
       description: "All items have been removed from your wishlist",
     });
+  };
+
+  const handleSizeChange = (id: string, newSize: string) => {
+    setItems(
+      items.map(item => 
+        item.id === id ? { ...item, size: newSize } : item
+      )
+    );
+  };
+
+  const handleColorChange = (id: string, newColor: string) => {
+    setItems(
+      items.map(item => 
+        item.id === id ? { ...item, color: newColor } : item
+      )
+    );
   };
 
   return (
@@ -135,16 +162,47 @@ const WishlistPage = () => {
                     
                     <div className="mt-1 font-bold text-kein-coral">₹{item.price}</div>
                     
-                    <div className="flex space-x-2 mt-2">
-                      <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
-                        {item.size}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
-                        {item.color}
-                      </Badge>
+                    {/* Size Selection */}
+                    <div className="mt-2">
+                      <p className="text-xs text-gray-500 mb-1">Size:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {item.availableSizes.map((size) => (
+                          <button
+                            key={size}
+                            onClick={() => handleSizeChange(item.id, size)}
+                            className={`h-6 w-8 text-xs rounded-md flex items-center justify-center ${
+                              item.size === size 
+                              ? 'bg-kein-blue text-white' 
+                              : 'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     
+                    {/* Color Selection */}
                     <div className="mt-2">
+                      <p className="text-xs text-gray-500 mb-1">Color:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {item.availableColors.map((color) => (
+                          <button
+                            key={color}
+                            onClick={() => handleColorChange(item.id, color)}
+                            className={`h-6 px-2 text-xs rounded-md flex items-center justify-center ${
+                              item.color === color 
+                              ? 'bg-kein-blue text-white' 
+                              : 'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            {color}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3">
                       <Button 
                         variant="default" 
                         size="sm" 
