@@ -1,7 +1,6 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Play, Eye } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import InfluencerAvatar from "@/components/common/InfluencerAvatar";
 import LiveBadge from "@/components/common/LiveBadge";
@@ -61,7 +60,7 @@ const products = [
     price: 1299,
     discountPrice: 999,
     discountPercentage: 23,
-    image: "/lovable-uploads/521c827c-efca-4963-a702-2af0e528830c.png",
+    image: "/lovable-uploads/521c827c-efca-4963-a702-e528830c.png",
     category: "Accessories"
   },
   {
@@ -84,6 +83,46 @@ const categories = [
   { id: "6", name: "Hoodies", count: 218, image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png" },
   { id: "7", name: "Mobile phones", count: 87, image: "/lovable-uploads/5112d7a4-a073-42da-9f08-2f9ad3a1c2ce.png" },
   { id: "8", name: "Laptops", count: 218, image: "/lovable-uploads/7954c3c0-a433-4e95-9d0e-e746eb76a920.png" },
+];
+
+// Add more detailed live streams data for the carousel
+const currentLiveStreams = [
+  {
+    id: "1",
+    title: "Unboxing the latest iPhone Pro",
+    influencer: "Mike Chen",
+    influencerImage: "/lovable-uploads/a758d528-4f86-47ab-8952-b84d3f2e2b2c.png",
+    thumbnail: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
+    viewCount: 2532,
+    isLive: true,
+  },
+  {
+    id: "2",
+    title: "Summer Fashion Haul 2025",
+    influencer: "Sophie Lin",
+    influencerImage: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
+    thumbnail: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
+    viewCount: 1845,
+    isLive: true,
+  },
+  {
+    id: "3",
+    title: "Best Accessories under $50",
+    influencer: "Emma Lou",
+    influencerImage: "/lovable-uploads/bcb73b7f-2144-4a7d-aaca-a22c1dce107d.png",
+    thumbnail: "/lovable-uploads/521c827c-efca-4963-a702-e528830c.png",
+    viewCount: 1247,
+    isLive: true,
+  },
+  {
+    id: "4",
+    title: "Vintage Clothing Collection",
+    influencer: "Art vintage",
+    influencerImage: "/lovable-uploads/4448d6cf-1254-4262-a2a2-cb90ffd97796.png",
+    thumbnail: "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
+    viewCount: 958,
+    isLive: true,
+  },
 ];
 
 const HomePage = () => {
@@ -111,6 +150,84 @@ const HomePage = () => {
       
       {/* Welcome banner */}
       <h1 className="text-2xl font-bold mt-4 mb-4">Welcome to Kein!</h1>
+      
+      {/* Live Now carousel - NEW SECTION */}
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Live Now</h2>
+          <Link to="/live" className="text-sm text-kein-blue flex items-center">
+            See all <ChevronRight className="h-4 w-4 ml-1" />
+          </Link>
+        </div>
+        
+        <div className="relative -mx-4">
+          <Carousel
+            className="w-full px-4"
+            opts={{
+              align: "start",
+              loop: false,
+            }}
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {currentLiveStreams.map((stream) => (
+                <CarouselItem key={stream.id} className="pl-2 md:pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/3">
+                  <Link to={`/live/${stream.id}`} className="block">
+                    <div className="relative rounded-lg overflow-hidden aspect-[3/4] shadow-md group">
+                      {/* Thumbnail with gradient overlay */}
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300"></div>
+                      <img 
+                        src={stream.thumbnail} 
+                        alt={stream.title} 
+                        className="w-full h-full object-cover"
+                      />
+                      
+                      {/* Play icon overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="h-14 w-14 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center">
+                          <Play className="h-8 w-8 text-white fill-white" />
+                        </div>
+                      </div>
+                      
+                      {/* Live badge */}
+                      <div className="absolute top-2 left-2">
+                        <LiveBadge size="sm" />
+                      </div>
+                      
+                      {/* Influencer avatar + info */}
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3">
+                        <div className="flex items-center mb-2">
+                          <img 
+                            src={stream.influencerImage} 
+                            alt={stream.influencer} 
+                            className="w-8 h-8 rounded-full object-cover border border-white/30"
+                          />
+                          <div className="ml-2">
+                            <p className="text-white font-medium text-sm">{stream.influencer}</p>
+                            <div className="flex items-center text-white/80 text-xs">
+                              <Eye className="h-3 w-3 mr-1" />
+                              {stream.viewCount.toLocaleString()}
+                            </div>
+                          </div>
+                        </div>
+                        <h3 className="text-white font-medium text-sm line-clamp-2 mb-2">
+                          {stream.title}
+                        </h3>
+                        <Button size="sm" className="w-full bg-kein-coral hover:bg-kein-coral/90 text-white text-xs">
+                          Watch Now
+                        </Button>
+                      </div>
+                    </div>
+                  </Link>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="hidden md:block">
+              <CarouselPrevious className="left-1" />
+              <CarouselNext className="right-1" />
+            </div>
+          </Carousel>
+        </div>
+      </div>
       
       {/* Hero carousel */}
       <Carousel className="w-full mb-6">
