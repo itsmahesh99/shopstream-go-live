@@ -1,12 +1,13 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
-import { ChevronRight, Play, Eye } from "lucide-react";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import InfluencerAvatar from "@/components/common/InfluencerAvatar";
-import LiveBadge from "@/components/common/LiveBadge";
-import ProductCard from "@/components/common/ProductCard";
-import { Button } from "@/components/ui/button";
+import InfluencersRow from "@/components/home/InfluencersRow";
+import HeroCarousel from "@/components/home/HeroCarousel";
+import LiveNowCarousel from "@/components/home/LiveNowCarousel";
+import CategoriesSection from "@/components/home/CategoriesSection";
+import LiveShoppingSection from "@/components/home/LiveShoppingSection";
+import BigShowBanners from "@/components/home/BigShowBanners";
+import FeaturedProducts from "@/components/home/FeaturedProducts";
+import UpcomingShows from "@/components/home/UpcomingShows";
 
 // Mock data
 const influencers = [
@@ -129,296 +130,31 @@ const currentLiveStreams = [
 const HomePage = () => {
   return (
     <div className="container mx-auto px-4 pb-20">
-      {/* Influencers scrollable row */}
-      <div className="pt-4 pb-2 overflow-x-auto scrollbar-hide flex space-x-4">
-        <div className="flex-shrink-0">
-          <div className="flex flex-col items-center justify-center w-16 h-16 rounded-full bg-gray-100 border border-dashed border-gray-300">
-            <span className="text-2xl text-gray-400">+</span>
-          </div>
-          <span className="text-xs mt-2 text-center">Follow</span>
-        </div>
-        
-        {influencers.map((influencer) => (
-          <div key={influencer.id} className="flex-shrink-0">
-            <InfluencerAvatar
-              src={influencer.image}
-              name={influencer.name}
-              isLive={influencer.isLive}
-            />
-          </div>
-        ))}
-      </div>
+      <InfluencersRow influencers={influencers} />
       
       {/* Welcome banner */}
       <h1 className="text-2xl font-bold mt-4 mb-4">Welcome to Kein!</h1>
       
-      {/* Live Now carousel - NEW SECTION */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Live Now</h2>
-          <Link to="/live" className="text-sm text-kein-blue flex items-center">
-            See all <ChevronRight className="h-4 w-4 ml-1" />
-          </Link>
-        </div>
-        
-        <div className="relative -mx-4">
-          <Carousel
-            className="w-full px-4"
-            opts={{
-              align: "start",
-              loop: false,
-            }}
-          >
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {currentLiveStreams.map((stream) => (
-                <CarouselItem key={stream.id} className="pl-2 md:pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/3">
-                  <Link to={`/live/${stream.id}`} className="block">
-                    <div className="relative rounded-lg overflow-hidden aspect-[3/4] shadow-md group">
-                      {/* Thumbnail with gradient overlay */}
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300"></div>
-                      <img 
-                        src={stream.thumbnail} 
-                        alt={stream.title} 
-                        className="w-full h-full object-cover"
-                      />
-                      
-                      {/* Play icon overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="h-14 w-14 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center">
-                          <Play className="h-8 w-8 text-white fill-white" />
-                        </div>
-                      </div>
-                      
-                      {/* Live badge */}
-                      <div className="absolute top-2 left-2">
-                        <LiveBadge size="sm" />
-                      </div>
-                      
-                      {/* Influencer avatar + info */}
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3">
-                        <div className="flex items-center mb-2">
-                          <img 
-                            src={stream.influencerImage} 
-                            alt={stream.influencer} 
-                            className="w-8 h-8 rounded-full object-cover border border-white/30"
-                          />
-                          <div className="ml-2">
-                            <p className="text-white font-medium text-sm">{stream.influencer}</p>
-                            <div className="flex items-center text-white/80 text-xs">
-                              <Eye className="h-3 w-3 mr-1" />
-                              {stream.viewCount.toLocaleString()}
-                            </div>
-                          </div>
-                        </div>
-                        <h3 className="text-white font-medium text-sm line-clamp-2 mb-2">
-                          {stream.title}
-                        </h3>
-                        <Button size="sm" className="w-full bg-kein-coral hover:bg-kein-coral/90 text-white text-xs">
-                          Watch Now
-                        </Button>
-                      </div>
-                    </div>
-                  </Link>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="hidden md:block">
-              <CarouselPrevious className="left-1" />
-              <CarouselNext className="right-1" />
-            </div>
-          </Carousel>
-        </div>
-      </div>
+      {/* Live Now carousel */}
+      <LiveNowCarousel streams={currentLiveStreams} />
       
       {/* Hero carousel */}
-      <Carousel className="w-full mb-6">
-        <CarouselContent>
-          <CarouselItem>
-            <div className="bg-kein-yellow rounded-xl p-6 h-40 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-1/2 h-full">
-                <img
-                  src="/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png"
-                  alt="Kein Live"
-                  className="h-full object-cover object-center"
-                />
-              </div>
-              <div className="w-1/2">
-                <h2 className="text-2xl font-bold mb-2">Kein Live</h2>
-                <p className="text-sm">
-                  Watch live streams of your favorite influencers and shop instantly with just one click!
-                </p>
-              </div>
-            </div>
-          </CarouselItem>
-          <CarouselItem>
-            <div className="bg-kein-lightblue rounded-xl p-6 h-40 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-1/2 h-full">
-                <img
-                  src="/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png"
-                  alt="Tech Sales"
-                  className="h-full object-cover object-center"
-                />
-              </div>
-              <div className="w-1/2">
-                <h2 className="text-2xl font-bold mb-2">Tech Sales</h2>
-                <p className="text-sm">
-                  Exclusive discounts on the latest gadgets! Shop during live streams for extra perks.
-                </p>
-              </div>
-            </div>
-          </CarouselItem>
-        </CarouselContent>
-        <div className="flex justify-center mt-4">
-          <div className="flex space-x-2">
-            <div className="w-2 h-2 rounded-full bg-kein-blue"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-          </div>
-        </div>
-      </Carousel>
+      <HeroCarousel />
       
-      {/* Categories section - MOVED BELOW LIVE NOW */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Categories</h2>
-        <div className="grid grid-cols-4 gap-4">
-          {categories.slice(0, 8).map((category) => (
-            <Link
-              to={`/search?category=${category.name}`}
-              key={category.id}
-              className="flex flex-col items-center"
-            >
-              <div className="w-full aspect-square rounded-md overflow-hidden mb-2">
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <span className="text-sm font-medium">{category.name}</span>
-              <span className="text-xs text-gray-500">{category.count}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
+      {/* Categories section */}
+      <CategoriesSection categories={categories} />
       
       {/* Live shopping section */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Live shopping</h2>
-          <Link to="/live/featured" className="text-sm text-gray-600">
-            Show All
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          {liveStreams.map((stream) => (
-            <Link to={`/live/${stream.id}`} key={stream.id} className="relative rounded-lg overflow-hidden aspect-[3/4] shadow-md">
-              <img 
-                src={stream.thumbnail} 
-                alt={stream.title} 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-2 left-2">
-                <LiveBadge />
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                <div className="flex items-center mb-1">
-                  <span className="text-white text-xs mr-2">
-                    <span className="inline-block w-2 h-2 bg-red-500 rounded-full mr-1"></span>
-                    {stream.viewCount.toLocaleString()}
-                  </span>
-                </div>
-                <h3 className="text-white font-medium text-sm line-clamp-2">
-                  {stream.title}
-                </h3>
-                <p className="text-white/80 text-xs mt-1">
-                  {stream.influencer}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <LiveShoppingSection streams={liveStreams} />
       
       {/* Big show banners */}
-      <div className="mb-8">
-        <div className="grid grid-cols-2 gap-4">
-          <Link
-            to="/live/special1"
-            className="bg-gray-100 rounded-lg p-4 flex flex-col justify-between h-24"
-          >
-            <h3 className="font-bold text-sm">BIG SHOW PART 2</h3>
-            <p className="text-xs">Non Stop Givey's</p>
-            <span className="text-xs text-gray-500">Electronics</span>
-          </Link>
-          
-          <Link
-            to="/search?tag=vintage"
-            className="bg-gray-100 rounded-lg p-4 flex flex-col justify-between h-24"
-          >
-            <h3 className="font-bold text-sm">FS VINTAGE SWEATSHIRTS</h3>
-            <p className="text-xs">Limited Collection</p>
-            <span className="text-xs text-gray-500">Clothing</span>
-          </Link>
-        </div>
-      </div>
+      <BigShowBanners />
       
       {/* Featured products section */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Featured Products</h2>
-          <Link to="/search?tag=featured" className="text-sm text-gray-600">
-            Show All
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </div>
+      <FeaturedProducts products={products} />
       
       {/* Upcoming show banners */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Upcoming Shows</h2>
-        <div className="space-y-4">
-          <Link
-            to="/live/upcoming1"
-            className="bg-gray-100 rounded-lg p-4 flex flex-col justify-between h-24"
-          >
-            <div className="flex justify-between">
-              <h3 className="font-bold text-sm">🔥 BLOWOUT SALE! 🔥</h3>
-              <span className="text-xs text-gray-500">Clothing</span>
-            </div>
-            <p className="text-xs">DEALS & STEALS Show with John & Jane Moore</p>
-            <div className="flex justify-between">
-              <span className="text-xs text-gray-500">Tomorrow, 8PM</span>
-              <Button variant="ghost" size="sm" className="text-xs h-6 px-2 py-0 text-kein-blue hover:text-kein-blue hover:bg-blue-50">
-                Remind me
-              </Button>
-            </div>
-          </Link>
-          
-          <Link
-            to="/live/upcoming2"
-            className="bg-gray-100 rounded-lg p-4 flex flex-col justify-between h-24"
-          >
-            <div className="flex justify-between">
-              <h3 className="font-bold text-sm">VEGAS BABY VEGAS!</h3>
-              <span className="text-xs text-gray-500">Fashion</span>
-            </div>
-            <p className="text-xs">Vegas Deal Specials with Sarah</p>
-            <div className="flex justify-between">
-              <span className="text-xs text-gray-500">Apr 10, 7PM</span>
-              <Button variant="ghost" size="sm" className="text-xs h-6 px-2 py-0 text-kein-blue hover:text-kein-blue hover:bg-blue-50">
-                Remind me
-              </Button>
-            </div>
-          </Link>
-        </div>
-      </div>
+      <UpcomingShows />
     </div>
   );
 };
