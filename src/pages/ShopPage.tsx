@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, ChevronRight } from "lucide-react";
@@ -6,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ProductCard, { Product } from "@/components/common/ProductCard";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import type { CarouselApi } from "@/components/ui/carousel";
 
 // Mock data
 const promotions = [{
@@ -158,6 +158,7 @@ const ShopPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("1");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSlide, setActiveSlide] = useState(0);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
   
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -172,6 +173,20 @@ const ShopPage = () => {
   const selectedCategoryName = categories.find(cat => cat.id === selectedCategory)?.name;
   const filteredProducts = products.filter(product => product.category.toLowerCase() === selectedCategoryName?.toLowerCase());
   
+  // Update active slide when carousel changes
+  React.useEffect(() => {
+    if (!carouselApi) return;
+    
+    const onSelect = () => {
+      setActiveSlide(carouselApi.selectedScrollSnap());
+    };
+    
+    carouselApi.on("select", onSelect);
+    return () => {
+      carouselApi.off("select", onSelect);
+    };
+  }, [carouselApi]);
+
   return <div className="pb-20">
       {/* Search bar */}
       <div className="sticky top-0 z-20 bg-white px-4 py-3 border-b">
@@ -184,13 +199,11 @@ const ShopPage = () => {
       <div className="px-4 py-4">
         {/* Promotions carousel */}
         <div className="mb-6">
-          <Carousel className="w-full" opts={{
-          loop: true
-        }} onSelect={(api) => {
-          if (api && typeof api.selectedScrollSnap === 'function') {
-            setActiveSlide(api.selectedScrollSnap());
-          }
-        }}>
+          <Carousel 
+            className="w-full" 
+            opts={{ loop: true }}
+            setApi={setCarouselApi}
+          >
             <CarouselContent>
               {promotions.map(promo => <CarouselItem key={promo.id} className="pl-1">
                   <div className={`rounded-lg p-6 ${promo.color} text-white h-44 relative overflow-hidden`}>
