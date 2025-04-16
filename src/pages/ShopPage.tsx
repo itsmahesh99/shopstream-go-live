@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ const promotions = [{
   color: "bg-gradient-to-r from-kein-blue to-blue-400",
   image: "/lovable-uploads/f570e76e-9e2b-48d1-b582-8f7c2732629c.png",
   buttonText: "Watch Now",
-  buttonLink: "/play"
+  buttonLink: "/kein-live"
 }, {
   id: "2",
   title: "Big Sale",
@@ -151,16 +151,26 @@ const products: Product[] = [{
   image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png",
   category: "Clothing"
 }];
+
 const ShopPage = () => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>("1");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSlide, setActiveSlide] = useState(0);
+  
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);
   };
+  
+  const handleWatchNowClick = (link: string) => (event: React.MouseEvent) => {
+    event.preventDefault();
+    navigate(link);
+  };
+  
   const filteredSubcategories = subcategories.filter(subcat => subcat.categoryId === selectedCategory);
   const selectedCategoryName = categories.find(cat => cat.id === selectedCategory)?.name;
   const filteredProducts = products.filter(product => product.category.toLowerCase() === selectedCategoryName?.toLowerCase());
+  
   return <div className="pb-20">
       {/* Search bar */}
       <div className="sticky top-0 z-20 bg-white px-4 py-3 border-b">
@@ -175,10 +185,8 @@ const ShopPage = () => {
         <div className="mb-6">
           <Carousel className="w-full" opts={{
           loop: true
-        }} onSelect={api => {
-          if (api) {
-            setActiveSlide(api.selectedScrollSnap());
-          }
+        }} onSelect={(index) => {
+          setActiveSlide(index);
         }}>
             <CarouselContent>
               {promotions.map(promo => <CarouselItem key={promo.id} className="pl-1">
@@ -186,11 +194,13 @@ const ShopPage = () => {
                     <div className="relative z-10 max-w-[70%]">
                       <h3 className="text-xl font-bold">{promo.title}</h3>
                       <p className="mt-1 text-white/90 mb-3 text-xs">{promo.description}</p>
-                      <Link to={promo.buttonLink}>
-                        <Button variant="secondary" className="mt-2 bg-white text-blue-600 hover:bg-gray-100 font-bold text-lg">
-                          {promo.buttonText}
-                        </Button>
-                      </Link>
+                      <Button 
+                        variant="secondary" 
+                        className="mt-2 bg-white text-blue-600 hover:bg-gray-100 font-bold text-lg"
+                        onClick={handleWatchNowClick(promo.buttonLink)}
+                      >
+                        {promo.buttonText}
+                      </Button>
                     </div>
                     <img src={promo.image} alt={promo.title} className="absolute right-0 bottom-0 h-full opacity-90 object-cover object-right" />
                   </div>
