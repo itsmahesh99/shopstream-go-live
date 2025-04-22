@@ -18,21 +18,21 @@ const HeroCarousel = () => {
   return (
     <div className="w-full px-0 mb-6">
       <Carousel>
-        <CarouselContent>
+        <CarouselContent className="-ml-0">
           {banners.map((banner, index) => (
             <CarouselItem key={index} className="pl-0">
               <div className="w-full aspect-[16/9]">
                 <img 
                   src={banner} 
                   alt={`Hero banner ${index + 1}`} 
-                  className="w-full h-full object-cover rounded-lg"
+                  className="w-full h-full object-cover rounded-none"
                 />
               </div>
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="left-2" />
-        <CarouselNext className="right-2" />
+        <CarouselPrevious className="left-2 z-10" />
+        <CarouselNext className="right-2 z-10" />
       </Carousel>
     </div>
   );
