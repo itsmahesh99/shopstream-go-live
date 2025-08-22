@@ -48,77 +48,64 @@ const relatedProducts = [
     id: "2",
     title: "Women solid top and jeans",
     price: 999,
-    discountPrice: 499,
-    discountPercentage: 50,
-    image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
+    image: "/lovable-uploads/521c827c-efca-4963-a702-2af0e528830c.png",
     category: "Clothing"
   },
   {
     id: "3",
-    title: "Premium headphones with noise cancellation",
-    price: 2499,
-    discountPrice: 1999,
-    discountPercentage: 20,
-    image: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
-    category: "Electronics"
+    title: "Women solid top and jeans",
+    price: 999,
+    image: "/lovable-uploads/d9b61dc1-74ba-423d-8b21-9e83e8e1ff97.png",
+    category: "Clothing"
   },
   {
     id: "4",
-    title: "Stylish sunglasses UV protection",
-    price: 1299,
-    discountPrice: 999,
-    discountPercentage: 23,
-    image: "/lovable-uploads/521c827c-efca-4963-a702-2af0e528830c.png",
-    category: "Accessories"
+    title: "Women solid top and jeans",
+    price: 999,
+    image: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
+    category: "Clothing"
   },
   {
     id: "5",
-    title: "Smart Fitness Tracker",
-    price: 4999,
-    discountPrice: 3999,
-    discountPercentage: 20,
-    image: "/lovable-uploads/2840b6e9-4e3c-4070-8eb6-13ed21836285.png",
-    category: "Electronics"
+    title: "Women solid top and jeans",
+    price: 999,
+    image: "/lovable-uploads/bcb73b7f-2144-4a7d-aaca-a22c1dce107d.png",
+    category: "Clothing"
   },
+];
+
+const popularProducts = [
   {
     id: "6",
-    title: "Casual Backpack",
-    price: 1999,
-    discountPrice: 1499,
-    discountPercentage: 25,
-    image: "/lovable-uploads/4448d6cf-1254-4262-a2a2-cb90ffd97796.png",
-    category: "Accessories"
+    title: "Stylish Summer Dress",
+    price: 799,
+    discountPrice: 599,
+    image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
+    category: "Clothing"
   },
   {
     id: "7",
-    title: "Running Shoes",
-    price: 2999,
-    discountPrice: 2199,
-    discountPercentage: 27,
-    image: "/lovable-uploads/5112d7a4-a073-42da-9f08-2f9ad3a1c2ce.png",
-    category: "Footwear"
+    title: "Casual Denim Jacket",
+    price: 1299,
+    image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png",
+    category: "Clothing"
   },
   {
     id: "8",
-    title: "Denim Jacket",
-    price: 1799,
-    discountPrice: 1299,
-    discountPercentage: 28,
-    image: "/lovable-uploads/68ddc85b-2fc9-4bc2-b503-2a1a3b95821b.png",
-    category: "Clothing"
+    title: "Trendy Handbag",
+    price: 899,
+    discountPrice: 699,
+    image: "/lovable-uploads/d9b61dc1-74ba-423d-8b21-9e83e8e1ff97.png",
+    category: "Accessories"
   },
   {
     id: "9",
     title: "Floral Print Skirt",
     price: 599,
-    discountPrice: 449,
-    discountPercentage: 25,
     image: "/lovable-uploads/a758d528-4f86-47ab-8952-b84d3f2e2b2c.png",
     category: "Clothing"
   },
 ];
-
-const popularProducts = relatedProducts.slice(0, 6);
 
 const reviewsData = [
   {
@@ -182,6 +169,7 @@ const ProductPage = () => {
   };
   
   const handleBuyNow = () => {
+    // First add to cart
     addToCart({
       id: product.id,
       title: product.title,
@@ -193,6 +181,7 @@ const ProductPage = () => {
       quantity: quantity
     });
     
+    // Then toast notification
     toast({
       title: "Proceeding to checkout",
       description: "Taking you to the checkout page",
@@ -232,8 +221,8 @@ const ProductPage = () => {
 
   return (
     <div className="pb-20 md:pb-8">
-      {/* Mobile Layout */}
       <div className="md:hidden">
+        {/* Mobile Layout */}
         {/* Product image carousel */}
         <div className="relative">
           <Carousel className="w-full">
@@ -272,10 +261,14 @@ const ProductPage = () => {
             <div>
               <span className="font-bold text-2xl">₹{product.discountPrice}</span>
               <div className="flex space-x-2 mt-1">
-                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded">
+                <span 
+                  className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded"
+                >
                   {selectedColor}
                 </span>
-                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded">
+                <span 
+                  className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded"
+                >
                   {selectedSize}
                 </span>
               </div>
@@ -309,7 +302,7 @@ const ProductPage = () => {
               <button
                 key={color}
                 onClick={() => setSelectedColor(color)}
-                className={`relative w-16 h-16 rounded-md overflow-hidden ${selectedColor === color ? 'ring-2 ring-kein-blue ring-offset-2' : 'border border-gray-200'}`}
+                className={`w-16 h-16 rounded-md overflow-hidden ${selectedColor === color ? 'ring-2 ring-kein-blue ring-offset-2' : 'border border-gray-200'}`}
               >
                 <img 
                   src={product.images[product.colors.indexOf(color) % product.images.length]} 
@@ -444,78 +437,6 @@ const ProductPage = () => {
               </Button>
             }
           />
-        </div>
-
-        {/* Product details tabs */}
-        <div className="px-4 pb-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-3 bg-gray-100">
-              <TabsTrigger value="description">Description</TabsTrigger>
-              <TabsTrigger value="specs">Specifications</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews ({reviewsData.length})</TabsTrigger>
-            </TabsList>
-            <TabsContent value="description" className="pt-4">
-              <p className="text-sm text-gray-700 leading-relaxed">
-                {product.description}
-              </p>
-            </TabsContent>
-            <TabsContent value="specs" className="pt-4">
-              <div className="space-y-3">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <div key={key} className="flex justify-between border-b pb-2">
-                    <span className="text-sm text-gray-500 capitalize">{key}</span>
-                    <span className="text-sm font-medium">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="reviews" className="pt-4">
-              <div className="space-y-4">
-                {reviewsData.map((review) => (
-                  <div key={review.id} className="border-b pb-3">
-                    <div className="flex justify-between">
-                      <h4 className="font-medium">{review.user}</h4>
-                      <span className="text-xs text-gray-500">{review.date}</span>
-                    </div>
-                    <div className="flex mt-1 mb-2">
-                      {renderStars(review.rating)}
-                    </div>
-                    <p className="text-sm text-gray-700">{review.comment}</p>
-                  </div>
-                ))}
-                <Button variant="outline" className="w-full" size="sm">
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Write a Review
-                </Button>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-        
-        {/* Most Popular section */}
-        <div className="px-4 pb-8">
-          <h3 className="font-medium mb-4">Most Popular</h3>
-          <Carousel className="w-full">
-            <CarouselContent>
-              {popularProducts.map((product) => (
-                <CarouselItem key={product.id} className="basis-1/2">
-                  <ProductCard product={product} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-0" />
-            <CarouselNext className="right-0" />
-          </Carousel>
-        </div>
-        
-        {/* You Might Like section */}
-        <div className="px-4 pb-8">
-          <h3 className="font-medium mb-4">You Might Like</h3>
-          <div className="grid grid-cols-2 gap-4">
-            {relatedProducts.slice(0, 4).map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
         </div>
       </div>
 
@@ -686,69 +607,116 @@ const ProductPage = () => {
             </div>
           </div>
         </div>
-
-        {/* Desktop Product Details Tabs */}
-        <div className="mt-12">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full max-w-md mx-auto grid grid-cols-3 bg-gray-100">
-              <TabsTrigger value="description">Description</TabsTrigger>
-              <TabsTrigger value="specs">Specifications</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews ({reviewsData.length})</TabsTrigger>
-            </TabsList>
-            <TabsContent value="description" className="pt-6">
-              <div className="max-w-3xl mx-auto">
-                <p className="text-gray-700 leading-relaxed text-lg">
-                  {product.description}
-                </p>
-              </div>
-            </TabsContent>
-            <TabsContent value="specs" className="pt-6">
-              <div className="max-w-2xl mx-auto">
-                <div className="space-y-4">
-                  {Object.entries(product.specifications).map(([key, value]) => (
-                    <div key={key} className="flex justify-between border-b pb-3">
-                      <span className="text-gray-500 capitalize font-medium">{key}</span>
-                      <span className="font-medium">{value}</span>
-                    </div>
-                  ))}
+      </div>
+          product={product}
+          triggerButton={
+            <Button
+              variant="outline"
+              className="flex-1 border-kein-blue text-kein-blue h-12"
+            >
+              Add to cart
+            </Button>
+          }
+          onAddToCart={({ color, size, quantity }) => {
+            addToCart({
+              id: product.id,
+              title: product.title,
+              price: product.price,
+              discountPrice: product.discountPrice,
+              image: product.images[product.colors.indexOf(color) % product.images.length],
+              color,
+              size,
+              quantity
+            });
+            
+            toast({
+              title: "Added to cart",
+              description: `${product.title} (${color}, ${size}) has been added to your cart`,
+            });
+          }}
+          onBuyNow={() => {}}
+        />
+        
+        <PaymentOptionsSheet
+          triggerButton={
+            <Button
+              className="flex-1 bg-kein-blue text-white h-12"
+            >
+              Buy now
+            </Button>
+          }
+        />
+      </div>
+      
+      {/* Product details tabs */}
+      <div className="px-4 pb-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="w-full grid grid-cols-3 bg-gray-100">
+            <TabsTrigger value="description">Description</TabsTrigger>
+            <TabsTrigger value="specs">Specifications</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews ({reviewsData.length})</TabsTrigger>
+          </TabsList>
+          <TabsContent value="description" className="pt-4">
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {product.description}
+            </p>
+          </TabsContent>
+          <TabsContent value="specs" className="pt-4">
+            <div className="space-y-3">
+              {Object.entries(product.specifications).map(([key, value]) => (
+                <div key={key} className="flex justify-between border-b pb-2">
+                  <span className="text-sm text-gray-500 capitalize">{key}</span>
+                  <span className="text-sm font-medium">{value}</span>
                 </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="reviews" className="pt-6">
-              <div className="max-w-4xl mx-auto">
-                <div className="grid md:grid-cols-2 gap-6">
-                  {reviewsData.map((review) => (
-                    <div key={review.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between mb-2">
-                        <h4 className="font-medium">{review.user}</h4>
-                        <span className="text-sm text-gray-500">{review.date}</span>
-                      </div>
-                      <div className="flex mb-3">
-                        {renderStars(review.rating)}
-                      </div>
-                      <p className="text-gray-700">{review.comment}</p>
-                    </div>
-                  ))}
+              ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="reviews" className="pt-4">
+            <div className="space-y-4">
+              {reviewsData.map((review) => (
+                <div key={review.id} className="border-b pb-3">
+                  <div className="flex justify-between">
+                    <h4 className="font-medium">{review.user}</h4>
+                    <span className="text-xs text-gray-500">{review.date}</span>
+                  </div>
+                  <div className="flex mt-1 mb-2">
+                    {renderStars(review.rating)}
+                  </div>
+                  <p className="text-sm text-gray-700">{review.comment}</p>
                 </div>
-                <div className="text-center mt-6">
-                  <Button variant="outline" className="px-8">
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Write a Review
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Desktop Related Products */}
-        <div className="mt-16">
-          <h3 className="text-2xl font-bold mb-8 text-center">You Might Also Like</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedProducts.slice(0, 4).map((product) => (
-              <ProductCard key={product.id} product={product} />
+              ))}
+              <Button variant="outline" className="w-full" size="sm">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Write a Review
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+      
+      {/* Most Popular section */}
+      <div className="px-4 pb-8">
+        <h3 className="font-medium mb-4">Most Popular</h3>
+        <Carousel className="w-full">
+          <CarouselContent>
+            {popularProducts.map((product) => (
+              <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3">
+                <ProductCard product={product} />
+              </CarouselItem>
             ))}
-          </div>
+          </CarouselContent>
+          <CarouselPrevious className="left-0" />
+          <CarouselNext className="right-0" />
+        </Carousel>
+      </div>
+      
+      {/* You Might Like section */}
+      <div className="px-4 pb-8">
+        <h3 className="font-medium mb-4">You Might Like</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {relatedProducts.slice(0, 4).map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       </div>
     </div>

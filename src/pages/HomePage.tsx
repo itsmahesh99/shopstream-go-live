@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import InfluencersRow from "@/components/home/InfluencersRow";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import LiveNowCarousel from "@/components/home/LiveNowCarousel";
@@ -8,6 +8,8 @@ import LiveShoppingSection from "@/components/home/LiveShoppingSection";
 import BigShowBanners from "@/components/home/BigShowBanners";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import UpcomingShows from "@/components/home/UpcomingShows";
+import PromotionsCarousel from "@/components/common/PromotionsCarousel";
+import Reels from "@/components/shop/Reels";
 
 // Mock data
 const influencers = [
@@ -127,13 +129,56 @@ const currentLiveStreams = [
   },
 ];
 
+// Promotions data for homepage
+const homePromotions = [{
+  id: "1",
+  title: "Welcome to Kein!",
+  description: "Watch live streams from your favorite influencers and shop your desired products with just one click!",
+  color: "bg-gradient-to-r from-kein-blue to-blue-400",
+  image: "/lovable-uploads/f570e76e-9e2b-48d1-b582-8f7c2732629c.png",
+  buttonText: "Watch Now",
+  buttonLink: "/kein-live"
+}, {
+  id: "reels",
+  title: "Influencer Reels",
+  description: "Watch short videos from influencers showcasing trending products!",
+  color: "bg-gradient-to-r from-purple-600 to-pink-600",
+  image: "/lovable-uploads/521c827c-efca-4963-a702-2af0e528830c.png",
+  buttonText: "Watch Reels",
+  buttonLink: "#reels",
+  isReels: true
+}, {
+  id: "2",
+  title: "Flash Deals",
+  description: "Limited time offers - Up to 70% off!",
+  color: "bg-gradient-to-r from-kein-coral to-red-400",
+  image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png",
+  buttonText: "Shop Now",
+  buttonLink: "/shop"
+}, {
+  id: "3",
+  title: "New Arrivals",
+  description: "Check out our latest collection",
+  color: "bg-gradient-to-r from-kein-yellow to-yellow-400",
+  image: "/lovable-uploads/2840b6e9-4e3c-4070-8eb6-13ed21836285.png",
+  buttonText: "Explore",
+  buttonLink: "/shop"
+}];
+
 const HomePage = () => {
+  const [showReels, setShowReels] = useState(false);
   return (
     <div className="container mx-auto px-4 pb-20">
       <InfluencersRow influencers={influencers} />
       
       {/* Welcome banner */}
       <h1 className="text-2xl font-bold mt-4 mb-4">Welcome to Kein!</h1>
+      
+      {/* Promotions carousel */}
+      <PromotionsCarousel 
+        promotions={homePromotions} 
+        onReelsClick={() => setShowReels(true)}
+      />
       
       {/* Live Now carousel */}
       <LiveNowCarousel streams={currentLiveStreams} />
@@ -155,6 +200,11 @@ const HomePage = () => {
       
       {/* Upcoming show banners */}
       <UpcomingShows />
+      
+      {/* Reels Modal */}
+      {showReels && (
+        <Reels onClose={() => setShowReels(false)} />
+      )}
     </div>
   );
 };
