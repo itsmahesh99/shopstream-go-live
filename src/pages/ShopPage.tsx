@@ -4,8 +4,8 @@ import { Search, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ProductCard, { Product } from "@/components/common/ProductCard";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import type { CarouselApi } from "@/components/ui/carousel";
+import PromotionsCarousel from "@/components/common/PromotionsCarousel";
+import Reels from "@/components/shop/Reels";
 
 // Mock data
 const promotions = [{
@@ -16,6 +16,15 @@ const promotions = [{
   image: "/lovable-uploads/f570e76e-9e2b-48d1-b582-8f7c2732629c.png",
   buttonText: "Watch Now",
   buttonLink: "/kein-live"
+}, {
+  id: "reels",
+  title: "Influencer Reels",
+  description: "Watch short videos from influencers showcasing trending products!",
+  color: "bg-gradient-to-r from-purple-600 to-pink-600",
+  image: "/lovable-uploads/521c827c-efca-4963-a702-2af0e528830c.png",
+  buttonText: "Watch Reels",
+  buttonLink: "#reels",
+  isReels: true
 }, {
   id: "2",
   title: "Big Sale",
@@ -43,6 +52,12 @@ const promotions = [{
 }];
 
 const categories = [{
+  id: "reels",
+  name: "Reels",
+  icon: "🎬",
+  link: "#reels",
+  isReels: true
+}, {
   id: "1",
   name: "Clothing",
   icon: "👕",
@@ -160,137 +175,107 @@ const ShopPage = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>("1");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
+  const [showReels, setShowReels] = useState(false);
   
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);
   };
   
-  const handleButtonClick = (link: string) => (event: React.MouseEvent) => {
-    event.preventDefault();
-    navigate(link);
-  };
-  
   const filteredSubcategories = subcategories.filter(subcat => subcat.categoryId === selectedCategory);
   const selectedCategoryName = categories.find(cat => cat.id === selectedCategory)?.name;
   const filteredProducts = products.filter(product => product.category.toLowerCase() === selectedCategoryName?.toLowerCase());
-  
-  // Update active slide when carousel changes
-  React.useEffect(() => {
-    if (!carouselApi) return;
-    
-    const onSelect = () => {
-      setActiveSlide(carouselApi.selectedScrollSnap());
-    };
-    
-    carouselApi.on("select", onSelect);
-    return () => {
-      carouselApi.off("select", onSelect);
-    };
-  }, [carouselApi]);
 
-  return <div className="pb-20">
+  return <div className="pb-20 md:pb-8">
       {/* Search bar */}
       <div className="sticky top-0 z-20 bg-white px-4 py-3 border-b">
-        <div className="relative">
+        <div className="relative max-w-2xl mx-auto">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search products..." className="pl-10 py-2 w-full rounded-full bg-gray-50 border-gray-200" />
         </div>
       </div>
 
-      <div className="px-4 py-4">
+      <div className="px-4 py-4 max-w-7xl mx-auto">
         {/* Promotions carousel */}
-        <div className="mb-6">
-          <Carousel 
-            className="w-full" 
-            opts={{ loop: true }}
-            setApi={setCarouselApi}
-          >
-            <CarouselContent>
-              {promotions.map(promo => <CarouselItem key={promo.id} className="pl-1">
-                  <div className={`rounded-lg p-6 ${promo.color} text-white h-44 relative overflow-hidden`}>
-                    <div className="relative z-10 max-w-[70%]">
-                      <h3 className="text-xl font-bold">{promo.title}</h3>
-                      <p className="mt-1 text-white/90 mb-3 text-xs">{promo.description}</p>
-                      <Button 
-                        variant="secondary" 
-                        className="mt-2 bg-white text-blue-600 hover:bg-gray-100 font-bold text-lg"
-                        onClick={promo.buttonText === "Shop Now" 
-                          ? handleButtonClick("/play/feed") 
-                          : promo.buttonText === "Explore" 
-                            ? handleButtonClick("/shop/clothing")
-                            : handleButtonClick(promo.buttonLink)
-                        }
-                      >
-                        {promo.buttonText}
-                      </Button>
-                    </div>
-                    <img src={promo.image} alt={promo.title} className="absolute right-0 bottom-0 h-full opacity-90 object-cover object-right" />
-                  </div>
-                </CarouselItem>)}
-            </CarouselContent>
-            <CarouselPrevious className="left-1" />
-            <CarouselNext className="right-1" />
-            <div className="flex justify-center gap-1 mt-3">
-              {promotions.map((_, index) => <div key={index} className={`h-1.5 w-5 rounded-full transition-colors duration-300 ${index === activeSlide ? "bg-kein-blue" : "bg-gray-300"}`} />)}
-            </div>
-          </Carousel>
-        </div>
+        <PromotionsCarousel 
+          promotions={promotions} 
+          onReelsClick={() => setShowReels(true)}
+        />
 
-        {/* Categories grid */}
-        <div className="mb-6">
-          <h2 className="text-lg font-bold mb-3">Categories</h2>
-          <div className="grid grid-cols-3 gap-3">
-            {categories.map(category => <Link key={category.id} to={category.link} className={`p-4 rounded-lg flex flex-col items-center justify-center transition-all ${selectedCategory === category.id ? "bg-kein-lightblue text-kein-blue border border-kein-blue/30" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`} onClick={(e) => {
-                if (category.id === "1") {
-                  // For clothing, navigate directly to shop/clothing
-                  e.preventDefault();
-                  navigate("/shop/clothing");
-                } else {
-                  // For other categories, just select them
-                  e.preventDefault();
-                  handleCategoryClick(category.id);
-                }
-              }}>
-                <span className="text-2xl mb-1">{category.icon}</span>
-                <span className="text-sm font-medium">{category.name}</span>
-              </Link>)}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Left sidebar on desktop */}
+          <div className="lg:col-span-1">
+            {/* Categories grid */}
+            <div className="mb-6">
+              <h2 className="text-lg font-bold mb-3">Categories</h2>
+              <div className="grid grid-cols-3 lg:grid-cols-1 gap-3">
+                {categories.map(category => <div
+                    key={category.id} 
+                    className={`p-4 rounded-lg flex lg:flex-row flex-col items-center justify-center lg:justify-start transition-all cursor-pointer ${
+                      selectedCategory === category.id ? "bg-kein-lightblue text-kein-blue border border-kein-blue/30" : 
+                      category.isReels ? "bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 hover:from-purple-200 hover:to-pink-200" :
+                      "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`} 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (category.isReels) {
+                        setShowReels(true);
+                      } else if (category.id === "1") {
+                        // For clothing, navigate directly to shop/clothing
+                        navigate("/shop/clothing");
+                      } else {
+                        // For other categories, just select them
+                        handleCategoryClick(category.id);
+                      }
+                    }}
+                  >
+                    <span className="text-2xl mb-1 lg:mb-0 lg:mr-3">{category.icon}</span>
+                    <span className="text-sm font-medium">{category.name}</span>
+                  </div>)}
+              </div>
+            </div>
+
+            {/* Subcategories */}
+            {filteredSubcategories.length > 0 && <div className="mb-6">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="text-lg font-bold">
+                    {selectedCategoryName} Categories
+                  </h2>
+                  <Link to="#" className="text-kein-blue text-sm flex items-center lg:hidden">
+                    View All
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Link>
+                </div>
+                <div className="flex lg:flex-col overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 space-x-3 lg:space-x-0 lg:space-y-2 scrollbar-hide">
+                  {filteredSubcategories.map(subcategory => <div key={subcategory.id} className="bg-gray-100 px-4 py-2 rounded-full lg:rounded-md text-gray-700 whitespace-nowrap lg:whitespace-normal text-center lg:text-left">
+                      {subcategory.name}
+                    </div>)}
+                </div>
+              </div>}
           </div>
-        </div>
 
-        {/* Subcategories */}
-        {filteredSubcategories.length > 0 && <div className="mb-6">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-bold">
-                {selectedCategoryName} Categories
-              </h2>
-              <Link to="#" className="text-kein-blue text-sm flex items-center">
-                View All
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Link>
+          {/* Main content area */}
+          <div className="lg:col-span-3">
+            {/* Products list */}
+            <div>
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-lg font-bold">Popular {selectedCategoryName}</h2>
+                <Link to={categories.find(cat => cat.id === selectedCategory)?.link || "#"} className="text-kein-blue text-sm flex items-center">
+                  View All
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {filteredProducts.map(product => <ProductCard key={product.id} product={product} showAddToCart={true} />)}
+              </div>
             </div>
-            <div className="flex overflow-x-auto pb-2 space-x-3 scrollbar-hide">
-              {filteredSubcategories.map(subcategory => <div key={subcategory.id} className="bg-gray-100 px-4 py-2 rounded-full text-gray-700 whitespace-nowrap">
-                  {subcategory.name}
-                </div>)}
-            </div>
-          </div>}
-
-        {/* Products list */}
-        <div>
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-lg font-bold">Popular {selectedCategoryName}</h2>
-            <Link to={categories.find(cat => cat.id === selectedCategory)?.link || "#"} className="text-kein-blue text-sm flex items-center">
-              View All
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {filteredProducts.map(product => <ProductCard key={product.id} product={product} showAddToCart={true} />)}
           </div>
         </div>
       </div>
+      
+      {/* Reels Modal */}
+      {showReels && (
+        <Reels onClose={() => setShowReels(false)} />
+      )}
     </div>;
 };
 export default ShopPage;

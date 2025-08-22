@@ -40,10 +40,10 @@ const CartPage = () => {
   };
 
   return (
-    <div className="min-h-screen pb-20 bg-gray-50">
+    <div className="min-h-screen pb-20 md:pb-8 bg-gray-50">
       <div className="sticky top-0 z-30 bg-white border-b">
-        <div className="px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold">My Cart</h1>
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-xl font-semibold">My Cart ({items.length} items)</h1>
           {items.length > 0 && (
             <Button 
               variant="ghost" 
@@ -58,27 +58,45 @@ const CartPage = () => {
         </div>
       </div>
       
-      <div className="px-4 py-4">
+      <div className="max-w-7xl mx-auto px-4 py-4">
         {items.length > 0 ? (
-          <div className="space-y-4">
-            {items.map(item => (
-              <CartItem 
-                key={item.id}
-                {...item}
-                onRemove={handleRemoveFromCart}
-              />
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Cart Items */}
+            <div className="lg:col-span-2 space-y-4">
+              {items.map(item => (
+                <CartItem 
+                  key={item.id}
+                  {...item}
+                  onRemove={handleRemoveFromCart}
+                />
+              ))}
+            </div>
             
-            <CouponInput />
-            <CartSummary />
-            
-            {/* Checkout button */}
-            <Button 
-              className="w-full bg-kein-blue hover:bg-kein-blue/90 h-12"
-              onClick={handleCheckout}
-            >
-              Proceed to Checkout
-            </Button>
+            {/* Order Summary Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24 space-y-6">
+                <CouponInput />
+                <CartSummary />
+                
+                {/* Checkout button */}
+                <Button 
+                  className="w-full bg-kein-blue hover:bg-kein-blue/90 h-12"
+                  onClick={handleCheckout}
+                >
+                  Proceed to Checkout
+                </Button>
+                
+                {/* Additional info on desktop */}
+                <div className="hidden lg:block bg-gray-50 rounded-lg p-4">
+                  <h3 className="font-medium mb-2">Shipping & Returns</h3>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    <li>• Free shipping on orders over ₹999</li>
+                    <li>• 30-day easy returns</li>
+                    <li>• Secure payment processing</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <EmptyCart />

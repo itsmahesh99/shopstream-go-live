@@ -5,7 +5,9 @@ import Layout from "./components/layout/Layout";
 import Index from "./pages/Index";
 import WelcomePage from "./pages/WelcomePage";
 import SignupPage from "./pages/SignupPage";
+import HomePage from "./pages/HomePage";
 import ShopPage from "./pages/ShopPage";
+import ReelsPage from "./pages/ReelsPage";
 import ClothingPage from "./pages/ClothingPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProductPage from "./pages/ProductPage";
@@ -33,8 +35,10 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/m" element={<MobileLandingPage />} />
+          <Route path="/shop" element={<ReelsPage />} />
           <Route element={<Layout />}>
-            <Route path="/home" element={<ShopPage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/shop/browse" element={<ShopPage />} />
             <Route path="/shop/clothing" element={<ClothingPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/product/:id" element={<ProductPage />} />
