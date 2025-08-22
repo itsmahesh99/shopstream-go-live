@@ -71,3 +71,9 @@ Yes it is!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Backend plan (Node.js + Supabase + WebRTC)
+
+- We will use Node.js with Supabase (Auth, Postgres, Storage, Realtime) and a WebRTC solution (LiveKit recommended) for livestreams.
+- Full architecture and phased roadmap: `docs/backend-plan.md`.
+- Supabase schema, RLS, and buckets: `docs/supabase-setup.md`.
