@@ -5,41 +5,60 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { signIn, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     
     if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
+      setError('Please enter both email and password');
       return;
     }
     
-    toast({
-      title: "Welcome back!",
-      description: "You've successfully logged in",
-    });
-    navigate("/home");
+    try {
+      const { user, error } = await signIn(email, password);
+      
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      if (user) {
+        // Role-based routing after successful login
+        const userRole = user.user_metadata?.role;
+        
+        switch (userRole) {
+          case 'customer':
+            navigate('/customer/dashboard');
+            break;
+          case 'wholesaler':
+            navigate('/wholesaler/dashboard');
+            break;
+          case 'influencer':
+            navigate('/influencer/dashboard');
+            break;
+          default:
+            navigate('/home');
+        }
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during login');
+    }
   };
 
   const handleGoogleLogin = () => {
-    toast({
-      title: "Google login",
-      description: "This would connect to Google authentication",
-    });
-    navigate("/home");
+    // TODO: Implement Google OAuth with Supabase
+    console.log("Google login not yet implemented");
   };
 
   return (
@@ -68,6 +87,12 @@ const LoginPage = () => {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
+                {error}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Input 
                 type="email" 
@@ -117,12 +142,13 @@ const LoginPage = () => {
             <Button 
               type="submit"
               className="w-full bg-kein-blue hover:bg-kein-blue/90 text-white h-12"
+              disabled={loading}
             >
-              Login
+              {loading ? "Signing in..." : "Login"}
             </Button>
           </form>
 
-          <div className="text-center">
+          <div className="text-center mt-6">
             <p className="text-sm text-gray-600">
               Don't have an account? <Link to="/signup" className="text-kein-blue font-medium">Sign up</Link>
             </p>

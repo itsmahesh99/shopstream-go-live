@@ -135,7 +135,7 @@ const Footer = () => {
 
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12">
           {/* Company Info */}
           <div className="lg:col-span-2">
             <Link to="/home" className="inline-block mb-6">
@@ -227,6 +227,31 @@ const Footer = () => {
                   </Link>
                 </li>
               ))}
+            </ul>
+          </div>
+
+          {/* Business Opportunities */}
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-4">Join as Business</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link 
+                  to="/signup/wholesaler"
+                  className="text-gray-600 hover:text-kein-blue transition-colors text-sm font-medium"
+                >
+                  Become a Wholesaler
+                </Link>
+                <p className="text-xs text-gray-500 mt-1">Sell & Supply Products</p>
+              </li>
+              <li>
+                <Link 
+                  to="/signup/influencer"
+                  className="text-gray-600 hover:text-kein-blue transition-colors text-sm font-medium"
+                >
+                  Become an Influencer
+                </Link>
+                <p className="text-xs text-gray-500 mt-1">Stream & Earn Commissions</p>
+              </li>
             </ul>
           </div>
         </div>

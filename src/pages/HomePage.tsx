@@ -1,15 +1,27 @@
 
-import React, { useState } from "react";
-import InfluencersRow from "@/components/home/InfluencersRow";
-import HeroCarousel from "@/components/home/HeroCarousel";
-import LiveNowCarousel from "@/components/home/LiveNowCarousel";
-import CategoriesSection from "@/components/home/CategoriesSection";
-import LiveShoppingSection from "@/components/home/LiveShoppingSection";
-import BigShowBanners from "@/components/home/BigShowBanners";
-import FeaturedProducts from "@/components/home/FeaturedProducts";
-import UpcomingShows from "@/components/home/UpcomingShows";
-import PromotionsCarousel from "@/components/common/PromotionsCarousel";
-import Reels from "@/components/shop/Reels";
+import React, { useState, lazy, Suspense } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+
+// Lazy load heavy components
+const InfluencersRow = lazy(() => import("@/components/home/InfluencersRow"));
+const HeroCarousel = lazy(() => import("@/components/home/HeroCarousel"));
+const LiveNowCarousel = lazy(() => import("@/components/home/LiveNowCarousel"));
+const CategoriesSection = lazy(() => import("@/components/home/CategoriesSection"));
+const LiveShoppingSection = lazy(() => import("@/components/home/LiveShoppingSection"));
+const BigShowBanners = lazy(() => import("@/components/home/BigShowBanners"));
+const FeaturedProducts = lazy(() => import("@/components/home/FeaturedProducts"));
+const UpcomingShows = lazy(() => import("@/components/home/UpcomingShows"));
+const PromotionsCarousel = lazy(() => import("@/components/common/PromotionsCarousel"));
+const Reels = lazy(() => import("@/components/shop/Reels"));
+
+// Simple loading component for sections
+const SectionLoader = () => (
+  <div className="w-full h-32 bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
+    <p className="text-gray-500 text-sm">Loading...</p>
+  </div>
+);
 
 // Mock data
 const influencers = [
@@ -167,43 +179,134 @@ const homePromotions = [{
 
 const HomePage = () => {
   const [showReels, setShowReels] = useState(false);
+  const { user, userProfile } = useAuth();
+  
+  // Helper function to get user display name based on role
+  const getUserDisplayName = () => {
+    if (!userProfile?.profile) return user?.email?.split('@')[0] || 'Guest';
+    
+    const profile = userProfile.profile;
+    const role = userProfile.role;
+    
+    switch (role) {
+      case 'customer':
+        const customer = profile as any; // Customer type
+        return customer.first_name || user?.email?.split('@')[0] || 'Customer';
+      
+      case 'wholesaler':
+        const wholesaler = profile as any; // Wholesaler type
+        return wholesaler.contact_person_name || wholesaler.business_name || user?.email?.split('@')[0] || 'Wholesaler';
+      
+      case 'influencer':
+        const influencer = profile as any; // Influencer type
+        return influencer.display_name || influencer.first_name || user?.email?.split('@')[0] || 'Influencer';
+      
+      default:
+        return user?.email?.split('@')[0] || 'User';
+    }
+  };
+  
   return (
     <div className="container mx-auto px-4 pb-20">
-      <InfluencersRow influencers={influencers} />
+      {/* Welcome banner for non-authenticated users */}
+      {!user && (
+        <div className="bg-gradient-to-r from-kein-blue to-blue-600 text-white rounded-xl p-6 mb-6 mt-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">Welcome to Kein!</h2>
+            <p className="mb-4 opacity-90">
+              Join thousands of users shopping live with their favorite influencers
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button 
+                variant="secondary" 
+                className="bg-white text-kein-blue hover:bg-gray-100"
+                asChild
+              >
+                <Link to="/signup">Get Started</Link>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="border-white text-white hover:bg-white hover:text-kein-blue"
+                asChild
+              >
+                <Link to="/login">Sign In</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Personalized welcome for authenticated users */}
+      {user && (
+        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 mb-6 mt-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">
+              Welcome back, {getUserDisplayName()}!
+            </h2>
+            <p className="opacity-90">
+              Discover new products from your favorite influencers
+            </p>
+          </div>
+        </div>
+      )}
+
+      <Suspense fallback={<SectionLoader />}>
+        <InfluencersRow influencers={influencers} />
+      </Suspense>
       
       {/* Welcome banner */}
-      <h1 className="text-2xl font-bold mt-4 mb-4">Welcome to Kein!</h1>
+      <h1 className="text-2xl font-bold mt-4 mb-4">
+        {user ? "Continue Shopping" : "Shop Live, Buy Instant!"}
+      </h1>
       
       {/* Promotions carousel */}
-      <PromotionsCarousel 
-        promotions={homePromotions} 
-        onReelsClick={() => setShowReels(true)}
-      />
+      <Suspense fallback={<SectionLoader />}>
+        <PromotionsCarousel 
+          promotions={homePromotions} 
+          onReelsClick={() => setShowReels(true)}
+        />
+      </Suspense>
       
       {/* Live Now carousel */}
-      <LiveNowCarousel streams={currentLiveStreams} />
+      <Suspense fallback={<SectionLoader />}>
+        <LiveNowCarousel streams={currentLiveStreams} />
+      </Suspense>
       
       {/* Hero carousel */}
-      <HeroCarousel />
+      <Suspense fallback={<SectionLoader />}>
+        <HeroCarousel />
+      </Suspense>
       
       {/* Categories section */}
-      <CategoriesSection categories={categories} />
+      <Suspense fallback={<SectionLoader />}>
+        <CategoriesSection categories={categories} />
+      </Suspense>
       
       {/* Live shopping section */}
-      <LiveShoppingSection streams={liveStreams} />
+      <Suspense fallback={<SectionLoader />}>
+        <LiveShoppingSection streams={liveStreams} />
+      </Suspense>
       
       {/* Big show banners */}
-      <BigShowBanners />
+      <Suspense fallback={<SectionLoader />}>
+        <BigShowBanners />
+      </Suspense>
       
       {/* Featured products section */}
-      <FeaturedProducts products={products} />
+      <Suspense fallback={<SectionLoader />}>
+        <FeaturedProducts products={products} />
+      </Suspense>
       
       {/* Upcoming show banners */}
-      <UpcomingShows />
+      <Suspense fallback={<SectionLoader />}>
+        <UpcomingShows />
+      </Suspense>
       
       {/* Reels Modal */}
       {showReels && (
-        <Reels onClose={() => setShowReels(false)} />
+        <Suspense fallback={<SectionLoader />}>
+          <Reels onClose={() => setShowReels(false)} />
+        </Suspense>
       )}
     </div>
   );

@@ -133,13 +133,13 @@ const products: Product[] = [{
   price: 1299,
   discountPrice: 999,
   discountPercentage: 23,
-  image: "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
+  image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop&crop=center",
   category: "Clothing"
 }, {
   id: "2",
   title: "Men's Casual T-Shirt",
   price: 599,
-  image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
+  image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop&crop=center",
   category: "Clothing"
 }, {
   id: "3",
@@ -147,7 +147,7 @@ const products: Product[] = [{
   price: 2499,
   discountPrice: 1999,
   discountPercentage: 20,
-  image: "/lovable-uploads/d9b61dc1-74ba-423d-8b21-9e83e8e1ff97.png",
+  image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400&h=400&fit=crop&crop=center",
   category: "Electronics"
 }, {
   id: "4",
@@ -155,19 +155,19 @@ const products: Product[] = [{
   price: 3499,
   discountPrice: 2999,
   discountPercentage: 14,
-  image: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
+  image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop&crop=center",
   category: "Shoes"
 }, {
   id: "5",
   title: "Smart Watch",
   price: 4999,
-  image: "/lovable-uploads/bcb73b7f-2144-4a7d-aaca-a22c1dce107d.png",
+  image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop&crop=center",
   category: "Electronics"
 }, {
   id: "6",
   title: "Denim Jacket",
   price: 1999,
-  image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png",
+  image: "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=400&h=400&fit=crop&crop=center",
   category: "Clothing"
 }];
 

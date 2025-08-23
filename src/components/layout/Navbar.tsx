@@ -5,14 +5,40 @@ import { Search, ShoppingBag, Home, Heart, Play, User, Menu, X, Bell, Store, Hea
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import KeinLogo from "../common/KeinLogo";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const { totalItems } = useCart();
+  const { user, userProfile } = useAuth();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Helper function to get user display name based on role
+  const getUserDisplayName = () => {
+    if (!userProfile?.profile) return user?.email?.split('@')[0] || 'User';
+    
+    const profile = userProfile.profile;
+    const role = userProfile.role;
+    
+    switch (role) {
+      case 'customer':
+        const customer = profile as any;
+        return customer.first_name || user?.email?.split('@')[0] || 'Customer';
+      
+      case 'wholesaler':
+        const wholesaler = profile as any;
+        return wholesaler.contact_person_name || wholesaler.business_name || user?.email?.split('@')[0] || 'Wholesaler';
+      
+      case 'influencer':
+        const influencer = profile as any;
+        return influencer.display_name || influencer.first_name || user?.email?.split('@')[0] || 'Influencer';
+      
+      default:
+        return user?.email?.split('@')[0] || 'User';
+    }
+  };
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -23,7 +49,6 @@ const Navbar = () => {
     { path: "/shop", label: "Shop", icon: Store },
     { path: "/play", label: "Live", icon: Play },
     { path: "/wishlist", label: "Wishlist", icon: Heart },
-    { path: "/profile", label: "Profile", icon: User },
   ];
   
   return (
@@ -33,7 +58,11 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/home" className="flex-shrink-0">
-              <KeinLogo className="h-10" />
+              <img 
+                src="/keinlogo.png" 
+                alt="Kein Logo" 
+                className="h-10 w-auto"
+              />
             </Link>
           </div>
           
@@ -77,7 +106,7 @@ const Navbar = () => {
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingBag className="h-5 w-5 text-gray-600" />
                 {totalItems > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-kein-coral text-white text-xs">
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
                     {totalItems}
                   </Badge>
                 )}
@@ -85,12 +114,27 @@ const Navbar = () => {
             </Link>
 
             <div className="flex items-center space-x-2 border-l pl-4">
-              <Button variant="outline" size="sm" className="border-kein-blue text-kein-blue hover:bg-kein-blue hover:text-white">
-                Sign In
-              </Button>
-              <Button size="sm" className="bg-kein-blue hover:bg-kein-blue/90">
-                Sign Up
-              </Button>
+              {user ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded-full bg-kein-blue flex items-center justify-center">
+                    <User className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="hidden lg:block">
+                    <Link to="/profile" className="hover:text-kein-blue transition-colors">
+                      <p className="text-sm font-medium">{getUserDisplayName()}</p>
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" className="border-kein-blue text-kein-blue hover:bg-kein-blue hover:text-white" asChild>
+                    <Link to="/login">Sign In</Link>
+                  </Button>
+                  <Button size="sm" className="bg-kein-blue hover:bg-kein-blue/90" asChild>
+                    <Link to="/signup">Sign Up</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
@@ -100,7 +144,7 @@ const Navbar = () => {
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingBag className="h-5 w-5 text-gray-600" />
                 {totalItems > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 bg-kein-coral text-white text-xs">
+                  <Badge className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
                     {totalItems}
                   </Badge>
                 )}
@@ -159,12 +203,28 @@ const Navbar = () => {
             </nav>
             
             <div className="mt-4 pt-4 border-t space-y-2">
-              <Button variant="outline" className="w-full border-kein-blue text-kein-blue">
-                Sign In
-              </Button>
-              <Button className="w-full bg-kein-blue hover:bg-kein-blue/90">
-                Sign Up
-              </Button>
+              {user ? (
+                <div className="flex items-center space-x-3 px-3 py-2">
+                  <div className="w-8 h-8 rounded-full bg-kein-blue flex items-center justify-center">
+                    <User className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-kein-blue transition-colors">
+                      <p className="text-sm font-medium">{getUserDisplayName()}</p>
+                    </Link>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Button variant="outline" className="w-full border-kein-blue text-kein-blue" asChild>
+                    <Link to="/login">Sign In</Link>
+                  </Button>
+                  <Button className="w-full bg-kein-blue hover:bg-kein-blue/90" asChild>
+                    <Link to="/signup">Sign Up</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
