@@ -1,18 +1,27 @@
 
-import React, { useState } from "react";
+import React, { useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import InfluencersRow from "@/components/home/InfluencersRow";
-import HeroCarousel from "@/components/home/HeroCarousel";
-import LiveNowCarousel from "@/components/home/LiveNowCarousel";
-import CategoriesSection from "@/components/home/CategoriesSection";
-import LiveShoppingSection from "@/components/home/LiveShoppingSection";
-import BigShowBanners from "@/components/home/BigShowBanners";
-import FeaturedProducts from "@/components/home/FeaturedProducts";
-import UpcomingShows from "@/components/home/UpcomingShows";
-import PromotionsCarousel from "@/components/common/PromotionsCarousel";
-import Reels from "@/components/shop/Reels";
+
+// Lazy load heavy components
+const InfluencersRow = lazy(() => import("@/components/home/InfluencersRow"));
+const HeroCarousel = lazy(() => import("@/components/home/HeroCarousel"));
+const LiveNowCarousel = lazy(() => import("@/components/home/LiveNowCarousel"));
+const CategoriesSection = lazy(() => import("@/components/home/CategoriesSection"));
+const LiveShoppingSection = lazy(() => import("@/components/home/LiveShoppingSection"));
+const BigShowBanners = lazy(() => import("@/components/home/BigShowBanners"));
+const FeaturedProducts = lazy(() => import("@/components/home/FeaturedProducts"));
+const UpcomingShows = lazy(() => import("@/components/home/UpcomingShows"));
+const PromotionsCarousel = lazy(() => import("@/components/common/PromotionsCarousel"));
+const Reels = lazy(() => import("@/components/shop/Reels"));
+
+// Simple loading component for sections
+const SectionLoader = () => (
+  <div className="w-full h-32 bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
+    <p className="text-gray-500 text-sm">Loading...</p>
+  </div>
+);
 
 // Mock data
 const influencers = [
@@ -241,7 +250,9 @@ const HomePage = () => {
         </div>
       )}
 
-      <InfluencersRow influencers={influencers} />
+      <Suspense fallback={<SectionLoader />}>
+        <InfluencersRow influencers={influencers} />
+      </Suspense>
       
       {/* Welcome banner */}
       <h1 className="text-2xl font-bold mt-4 mb-4">
@@ -249,35 +260,53 @@ const HomePage = () => {
       </h1>
       
       {/* Promotions carousel */}
-      <PromotionsCarousel 
-        promotions={homePromotions} 
-        onReelsClick={() => setShowReels(true)}
-      />
+      <Suspense fallback={<SectionLoader />}>
+        <PromotionsCarousel 
+          promotions={homePromotions} 
+          onReelsClick={() => setShowReels(true)}
+        />
+      </Suspense>
       
       {/* Live Now carousel */}
-      <LiveNowCarousel streams={currentLiveStreams} />
+      <Suspense fallback={<SectionLoader />}>
+        <LiveNowCarousel streams={currentLiveStreams} />
+      </Suspense>
       
       {/* Hero carousel */}
-      <HeroCarousel />
+      <Suspense fallback={<SectionLoader />}>
+        <HeroCarousel />
+      </Suspense>
       
       {/* Categories section */}
-      <CategoriesSection categories={categories} />
+      <Suspense fallback={<SectionLoader />}>
+        <CategoriesSection categories={categories} />
+      </Suspense>
       
       {/* Live shopping section */}
-      <LiveShoppingSection streams={liveStreams} />
+      <Suspense fallback={<SectionLoader />}>
+        <LiveShoppingSection streams={liveStreams} />
+      </Suspense>
       
       {/* Big show banners */}
-      <BigShowBanners />
+      <Suspense fallback={<SectionLoader />}>
+        <BigShowBanners />
+      </Suspense>
       
       {/* Featured products section */}
-      <FeaturedProducts products={products} />
+      <Suspense fallback={<SectionLoader />}>
+        <FeaturedProducts products={products} />
+      </Suspense>
       
       {/* Upcoming show banners */}
-      <UpcomingShows />
+      <Suspense fallback={<SectionLoader />}>
+        <UpcomingShows />
+      </Suspense>
       
       {/* Reels Modal */}
       {showReels && (
-        <Reels onClose={() => setShowReels(false)} />
+        <Suspense fallback={<SectionLoader />}>
+          <Reels onClose={() => setShowReels(false)} />
+        </Suspense>
       )}
     </div>
   );

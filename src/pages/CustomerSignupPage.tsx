@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Users, Eye, EyeOff } from 'lucide-react';
 
 const CustomerSignupPage = () => {
   const { signUp } = useAuth();
@@ -49,13 +49,16 @@ const CustomerSignupPage = () => {
     }
 
     try {
-      await signUp(formData.email, formData.password, 'customer', {
+      const result = await signUp(formData.email, formData.password, 'customer', {
         first_name: formData.firstName,
         last_name: formData.lastName,
         phone: formData.phone
       });
-      // Navigate to dashboard or onboarding
-      navigate('/customer/dashboard');
+      
+      if (!result.error) {
+        // Navigate to customer home page
+        navigate('/home');
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred during signup');
     } finally {
@@ -75,14 +78,6 @@ const CustomerSignupPage = () => {
               className="h-12 w-auto"
             />
           </div>
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/signup')}
-            className="mb-4 text-gray-600 hover:text-gray-800"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to role selection
-          </Button>
         </div>
 
         <Card className="shadow-xl border-0">

@@ -53,97 +53,142 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const profile = userProfile?.legacyProfile || null
 
   useEffect(() => {
+    let mounted = true
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (!mounted) return
+
       setSession(session)
       setUser(session?.user ?? null)
+      
       if (session?.user) {
         fetchUserProfile(session.user.id).finally(() => {
-          setLoading(false)
+          if (mounted) setLoading(false)
         })
       } else {
         setLoading(false)
       }
     }).catch((error) => {
       console.error('Auth session error:', error)
-      setLoading(false)
+      if (mounted) setLoading(false)
     })
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return
+
         setSession(session)
         setUser(session?.user ?? null)
         
         if (session?.user) {
-          await fetchUserProfile(session.user.id)
+          // Don't await - update profile in background
+          fetchUserProfile(session.user.id)
         } else {
           setUserProfile(null)
         }
         
-        setLoading(false)
+        // Only set loading to false for initial session
+        if (event === 'INITIAL_SESSION') {
+          setLoading(false)
+        }
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      // First check legacy profiles table for backward compatibility
-      const { data: legacyProfile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
+      // Use a more efficient approach - check user metadata first for role
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      const userRole = currentUser?.user_metadata?.role as UserRole
+      
+      if (userRole) {
+        // If we know the role, query only the relevant table
+        let roleProfile: Customer | Wholesaler | Influencer | null = null
+        
+        switch (userRole) {
+          case 'customer':
+            const { data: customerData } = await supabase
+              .from('customers')
+              .select('*')
+              .eq('user_id', userId)
+              .single()
+            roleProfile = customerData
+            break
+            
+          case 'wholesaler':
+            const { data: wholesalerData } = await supabase
+              .from('wholesalers')
+              .select('*')
+              .eq('user_id', userId)
+              .single()
+            roleProfile = wholesalerData
+            break
+            
+          case 'influencer':
+            const { data: influencerData } = await supabase
+              .from('influencers')
+              .select('*')
+              .eq('user_id', userId)
+              .single()
+            roleProfile = influencerData
+            break
+        }
+        
+        setUserProfile({
+          role: userRole,
+          profile: roleProfile,
+          legacyProfile: null
+        })
+        return
+      }
 
-      // Try to find the user in each role-specific table
-      const { data: customerData, error: customerError } = await supabase
-        .from('customers')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
+      // Fallback: If no role in metadata, check all tables (only for legacy users)
+      const [
+        { data: customerData },
+        { data: wholesalerData }, 
+        { data: influencerData },
+        { data: legacyProfile }
+      ] = await Promise.all([
+        supabase.from('customers').select('*').eq('user_id', userId).maybeSingle(),
+        supabase.from('wholesalers').select('*').eq('user_id', userId).maybeSingle(),
+        supabase.from('influencers').select('*').eq('user_id', userId).maybeSingle(),
+        supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
+      ])
 
-      const { data: wholesalerData, error: wholesalerError } = await supabase
-        .from('wholesalers')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
-
-      const { data: influencerData, error: influencerError } = await supabase
-        .from('influencers')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
-
-      let role: UserRole | null = null
+      let role: UserRole = 'customer' // Default role
       let roleProfile: Customer | Wholesaler | Influencer | null = null
 
-      if (customerData && !customerError) {
+      if (customerData) {
         role = 'customer'
         roleProfile = customerData
-      } else if (wholesalerData && !wholesalerError) {
+      } else if (wholesalerData) {
         role = 'wholesaler'
         roleProfile = wholesalerData
-      } else if (influencerData && !influencerError) {
+      } else if (influencerData) {
         role = 'influencer'
         roleProfile = influencerData
       }
 
       setUserProfile({
-        role: role || 'customer', // Default to customer if no role found
+        role,
         profile: roleProfile,
         legacyProfile: legacyProfile || null
       })
 
-      // If no role profile exists but we have a legacy profile, user needs onboarding
-      if (!roleProfile && legacyProfile) {
-        console.log('User needs role-specific onboarding')
-      }
-
     } catch (error) {
       console.error('Error fetching user profile:', error)
-      setUserProfile(null)
+      setUserProfile({
+        role: 'customer',
+        profile: null,
+        legacyProfile: null
+      })
     }
   }
   const createRoleProfile = async (role: UserRole, profileData: any) => {
@@ -224,14 +269,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
-  const signUp = async (email: string, password: string, role: UserRole, metadata?: { name?: string }) => {
+  const signUp = async (email: string, password: string, role: UserRole, profileData?: any) => {
     setLoading(true)
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { ...metadata, role },
+          data: { role },
           emailRedirectTo: undefined,
           captchaToken: undefined
         }
@@ -244,15 +289,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           description: error.message,
           variant: 'destructive'
         })
-      } else {
-        console.log('Signup success:', data)
-        toast({
-          title: 'Account created successfully!',
-          description: `Welcome to Kein! Please complete your ${role} profile setup.`
-        })
+        return { error }
       }
 
-      return { error }
+      if (data.user && profileData) {
+        // Wait a moment for the user to be properly created
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // Set the user manually for profile creation
+        setUser(data.user)
+        
+        // Create the role-specific profile
+        const profileResult = await createRoleProfile(role, profileData)
+        if (profileResult.error) {
+          console.error('Profile creation error:', profileResult.error)
+          toast({
+            title: 'Profile creation failed',
+            description: profileResult.error.message,
+            variant: 'destructive'
+          })
+          return { error: profileResult.error }
+        }
+      }
+
+      console.log('Signup success:', data)
+      toast({
+        title: 'Account created successfully!',
+        description: `Welcome to Kein! Your ${role} account has been set up.`
+      })
+
+      return { error: null }
     } finally {
       setLoading(false)
     }

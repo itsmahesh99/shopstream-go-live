@@ -54,7 +54,7 @@ const WholesalerSignupPage = () => {
     }
 
     try {
-      await signUp(formData.email, formData.password, 'wholesaler', {
+      const result = await signUp(formData.email, formData.password, 'wholesaler', {
         business_name: formData.businessName,
         contact_person_name: formData.contactName,
         phone: formData.phone,
@@ -63,8 +63,11 @@ const WholesalerSignupPage = () => {
         business_registration_number: formData.taxId,
         description: formData.description
       });
-      // Navigate to dashboard or onboarding
-      navigate('/wholesaler/dashboard');
+      
+      if (!result.error) {
+        // Navigate to wholesaler dashboard
+        navigate('/wholesaler/dashboard');
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred during signup');
     } finally {
@@ -86,11 +89,11 @@ const WholesalerSignupPage = () => {
           </div>
           <Button
             variant="ghost"
-            onClick={() => navigate('/signup')}
+            onClick={() => navigate('/home')}
             className="mb-4 text-gray-600 hover:text-gray-800"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to role selection
+            Back to Home
           </Button>
         </div>
 

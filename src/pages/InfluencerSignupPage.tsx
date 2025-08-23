@@ -70,7 +70,7 @@ const InfluencerSignupPage = () => {
     }
 
     try {
-      await signUp(formData.email, formData.password, 'influencer', {
+      const result = await signUp(formData.email, formData.password, 'influencer', {
         first_name: formData.name.split(' ')[0] || '',
         last_name: formData.name.split(' ').slice(1).join(' ') || '',
         display_name: formData.username,
@@ -82,8 +82,11 @@ const InfluencerSignupPage = () => {
         category: formData.categories,
         experience_years: formData.experienceLevel ? parseInt(formData.experienceLevel) : undefined
       });
-      // Navigate to dashboard or onboarding
-      navigate('/influencer/dashboard');
+      
+      if (!result.error) {
+        // Navigate to influencer dashboard
+        navigate('/influencer/dashboard');
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred during signup');
     } finally {
@@ -105,11 +108,11 @@ const InfluencerSignupPage = () => {
           </div>
           <Button
             variant="ghost"
-            onClick={() => navigate('/signup')}
+            onClick={() => navigate('/home')}
             className="mb-4 text-gray-600 hover:text-gray-800"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to role selection
+            Back to Home
           </Button>
         </div>
 
