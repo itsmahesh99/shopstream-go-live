@@ -20,10 +20,10 @@ const product = {
   discountPercentage: 50,
   description: "This stylish women's outfit features a comfortable solid top paired with well-fitted jeans. Perfect for casual outings or everyday wear. The breathable fabric ensures comfort throughout the day.",
   images: [
-    "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
-    "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-    "/lovable-uploads/a758d528-4f86-47ab-8952-b84d3f2e2b2c.png",
-    "/lovable-uploads/0652f2bb-af03-464d-856b-32325f54b8c6.png",
+    "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=600&fit=crop&crop=center",
+    "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=600&h=600&fit=crop&crop=center",
+    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&h=600&fit=crop&crop=center",
+    "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6?w=600&h=600&fit=crop&crop=center",
   ],
   colors: ["Pink", "Yellow", "Red", "Purple"],
   sizes: ["S", "M", "L", "XL", "XXL", "XXXL"],
@@ -50,7 +50,7 @@ const relatedProducts = [
     price: 999,
     discountPrice: 499,
     discountPercentage: 50,
-    image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop&crop=center",
     category: "Clothing"
   },
   {
@@ -59,7 +59,7 @@ const relatedProducts = [
     price: 2499,
     discountPrice: 1999,
     discountPercentage: 20,
-    image: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center",
     category: "Electronics"
   },
   {
@@ -68,7 +68,7 @@ const relatedProducts = [
     price: 1299,
     discountPrice: 999,
     discountPercentage: 23,
-    image: "/lovable-uploads/521c827c-efca-4963-a702-2af0e528830c.png",
+    image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop&crop=center",
     category: "Accessories"
   },
   {
@@ -77,7 +77,7 @@ const relatedProducts = [
     price: 4999,
     discountPrice: 3999,
     discountPercentage: 20,
-    image: "/lovable-uploads/2840b6e9-4e3c-4070-8eb6-13ed21836285.png",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop&crop=center",
     category: "Electronics"
   },
   {
@@ -86,7 +86,7 @@ const relatedProducts = [
     price: 1999,
     discountPrice: 1499,
     discountPercentage: 25,
-    image: "/lovable-uploads/4448d6cf-1254-4262-a2a2-cb90ffd97796.png",
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop&crop=center",
     category: "Accessories"
   },
   {

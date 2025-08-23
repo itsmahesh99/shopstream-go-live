@@ -1,10 +1,38 @@
 
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import KeinLogo from "@/components/common/KeinLogo";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const WelcomePage = () => {
+  const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If not mobile, redirect to role selection page
+    if (isMobile === false) {
+      navigate("/signup", { replace: true });
+    }
+  }, [isMobile, navigate]);
+
+  // Show loading state while determining mobile status
+  if (isMobile === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <KeinLogo className="h-16 mx-auto mb-4" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Only render welcome page on mobile
+  if (!isMobile) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
       <div className="w-full max-w-md flex flex-col items-center">

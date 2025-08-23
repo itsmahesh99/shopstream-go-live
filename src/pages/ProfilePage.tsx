@@ -25,22 +25,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
-// Mock data
-const user = {
-  name: "Romina",
-  email: "romina@example.com",
-  phone: "+1 234 567 8900",
-  location: "New York, USA",
-  joinDate: "Member since March 2023",
-  image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-  stats: {
-    orders: 24,
-    reviews: 12,
-    wishlist: 8,
-    points: 1250
-  }
-};
+// Mock data for order stats - this would come from API in real app
 
 const orderStats = [
   { label: "To Pay", count: 0, color: "bg-red-50 text-red-600" },
@@ -59,15 +46,69 @@ const quickActions = [
 ];
 
 const services = [
-  { icon: HelpCircle, label: "Help Center", description: "Get help with your orders and account" },
-  { icon: CreditCard, label: "Payment Methods", description: "Manage your payment options" },
-  { icon: Truck, label: "Shipping & Delivery", description: "Track your orders and delivery info" },
-  { icon: Settings, label: "Account Settings", description: "Manage your account preferences" },
+  { icon: HelpCircle, label: "Help Center", description: "Get help with your orders and account", link: "/help" },
+  { icon: CreditCard, label: "Payment Methods", description: "Manage your payment options", link: "/payment-methods" },
+  { icon: Truck, label: "Shipping & Delivery", description: "Track your orders and delivery info", link: "/shipping" },
+  { icon: Settings, label: "Account Settings", description: "Manage your account preferences", link: "/account-settings" },
 ];
 
 const ProfilePage = () => {
   const { toast } = useToast();
+  const { user, userProfile, loading } = useAuth();
   const [activeOrderTab, setActiveOrderTab] = useState("to-pay");
+  
+  // Show loading state while authentication is being checked
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Helper function to get user display name based on role
+  const getUserDisplayName = () => {
+    if (!userProfile?.profile) return user?.email?.split('@')[0] || 'User';
+    
+    const profile = userProfile.profile;
+    const role = userProfile.role;
+    
+    switch (role) {
+      case 'customer':
+        const customer = profile as any;
+        return customer.first_name || user?.email?.split('@')[0] || 'Customer';
+      
+      case 'wholesaler':
+        const wholesaler = profile as any;
+        return wholesaler.contact_person_name || wholesaler.business_name || user?.email?.split('@')[0] || 'Wholesaler';
+      
+      case 'influencer':
+        const influencer = profile as any;
+        return influencer.display_name || influencer.first_name || user?.email?.split('@')[0] || 'Influencer';
+      
+      default:
+        return user?.email?.split('@')[0] || 'User';
+    }
+  };
+
+  // Use actual user data or fallback to defaults
+  const userData = {
+    name: getUserDisplayName(),
+    email: user?.email || "",
+    phone: "+1 234 567 8900", // This would come from profile data
+    location: "Location not set", // This would come from profile data  
+    joinDate: `Member since ${new Date(user?.created_at || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}`,
+    image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
+    stats: {
+      orders: 24,
+      reviews: 12,
+      wishlist: 8,
+      points: 1250
+    }
+  };
   
   const handleBecomeSeller = () => {
     toast({
@@ -91,12 +132,12 @@ const ProfilePage = () => {
         <div className="bg-white px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Avatar className="h-12 w-12">
-              <AvatarImage src={user.image} alt={user.name} />
-              <AvatarFallback>{user.name[0]}</AvatarFallback>
+              <AvatarImage src={userData.image} alt={userData.name} />
+              <AvatarFallback>{userData.name[0]}</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-xl font-bold">Hello, {user.name}!</h1>
-              <p className="text-sm text-gray-500">{user.joinDate}</p>
+              <h1 className="text-xl font-bold">Hello, {userData.name}!</h1>
+              <p className="text-sm text-gray-500">{userData.joinDate}</p>
             </div>
           </div>
           
@@ -202,20 +243,20 @@ const ProfilePage = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Avatar className="h-20 w-20">
-                <AvatarImage src={user.image} alt={user.name} />
-                <AvatarFallback className="text-2xl">{user.name[0]}</AvatarFallback>
+                <AvatarImage src={userData.image} alt={userData.name} />
+                <AvatarFallback className="text-2xl">{userData.name[0]}</AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Hello, {user.name}!</h1>
-                <p className="text-gray-600 mt-1">{user.joinDate}</p>
+                <h1 className="text-3xl font-bold text-gray-900">Hello, {userData.name}!</h1>
+                <p className="text-gray-600 mt-1">{userData.joinDate}</p>
                 <div className="flex items-center space-x-4 mt-2">
                   <div className="flex items-center text-sm text-gray-500">
                     <Mail className="h-4 w-4 mr-1" />
-                    {user.email}
+                    {userData.email}
                   </div>
                   <div className="flex items-center text-sm text-gray-500">
                     <MapPin className="h-4 w-4 mr-1" />
-                    {user.location}
+                    {userData.location}
                   </div>
                 </div>
               </div>
@@ -247,19 +288,19 @@ const ProfilePage = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{user.stats.orders}</div>
+                    <div className="text-2xl font-bold text-blue-600">{userData.stats.orders}</div>
                     <div className="text-sm text-blue-600">Total Orders</div>
                   </div>
                   <div className="text-center p-3 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">{user.stats.reviews}</div>
+                    <div className="text-2xl font-bold text-green-600">{userData.stats.reviews}</div>
                     <div className="text-sm text-green-600">Reviews</div>
                   </div>
                   <div className="text-center p-3 bg-red-50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">{user.stats.wishlist}</div>
+                    <div className="text-2xl font-bold text-red-600">{userData.stats.wishlist}</div>
                     <div className="text-sm text-red-600">Wishlist Items</div>
                   </div>
                   <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                    <div className="text-2xl font-bold text-yellow-600">{user.stats.points}</div>
+                    <div className="text-2xl font-bold text-yellow-600">{userData.stats.points}</div>
                     <div className="text-sm text-yellow-600">Reward Points</div>
                   </div>
                 </div>

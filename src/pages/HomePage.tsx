@@ -1,5 +1,8 @@
 
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import InfluencersRow from "@/components/home/InfluencersRow";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import LiveNowCarousel from "@/components/home/LiveNowCarousel";
@@ -167,12 +170,83 @@ const homePromotions = [{
 
 const HomePage = () => {
   const [showReels, setShowReels] = useState(false);
+  const { user, userProfile } = useAuth();
+  
+  // Helper function to get user display name based on role
+  const getUserDisplayName = () => {
+    if (!userProfile?.profile) return user?.email?.split('@')[0] || 'Guest';
+    
+    const profile = userProfile.profile;
+    const role = userProfile.role;
+    
+    switch (role) {
+      case 'customer':
+        const customer = profile as any; // Customer type
+        return customer.first_name || user?.email?.split('@')[0] || 'Customer';
+      
+      case 'wholesaler':
+        const wholesaler = profile as any; // Wholesaler type
+        return wholesaler.contact_person_name || wholesaler.business_name || user?.email?.split('@')[0] || 'Wholesaler';
+      
+      case 'influencer':
+        const influencer = profile as any; // Influencer type
+        return influencer.display_name || influencer.first_name || user?.email?.split('@')[0] || 'Influencer';
+      
+      default:
+        return user?.email?.split('@')[0] || 'User';
+    }
+  };
+  
   return (
     <div className="container mx-auto px-4 pb-20">
+      {/* Welcome banner for non-authenticated users */}
+      {!user && (
+        <div className="bg-gradient-to-r from-kein-blue to-blue-600 text-white rounded-xl p-6 mb-6 mt-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">Welcome to Kein!</h2>
+            <p className="mb-4 opacity-90">
+              Join thousands of users shopping live with their favorite influencers
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button 
+                variant="secondary" 
+                className="bg-white text-kein-blue hover:bg-gray-100"
+                asChild
+              >
+                <Link to="/signup">Get Started</Link>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="border-white text-white hover:bg-white hover:text-kein-blue"
+                asChild
+              >
+                <Link to="/login">Sign In</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Personalized welcome for authenticated users */}
+      {user && (
+        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 mb-6 mt-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">
+              Welcome back, {getUserDisplayName()}!
+            </h2>
+            <p className="opacity-90">
+              Discover new products from your favorite influencers
+            </p>
+          </div>
+        </div>
+      )}
+
       <InfluencersRow influencers={influencers} />
       
       {/* Welcome banner */}
-      <h1 className="text-2xl font-bold mt-4 mb-4">Welcome to Kein!</h1>
+      <h1 className="text-2xl font-bold mt-4 mb-4">
+        {user ? "Continue Shopping" : "Shop Live, Buy Instant!"}
+      </h1>
       
       {/* Promotions carousel */}
       <PromotionsCarousel 
