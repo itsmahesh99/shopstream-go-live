@@ -16,7 +16,17 @@ import {
   Plus
 } from 'lucide-react';
 
-const WholesalerSidebar = () => {
+interface WholesalerSidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+  isMobile?: boolean;
+}
+
+const WholesalerSidebar: React.FC<WholesalerSidebarProps> = ({ 
+  isOpen = true, 
+  onClose, 
+  isMobile = false 
+}) => {
   const { userProfile, signOut } = useAuth();
   const location = useLocation();
 
@@ -75,11 +85,21 @@ const WholesalerSidebar = () => {
     }
   ];
 
-  return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg border-r z-40">
+  const handleLinkClick = () => {
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
+  const sidebarContent = (
+    <>
       {/* Header */}
       <div className="p-6 border-b">
-        <Link to="/wholesaler/dashboard" className="flex items-center space-x-3">
+        <Link 
+          to="/wholesaler/dashboard" 
+          className="flex items-center space-x-3"
+          onClick={handleLinkClick}
+        >
           <img 
             src="/keinlogo.png" 
             alt="Kein Logo" 
@@ -124,6 +144,7 @@ const WholesalerSidebar = () => {
             <Link
               key={item.path}
               to={item.path}
+              onClick={handleLinkClick}
               className={`flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 group ${
                 active
                   ? "bg-green-100 text-green-700 border border-green-200"
@@ -146,7 +167,7 @@ const WholesalerSidebar = () => {
 
       {/* Footer */}
       <div className="p-4 border-t space-y-2">
-        <Link to="/wholesaler/settings">
+        <Link to="/wholesaler/settings" onClick={handleLinkClick}>
           <Button variant="ghost" className="w-full justify-start">
             <Settings className="mr-3 h-4 w-4" />
             Settings
@@ -155,13 +176,46 @@ const WholesalerSidebar = () => {
         
         <Button
           variant="ghost"
-          onClick={signOut}
+          onClick={() => {
+            signOut();
+            handleLinkClick();
+          }}
           className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
         >
           <LogOut className="mr-3 h-4 w-4" />
           Sign Out
         </Button>
       </div>
+    </>
+  );
+
+  // Mobile version - overlay
+  if (isMobile) {
+    return (
+      <>
+        {/* Backdrop */}
+        {isOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={onClose}
+          />
+        )}
+        
+        {/* Mobile Sidebar */}
+        <div className={`
+          fixed left-0 top-0 h-full w-80 bg-white shadow-xl border-r z-50 transform transition-transform duration-300 ease-in-out lg:hidden
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
+          {sidebarContent}
+        </div>
+      </>
+    );
+  }
+
+  // Desktop version
+  return (
+    <div className="hidden lg:block fixed left-0 top-0 h-full w-64 bg-white shadow-lg border-r z-40">
+      {sidebarContent}
     </div>
   );
 };

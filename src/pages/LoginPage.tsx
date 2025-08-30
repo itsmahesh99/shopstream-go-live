@@ -39,7 +39,7 @@ const LoginPage = () => {
         
         switch (userRole) {
           case 'customer':
-            navigate('/customer/dashboard');
+            navigate('/home');
             break;
           case 'wholesaler':
             navigate('/wholesaler/dashboard');

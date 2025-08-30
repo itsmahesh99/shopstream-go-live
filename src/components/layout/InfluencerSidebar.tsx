@@ -10,12 +10,22 @@ import {
   Settings, 
   TrendingUp,
   Eye,
-  DollarSign,
   LogOut,
-  Home
+  Home,
+  User
 } from 'lucide-react';
 
-const InfluencerSidebar = () => {
+interface InfluencerSidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+  isMobile?: boolean;
+}
+
+const InfluencerSidebar: React.FC<InfluencerSidebarProps> = ({ 
+  isOpen = true, 
+  onClose, 
+  isMobile = false 
+}) => {
   const { userProfile, signOut } = useAuth();
   const location = useLocation();
 
@@ -43,36 +53,40 @@ const InfluencerSidebar = () => {
       description: "Start & manage streams"
     },
     { 
-      path: "/influencer/schedule", 
-      label: "Schedule", 
-      icon: Calendar,
-      description: "Upcoming streams"
-    },
-    { 
-      path: "/influencer/analytics", 
-      label: "Analytics", 
-      icon: BarChart3,
-      description: "Performance insights"
-    },
-    { 
-      path: "/influencer/audience", 
-      label: "Audience", 
-      icon: Users,
-      description: "Follower management"
-    },
-    { 
-      path: "/influencer/earnings", 
-      label: "Earnings", 
-      icon: DollarSign,
-      description: "Commission tracking"
+      path: "/influencer/profile", 
+      label: "Profile", 
+      icon: User,
+      description: "Manage your profile"
     }
+    // { 
+    //   path: "/influencer/analytics", 
+    //   label: "Analytics", 
+    //   icon: BarChart3,
+    //   description: "Performance insights"
+    // },
+    // { 
+    //   path: "/influencer/audience", 
+    //   label: "Audience", 
+    //   icon: Users,
+    //   description: "Follower management"
+    // }
   ];
 
-  return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg border-r z-40">
+  const handleLinkClick = () => {
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
+  const sidebarContent = (
+    <>
       {/* Header */}
       <div className="p-6 border-b">
-        <Link to="/influencer/dashboard" className="flex items-center space-x-3">
+        <Link 
+          to="/influencer/dashboard" 
+          className="flex items-center space-x-3"
+          onClick={handleLinkClick}
+        >
           <img 
             src="/keinlogo.png" 
             alt="Kein Logo" 
@@ -85,22 +99,22 @@ const InfluencerSidebar = () => {
       </div>
 
       {/* User Info */}
-      <div className="p-4 border-b bg-purple-50">
+      <div className="p-4 border-b" style={{ backgroundColor: 'hsl(270.74deg 91.01% 90%)' }}>
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'hsl(270.74deg 91.01% 65.1%)' }}>
             <span className="text-white font-medium">
               {getUserDisplayName().charAt(0).toUpperCase()}
             </span>
           </div>
           <div>
             <p className="font-medium text-gray-900">{getUserDisplayName()}</p>
-            <p className="text-sm text-purple-600">Influencer</p>
+            <p className="text-sm" style={{ color: 'hsl(270.74deg 91.01% 65.1%)' }}>Influencer</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -109,18 +123,33 @@ const InfluencerSidebar = () => {
             <Link
               key={item.path}
               to={item.path}
+              onClick={handleLinkClick}
               className={`flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 group ${
                 active
-                  ? "bg-purple-100 text-purple-700 border border-purple-200"
+                  ? "border"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
+              style={active ? { 
+                backgroundColor: 'hsl(270.74deg 91.01% 90%)', 
+                color: 'hsl(270.74deg 91.01% 45%)',
+                borderColor: 'hsl(270.74deg 91.01% 75%)'
+              } : {}}
             >
-              <Icon className={`h-5 w-5 ${active ? "text-purple-600" : "text-gray-400 group-hover:text-gray-600"}`} />
+              <Icon 
+                className={`h-5 w-5 ${active ? "" : "text-gray-400 group-hover:text-gray-600"}`}
+                style={active ? { color: 'hsl(270.74deg 91.01% 55%)' } : {}}
+              />
               <div className="flex-1">
-                <p className={`font-medium ${active ? "text-purple-700" : "text-gray-700 group-hover:text-gray-900"}`}>
+                <p 
+                  className={`font-medium ${active ? "" : "text-gray-700 group-hover:text-gray-900"}`}
+                  style={active ? { color: 'hsl(270.74deg 91.01% 45%)' } : {}}
+                >
                   {item.label}
                 </p>
-                <p className={`text-xs ${active ? "text-purple-600" : "text-gray-500 group-hover:text-gray-600"}`}>
+                <p 
+                  className={`text-xs ${active ? "" : "text-gray-500 group-hover:text-gray-600"}`}
+                  style={active ? { color: 'hsl(270.74deg 91.01% 55%)' } : {}}
+                >
                   {item.description}
                 </p>
               </div>
@@ -131,7 +160,7 @@ const InfluencerSidebar = () => {
 
       {/* Footer */}
       <div className="p-4 border-t space-y-2">
-        <Link to="/influencer/settings">
+        <Link to="/influencer/settings" onClick={handleLinkClick}>
           <Button variant="ghost" className="w-full justify-start">
             <Settings className="mr-3 h-4 w-4" />
             Settings
@@ -140,13 +169,46 @@ const InfluencerSidebar = () => {
         
         <Button
           variant="ghost"
-          onClick={signOut}
+          onClick={() => {
+            signOut();
+            handleLinkClick();
+          }}
           className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
         >
           <LogOut className="mr-3 h-4 w-4" />
           Sign Out
         </Button>
       </div>
+    </>
+  );
+
+  // Mobile version - overlay
+  if (isMobile) {
+    return (
+      <>
+        {/* Backdrop */}
+        {isOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={onClose}
+          />
+        )}
+        
+        {/* Mobile Sidebar */}
+        <div className={`
+          fixed left-0 top-0 h-full w-80 bg-white border-r z-50 transform transition-transform duration-300 ease-in-out lg:hidden
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
+          {sidebarContent}
+        </div>
+      </>
+    );
+  }
+
+  // Desktop version
+  return (
+    <div className="hidden lg:block fixed left-0 top-0 h-full w-64 bg-white border-r z-40">
+      {sidebarContent}
     </div>
   );
 };

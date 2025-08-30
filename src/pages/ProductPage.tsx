@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Heart, Minus, Plus, Star, Truck, Package, Clock, MessageSquare } from "lucide-react";
+import { ChevronLeft, ChevronRight, Minus, Plus, Star, Truck, Package, Clock, MessageSquare } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -150,18 +150,9 @@ const ProductPage = () => {
   const [selectedColor, setSelectedColor] = useState("Pink");
   const [selectedSize, setSelectedSize] = useState("M");
   const [quantity, setQuantity] = useState(1);
-  const [isLiked, setIsLiked] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
   
   const { addToCart } = useCart();
-  
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    toast({
-      title: isLiked ? "Removed from wishlist" : "Added to wishlist",
-      description: isLiked ? "Product removed from your wishlist" : "Product added to your wishlist",
-    });
-  };
   
   const handleAddToCart = () => {
     addToCart({
@@ -282,12 +273,6 @@ const ProductPage = () => {
             </div>
           </div>
           
-          <button
-            className={`p-2 rounded-full border ${isLiked ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'}`}
-            onClick={handleLike}
-          >
-            <Heart className={`h-5 w-5 ${isLiked ? 'text-red-500 fill-current' : 'text-gray-400'}`} />
-          </button>
         </div>
         
         {/* Title and rating */}
@@ -639,12 +624,6 @@ const ProductPage = () => {
                   className="h-12 w-12 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                 >
                   <Plus className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={handleLike}
-                  className={`h-12 w-12 rounded-lg border flex items-center justify-center ${isLiked ? 'border-red-200 bg-red-50' : 'border-gray-300 hover:bg-gray-50'}`}
-                >
-                  <Heart className={`h-5 w-5 ${isLiked ? 'text-red-500 fill-current' : 'text-gray-400'}`} />
                 </button>
               </div>
             </div>

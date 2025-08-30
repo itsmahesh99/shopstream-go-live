@@ -1,0 +1,633 @@
+/* 100ms Live Stream Styles */
+.peer-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mirror {
+  transform: scaleX(-1);
+}
+
+.live-stream-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+}
+
+.conference-container {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Modern peer grid with better responsive design */
+.peer-grid-modern {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Legacy peer grid for backward compatibility */
+.peer-grid {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Responsive breakpoints for modern grid */
+@media (max-width: 640px) {
+
+  .peer-grid-modern,
+  .peer-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0.75rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+
+  .peer-grid-modern,
+  .peer-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1440px) {
+
+  .peer-grid-modern,
+  .peer-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+}
+
+@media (min-width: 1441px) {
+
+  .peer-grid-modern,
+  .peer-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
+}
+
+/* Animation keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
+  }
+}
+
+/* Smooth animations for peer cards */
+.peer-grid-modern>*,
+.peer-grid>* {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Live indicator animation */
+.live-indicator {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Custom scrollbar for conference container */
+.conference-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.conference-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.conference-container::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.6);
+  border-radius: 4px;
+}
+
+.conference-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.8);
+}
+
+/* Backdrop blur support */
+@supports (backdrop-filter: blur(10px)) {
+  .backdrop-blur-custom {
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* Mobile-first responsive design improvements */
+@media (max-width: 480px) {
+  .conference-container {
+    padding-bottom: 120px;
+    /* Extra space for mobile footer */
+  }
+
+  .peer-grid-modern,
+  .peer-grid {
+    padding: 0.5rem;
+    gap: 0.75rem;
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+  .peer-video {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  .conference-container {
+    background: linear-gradient(135deg, #0a0a0a 0%, #2d1b69 50%, #0a0a0a 100%);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+
+  .peer-grid-modern>*,
+  .peer-grid>* {
+    animation: none;
+  }
+
+  .live-indicator {
+    animation: none;
+  }
+}
+
+/* Shopping Live Stream Styles */
+.shopping-live-container {
+  height: 100vh;
+  background: #f9fafb;
+  display: flex;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.shopping-video-main {
+  flex: 1;
+  background: #000;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shopping-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shopping-sidebar {
+  width: 384px;
+  /* w-96 = 24rem = 384px */
+  background: white;
+  border-left: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+}
+
+.shopping-product-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.shopping-product-image {
+  aspect-ratio: 1;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shopping-chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.shopping-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shopping-chat-message {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shopping-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shopping-username {
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.shopping-timestamp {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.shopping-message-text {
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.shopping-chat-input {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 8px;
+}
+
+.shopping-input {
+  flex: 1;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #111827;
+  font-size: 14px;
+}
+
+.shopping-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.shopping-send-button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.shopping-send-button:hover {
+  background: #2563eb;
+}
+
+.shopping-add-to-cart {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 18px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.shopping-add-to-cart:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .shopping-live-container {
+    flex-direction: column;
+  }
+
+  .shopping-sidebar {
+    display: none;
+    /* Hide desktop sidebar completely on mobile */
+  }
+
+  .shopping-video-main {
+    height: 100vh;
+    /* Full height on mobile */
+  }
+}
+
+/* Scrollbar styling for shopping interface */
+.shopping-chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.shopping-chat-messages::-webkit-scrollbar-track {
+  background: #f9fafb;
+}
+
+.shopping-chat-messages::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.shopping-chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Product card hover effects */
+.shopping-product-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s;
+}
+
+/* Mobile Live Stream Layout */
+.mobile-live-container {
+  position: relative;
+}
+
+/* Mobile Product Overlay */
+.mobile-product-overlay {
+  display: none;
+  position: absolute;
+  bottom: 100px;
+  /* Above the controls */
+  left: 16px;
+  right: 16px;
+  z-index: 20;
+  max-width: 320px;
+  /* Limit width so it doesn't cover entire screen */
+  margin: 0 auto;
+  /* Center it */
+}
+
+/* Desktop Sidebar */
+.desktop-sidebar {
+  display: flex;
+}
+
+/* Mobile Controls */
+.mobile-controls {
+  z-index: 30;
+  /* Above the product overlay */
+}
+
+/* Mobile Layout Styles */
+.mobile-layout {
+  display: none;
+  /* Hidden by default, shown on mobile */
+  flex-direction: column;
+  height: 100vh;
+}
+
+.mobile-video-section {
+  flex: 1;
+  min-height: 60vh;
+  /* Video takes 60% of screen */
+}
+
+.mobile-product-section {
+  flex-shrink: 0;
+  max-height: 40vh;
+  /* Product section takes max 40% of screen */
+  overflow-y: auto;
+  border-top: 1px solid #e5e7eb;
+}
+
+.desktop-video-area {
+  display: flex;
+  /* Shown by default on desktop */
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .mobile-live-container {
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .desktop-sidebar {
+    display: none !important;
+    /* Force hide desktop sidebar on mobile */
+  }
+
+  .desktop-video-area {
+    display: none !important;
+    /* Hide desktop video area on mobile */
+  }
+
+  .mobile-layout {
+    display: flex;
+    /* Show mobile layout on mobile */
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .mobile-product-overlay {
+    display: none;
+    /* Hide mobile overlay as requested */
+  }
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Enhanced live stream card styles */
+.live-stream-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+.live-stream-card:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.live-stream-thumbnail {
+  position: relative;
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  overflow: hidden;
+}
+
+.live-stream-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.live-stream-card:hover .live-stream-thumbnail img {
+  transform: scale(1.05);
+}
+
+.live-badge {
+  background: #ef4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.live-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.viewer-badge {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.host-avatar {
+  width: 32px;
+  height: 32px;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.status-indicator.ready {
+  background: #10b981;
+}
+
+.status-indicator.limited {
+  background: #ef4444;
+}
+
+/* Improved responsive grid */
+@media (max-width: 640px) {
+  .live-streams-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 8px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .live-streams-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .live-streams-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}
+
+/* Ensure cards fit properly on mobile */
+@media (max-width: 640px) {
+  .live-stream-card {
+    min-width: 0;
+    width: 100%;
+  }
+  
+  .live-stream-card .p-3 {
+    padding: 8px;
+  }
+  
+  .live-stream-card h3 {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+  
+  .live-stream-card .text-xs {
+    font-size: 10px;
+  }
+}
+
+/* Animation for live indicator */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

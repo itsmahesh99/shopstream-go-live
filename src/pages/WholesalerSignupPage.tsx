@@ -14,6 +14,7 @@ const WholesalerSignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   
   const [formData, setFormData] = useState({
     email: '',
@@ -65,8 +66,13 @@ const WholesalerSignupPage = () => {
       });
       
       if (!result.error) {
-        // Navigate to wholesaler dashboard
-        navigate('/wholesaler/dashboard');
+        if ((result as any).requiresEmailConfirmation) {
+          // Show email confirmation message instead of redirecting
+          setShowEmailConfirmation(true);
+        } else {
+          // Navigate to wholesaler dashboard (for auto-confirmed users)
+          navigate('/wholesaler/dashboard');
+        }
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during signup');
@@ -78,6 +84,42 @@ const WholesalerSignupPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 px-4 py-8">
       <div className="max-w-md mx-auto">
+        {showEmailConfirmation ? (
+          // Email Confirmation Screen
+          <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Check Your Email</h2>
+                <p className="text-gray-600 mb-6">
+                  We've sent a confirmation link to <strong>{formData.email}</strong>
+                </p>
+                <p className="text-sm text-gray-500 mb-8">
+                  Click the link in your email to verify your account and access your wholesaler dashboard.
+                </p>
+                <div className="space-y-4">
+                  <button
+                    onClick={() => window.open('https://gmail.com', '_blank')}
+                    className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                  >
+                    Open Gmail
+                  </button>
+                  <button
+                    onClick={() => setShowEmailConfirmation(false)}
+                    className="w-full text-gray-600 py-2 px-4 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                  >
+                    Back to Signup
+                  </button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
@@ -278,6 +320,8 @@ const WholesalerSignupPage = () => {
             </div>
           </CardContent>
         </Card>
+          </>
+        )}
       </div>
     </div>
   );

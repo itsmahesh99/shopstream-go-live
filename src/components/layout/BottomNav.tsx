@@ -16,11 +16,6 @@ const BottomNav = () => {
           <span className="text-xs mt-1">Home</span>
         </Link>
         
-        <Link to="/wishlist" className={`flex flex-col items-center justify-center w-full h-full ${isActive("/wishlist") ? "text-kein-blue" : "text-gray-500"}`}>
-          <Heart className="h-5 w-5" />
-          <span className="text-xs mt-1">Wishlist</span>
-        </Link>
-        
         <Link to="/play" className={`flex flex-col items-center justify-center w-full h-full relative ${isActive("/play") ? "text-kein-blue" : "text-gray-500"}`}>
           <div className="bg-kein-blue rounded-full p-3 -mt-6 mb-1 shadow-md">
             <Play className="h-5 w-5 text-white" fill="white" />

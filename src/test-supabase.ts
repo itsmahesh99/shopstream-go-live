@@ -1,56 +1,159 @@
-// Test script to check Supabase connectivity
-import { supabase } from './lib/supabase'
+import { supabase } from '@/lib/supabase'
 
-export async function testSupabaseConnection() {
-  console.log('🔍 Testing Supabase connection...')
-  
-  // Test 1: Check if client is initialized
-  console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL)
-  console.log('Supabase Anon Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY)
-  
+export interface TestResult {
+  success: boolean
+  message: string
+  details?: any
+  error?: any
+}
+
+export async function testSupabaseConnection(): Promise<TestResult> {
   try {
-    // Test 2: Check if profiles table exists, if not suggest creating it
-    const { data, error } = await supabase.from('profiles').select('count').limit(1)
+    console.log('🔗 Testing Supabase connection...')
+    
+    // Test basic connection with a simple query
+    const { data, error } = await supabase
+      .from('customers')
+      .select('count', { count: 'exact', head: true })
     
     if (error) {
-      if (error.message.includes('does not exist')) {
-        console.warn('⚠️ Profiles table does not exist. You need to run the database schema.')
-        return { 
-          success: false, 
-          error: 'Profiles table missing. Please run the SQL schema in Supabase.',
-          needsSchema: true 
+      console.error('❌ Connection failed:', error.message)
+      
+      if (error.message.includes('relation "customers" does not exist')) {
+        return {
+          success: false,
+          message: 'Database schema not yet created',
+          details: 'Please run the SQL schema script first (rebuild-database-part1.sql and part2.sql)',
+          error: error.message
         }
       }
-      console.error('❌ Supabase connection failed:', error.message)
-      return { success: false, error: error.message }
+      
+      return {
+        success: false,
+        message: 'Connection failed',
+        error: error.message
+      }
     }
     
-    console.log('✅ Supabase connection successful')
-    return { success: true, data }
+    console.log('✅ Connection successful!')
+    return {
+      success: true,
+      message: `Connection successful! Found ${data || 0} customers in database`,
+      details: { customerCount: data || 0 }
+    }
     
-  } catch (err) {
-    console.error('❌ Network error:', err)
-    return { success: false, error: 'Network connection failed' }
+  } catch (err: any) {
+    console.error('❌ Unexpected error:', err)
+    return {
+      success: false,
+      message: 'Unexpected connection error',
+      error: err.message
+    }
   }
 }
 
-export async function testSupabaseAuth() {
-  console.log('🔍 Testing Supabase Auth...')
-  
+export async function testSupabaseAuth(): Promise<TestResult> {
   try {
-    // Test auth endpoint directly
-    const { data, error } = await supabase.auth.getSession()
+    console.log('🔐 Testing Supabase auth...')
     
-    if (error) {
-      console.error('❌ Auth test failed:', error.message)
-      return { success: false, error: error.message }
+    // Test 1: Get current session
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+    if (sessionError) {
+      console.error('❌ Auth session check failed:', sessionError.message)
+      return {
+        success: false,
+        message: 'Auth session check failed',
+        error: sessionError.message
+      }
     }
     
-    console.log('✅ Auth endpoint accessible')
-    return { success: true, session: data.session }
+    // Test 2: Get current user
+    const { data: userData, error: userError } = await supabase.auth.getUser()
+    if (userError) {
+      console.error('❌ Auth user check failed:', userError.message)
+      return {
+        success: false,
+        message: 'Auth user check failed',
+        error: userError.message
+      }
+    }
     
-  } catch (err) {
-    console.error('❌ Auth network error:', err)
-    return { success: false, error: 'Auth endpoint unreachable' }
+    console.log('✅ Auth service connected successfully!')
+    
+    const hasActiveSession = !!sessionData.session
+    const currentUser = userData.user
+    
+    return {
+      success: true,
+      message: hasActiveSession 
+        ? `Auth working! Current user: ${currentUser?.email}` 
+        : 'Auth service connected (no active session)',
+      details: {
+        hasActiveSession,
+        userEmail: currentUser?.email,
+        userId: currentUser?.id,
+        sessionExpiry: sessionData.session?.expires_at
+      }
+    }
+    
+  } catch (err: any) {
+    console.error('❌ Unexpected auth error:', err)
+    return {
+      success: false,
+      message: 'Unexpected auth error',
+      error: err.message
+    }
+  }
+}
+
+export async function testSupabaseStorage(): Promise<TestResult> {
+  try {
+    console.log('📁 Testing Supabase storage...')
+    
+    const { data: buckets, error: storageError } = await supabase.storage.listBuckets()
+    
+    if (storageError) {
+      console.log('⚠️  Storage service check failed (this is normal for new projects)')
+      return {
+        success: false,
+        message: 'Storage service not accessible (normal for new projects)',
+        error: storageError.message
+      }
+    }
+    
+    console.log('✅ Storage service connected successfully!')
+    return {
+      success: true,
+      message: `Storage service connected! Found ${buckets?.length || 0} buckets`,
+      details: { buckets: buckets?.map(b => b.name) || [] }
+    }
+    
+  } catch (err: any) {
+    console.error('❌ Unexpected storage error:', err)
+    return {
+      success: false,
+      message: 'Unexpected storage error',
+      error: err.message
+    }
+  }
+}
+
+export async function testFullSupabaseSetup(): Promise<{
+  connection: TestResult
+  auth: TestResult
+  storage: TestResult
+  overall: boolean
+}> {
+  const connection = await testSupabaseConnection()
+  const auth = await testSupabaseAuth()
+  const storage = await testSupabaseStorage()
+  
+  const overall = connection.success && auth.success
+  
+  return {
+    connection,
+    auth,
+    storage,
+    overall
   }
 }

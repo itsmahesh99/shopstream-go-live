@@ -567,11 +567,7 @@ CREATE TRIGGER update_customer_stats AFTER INSERT OR UPDATE ON public.orders FOR
 -- INITIAL DATA AND CONSTRAINTS
 -- =============================================================================
 
--- Add some sample categories for products
-INSERT INTO public.products (id, wholesaler_id, name, description, category, wholesale_price, retail_price, stock_quantity)
-VALUES 
-  (uuid_generate_v4(), (SELECT id FROM public.wholesalers LIMIT 1), 'Sample Product', 'This is a sample product', 'Electronics', 100.00, 150.00, 50)
-ON CONFLICT DO NOTHING;
+-- Note: Sample data will be added after users create their accounts
 
 -- Create some useful views
 CREATE OR REPLACE VIEW public.customer_order_summary AS
@@ -610,3 +606,85 @@ COMMENT ON TABLE public.order_items IS 'Individual items within orders';
 COMMENT ON TABLE public.queries IS 'Customer support tickets and queries';
 COMMENT ON TABLE public.live_sessions IS 'Live streaming sessions by influencers';
 COMMENT ON TABLE public.live_session_products IS 'Products featured in live sessions';
+
+-- =============================================================================
+-- RPC FUNCTIONS FOR DEFAULT DATA CREATION
+-- =============================================================================
+
+-- Function to create default achievements for new influencers
+CREATE OR REPLACE FUNCTION create_default_influencer_achievements(p_influencer_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  INSERT INTO public.influencer_achievements (
+    influencer_id, 
+    achievement_type, 
+    title, 
+    description, 
+    target_value, 
+    current_value,
+    is_completed,
+    created_at
+  ) VALUES 
+  (p_influencer_id, 'followers', 'First 100 Followers', 'Reach your first 100 followers', 100, 0, false, NOW()),
+  (p_influencer_id, 'followers', '1K Followers Club', 'Build a community of 1,000 followers', 1000, 0, false, NOW()),
+  (p_influencer_id, 'sessions', 'First Live Session', 'Complete your first live streaming session', 1, 0, false, NOW()),
+  (p_influencer_id, 'sessions', 'Streaming Regular', 'Complete 10 live streaming sessions', 10, 0, false, NOW()),
+  (p_influencer_id, 'earnings', 'First Sale', 'Earn your first commission', 1, 0, false, NOW()),
+  (p_influencer_id, 'earnings', 'Earning Milestone', 'Reach ₹10,000 in total earnings', 10000, 0, false, NOW());
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to create default goals for new influencers
+CREATE OR REPLACE FUNCTION create_default_influencer_goals(p_influencer_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  INSERT INTO public.influencer_goals (
+    influencer_id,
+    goal_type,
+    title,
+    description,
+    target_value,
+    current_value,
+    target_date,
+    is_completed,
+    created_at
+  ) VALUES 
+  (p_influencer_id, 'followers', 'Monthly Follower Growth', 'Gain 500 new followers this month', 500, 0, DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month', false, NOW()),
+  (p_influencer_id, 'sessions', 'Weekly Live Sessions', 'Host 4 live sessions this month', 4, 0, DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month', false, NOW()),
+  (p_influencer_id, 'earnings', 'Monthly Earnings Target', 'Earn ₹5,000 this month', 5000, 0, DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month', false, NOW());
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to create default settings for new influencers
+CREATE OR REPLACE FUNCTION create_default_influencer_settings(p_influencer_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  INSERT INTO public.influencer_settings (
+    influencer_id,
+    notifications_enabled,
+    email_notifications,
+    push_notifications,
+    live_session_reminders,
+    achievement_notifications,
+    goal_reminders,
+    privacy_level,
+    profile_visibility,
+    session_auto_record,
+    created_at,
+    updated_at
+  ) VALUES (
+    p_influencer_id,
+    true,    -- notifications_enabled
+    true,    -- email_notifications  
+    true,    -- push_notifications
+    true,    -- live_session_reminders
+    true,    -- achievement_notifications
+    true,    -- goal_reminders
+    'public', -- privacy_level
+    'public', -- profile_visibility
+    false,   -- session_auto_record
+    NOW(),   -- created_at
+    NOW()    -- updated_at
+  );
+END;
+$$ LANGUAGE plpgsql;

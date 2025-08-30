@@ -17,7 +17,8 @@ import {
   MapPin,
   Phone,
   Mail,
-  Edit
+  Edit,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -38,7 +39,6 @@ const orderStats = [
 
 const quickActions = [
   { icon: Package, label: "My Orders", link: "/orders", color: "text-blue-600" },
-  { icon: Heart, label: "Wishlist", link: "/wishlist", color: "text-red-500" },
   { icon: CreditCard, label: "Payments", link: "/payments", color: "text-green-600" },
   { icon: Star, label: "Reviews", link: "/reviews", color: "text-yellow-500" },
   { icon: MessageCircle, label: "Messages", link: "/messages", color: "text-purple-600" },
@@ -50,11 +50,12 @@ const services = [
   { icon: CreditCard, label: "Payment Methods", description: "Manage your payment options", link: "/payment-methods" },
   { icon: Truck, label: "Shipping & Delivery", description: "Track your orders and delivery info", link: "/shipping" },
   { icon: Settings, label: "Account Settings", description: "Manage your account preferences", link: "/account-settings" },
+  { icon: LogOut, label: "Logout", description: "Sign out of your account", action: "logout" },
 ];
 
 const ProfilePage = () => {
   const { toast } = useToast();
-  const { user, userProfile, loading } = useAuth();
+  const { user, userProfile, loading, signOut } = useAuth();
   const [activeOrderTab, setActiveOrderTab] = useState("to-pay");
   
   // Show loading state while authentication is being checked
@@ -105,7 +106,6 @@ const ProfilePage = () => {
     stats: {
       orders: 24,
       reviews: 12,
-      wishlist: 8,
       points: 1250
     }
   };
@@ -122,6 +122,30 @@ const ProfilePage = () => {
       title: "Edit Profile",
       description: "Opening profile editor",
     });
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await signOut();
+      if (error) {
+        toast({
+          title: "Logout Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Logged Out",
+          description: "You have been successfully logged out",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Logout Failed", 
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -295,10 +319,6 @@ const ProfilePage = () => {
                     <div className="text-2xl font-bold text-green-600">{userData.stats.reviews}</div>
                     <div className="text-sm text-green-600">Reviews</div>
                   </div>
-                  <div className="text-center p-3 bg-red-50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">{userData.stats.wishlist}</div>
-                    <div className="text-sm text-red-600">Wishlist Items</div>
-                  </div>
                   <div className="text-center p-3 bg-yellow-50 rounded-lg">
                     <div className="text-2xl font-bold text-yellow-600">{userData.stats.points}</div>
                     <div className="text-sm text-yellow-600">Reward Points</div>
@@ -400,11 +420,22 @@ const ProfilePage = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {services.map((service) => (
-                    <div key={service.label} className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                    <div 
+                      key={service.label} 
+                      className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                      onClick={() => {
+                        if (service.action === "logout") {
+                          handleLogout();
+                        } else if (service.link) {
+                          // Handle navigation to link (could add router navigation here)
+                          console.log(`Navigate to ${service.link}`);
+                        }
+                      }}
+                    >
                       <div className="flex items-start space-x-3">
-                        <service.icon className="h-6 w-6 text-kein-blue flex-shrink-0 mt-0.5" />
+                        <service.icon className={`h-6 w-6 flex-shrink-0 mt-0.5 ${service.action === "logout" ? "text-red-500" : "text-kein-blue"}`} />
                         <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">{service.label}</h4>
+                          <h4 className={`font-medium ${service.action === "logout" ? "text-red-600" : "text-gray-900"}`}>{service.label}</h4>
                           <p className="text-sm text-gray-600 mt-1">{service.description}</p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
