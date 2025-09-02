@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Video, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Video, Eye, EyeOff, ArrowLeft, Star, Users, Camera } from 'lucide-react';
 
 const InfluencerSignupPage = () => {
   const { signUp } = useAuth();
@@ -14,41 +14,20 @@ const InfluencerSignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   
   const [formData, setFormData] = useState({
+    // Auth fields only
     email: '',
     password: '',
-    confirmPassword: '',
-    name: '',
-    username: '',
-    phone: '',
-    bio: '',
-    socialMedia: {
-      instagram: '',
-      youtube: '',
-      tiktok: '',
-      facebook: ''
-    },
-    categories: '',
-    experienceLevel: ''
+    confirmPassword: ''
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (e.target.name.includes('socialMedia.')) {
-      const platform = e.target.name.split('.')[1];
-      setFormData({
-        ...formData,
-        socialMedia: {
-          ...formData.socialMedia,
-          [platform]: e.target.value
-        }
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [e.target.name]: e.target.value
-      });
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,25 +48,35 @@ const InfluencerSignupPage = () => {
       return;
     }
 
+    if (!formData.email || !formData.password) {
+      setError('Please fill in all required fields');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const result = await signUp(formData.email, formData.password, 'influencer', {
-        first_name: formData.name.split(' ')[0] || '',
-        last_name: formData.name.split(' ').slice(1).join(' ') || '',
-        display_name: formData.username,
-        phone: formData.phone,
-        bio: formData.bio,
-        instagram_handle: formData.socialMedia.instagram,
-        youtube_channel: formData.socialMedia.youtube,
-        tiktok_handle: formData.socialMedia.tiktok,
-        category: formData.categories,
-        experience_years: formData.experienceLevel ? parseInt(formData.experienceLevel) : undefined
-      });
+      console.log('Starting influencer signup with form data:', formData);
+      
+      // For initial signup, only send email (no profile data)
+      const basicProfileData = {
+        email: formData.email.trim()
+      };
+
+      console.log('Basic profile data for initial signup:', basicProfileData);
+
+      const result = await signUp(formData.email, formData.password, 'influencer', basicProfileData);
       
       if (!result.error) {
-        // Navigate to influencer dashboard
-        navigate('/influencer/dashboard');
+        if ((result as any).requiresEmailConfirmation) {
+          // Show email confirmation message instead of redirecting
+          setShowEmailConfirmation(true);
+        } else {
+          // Navigate to influencer dashboard (for auto-confirmed users)
+          navigate('/influencer/dashboard');
+        }
       }
     } catch (err: any) {
+      console.error('Signup error:', err);
       setError(err.message || 'An error occurred during signup');
     } finally {
       setLoading(false);
@@ -97,6 +86,42 @@ const InfluencerSignupPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 px-4 py-8">
       <div className="max-w-md mx-auto">
+        {showEmailConfirmation ? (
+          // Email Confirmation Screen
+          <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Check Your Email</h2>
+                <p className="text-gray-600 mb-6">
+                  We've sent a confirmation link to <strong>{formData.email}</strong>
+                </p>
+                <p className="text-sm text-gray-500 mb-8">
+                  Click the link in your email to verify your account and access your influencer dashboard.
+                </p>
+                <div className="space-y-4">
+                  <button
+                    onClick={() => window.open('https://gmail.com', '_blank')}
+                    className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 transition-colors"
+                  >
+                    Open Gmail
+                  </button>
+                  <button
+                    onClick={() => setShowEmailConfirmation(false)}
+                    className="w-full text-gray-600 py-2 px-4 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                  >
+                    Back to Signup
+                  </button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
@@ -134,198 +159,108 @@ const InfluencerSignupPage = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  name="username"
-                  type="text"
-                  placeholder="@yourusername"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  required
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  required
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="categories">Content Categories</Label>
-                <Input
-                  id="categories"
-                  name="categories"
-                  type="text"
-                  placeholder="e.g., Fashion, Tech, Beauty, Lifestyle"
-                  value={formData.categories}
-                  onChange={handleInputChange}
-                  required
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="experienceLevel">Experience Level</Label>
-                <Input
-                  id="experienceLevel"
-                  name="experienceLevel"
-                  type="text"
-                  placeholder="e.g., Beginner, Intermediate, Expert"
-                  value={formData.experienceLevel}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  name="bio"
-                  placeholder="Tell us about yourself and your content"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                  rows={3}
-                />
-              </div>
-
-              {/* Social Media Links */}
-              <div className="space-y-3">
-                <Label>Social Media Profiles (Optional)</Label>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Personal Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Account Information
+                </h3>
                 
                 <div>
+                  <Label htmlFor="email">Email Address *</Label>
                   <Input
-                    name="socialMedia.instagram"
-                    type="url"
-                    placeholder="Instagram URL"
-                    value={formData.socialMedia.instagram}
-                    onChange={handleInputChange}
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Input
-                    name="socialMedia.youtube"
-                    type="url"
-                    placeholder="YouTube URL"
-                    value={formData.socialMedia.youtube}
-                    onChange={handleInputChange}
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Input
-                    name="socialMedia.tiktok"
-                    type="url"
-                    placeholder="TikTok URL"
-                    value={formData.socialMedia.tiktok}
-                    onChange={handleInputChange}
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Input
-                    name="socialMedia.facebook"
-                    type="url"
-                    placeholder="Facebook URL"
-                    value={formData.socialMedia.facebook}
-                    onChange={handleInputChange}
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <div className="relative mt-1">
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="pr-10"
+                    className="mt-1"
+                    placeholder="your.email@example.com"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
-                    )}
-                  </button>
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  required
-                  className="mt-1"
-                />
+              {/* Account Security */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Account Security</h3>
+                
+                <div>
+                  <Label htmlFor="password">Password *</Label>
+                  <div className="relative mt-1">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      required
+                      className="pr-10"
+                      placeholder="Create a strong password"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                    className="mt-1"
+                    placeholder="Confirm your password"
+                  />
+                </div>
               </div>
 
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-              >
-                {loading ? 'Creating Account...' : 'Create Influencer Account'}
-              </Button>
+              {/* Info about what comes next */}
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <Star className="h-5 w-5 text-purple-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-purple-900">Next: Complete Your Creator Profile</h4>
+                    <p className="text-sm text-purple-700 mt-1">
+                      After email verification, you'll complete your creator profile with personal details, bio, social media, and content preferences.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-4">
+                <Button 
+                  type="submit" 
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Creating Account...
+                    </>
+                  ) : (
+                    'Create Influencer Account'
+                  )}
+                </Button>
+              </div>
             </form>
 
-            <div className="text-center pt-4">
+            <div className="text-center pt-6">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}
                 <Link to="/login" className="text-purple-500 font-medium hover:underline">
@@ -335,6 +270,27 @@ const InfluencerSignupPage = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Benefits Section */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="text-center p-4 bg-white rounded-lg border border-gray-200">
+            <Camera className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900">Live Streaming</h3>
+            <p className="text-sm text-gray-600">Showcase products in real-time</p>
+          </div>
+          <div className="text-center p-4 bg-white rounded-lg border border-gray-200">
+            <Star className="h-8 w-8 text-green-600 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900">Earn Commissions</h3>
+            <p className="text-sm text-gray-600">Get paid for every sale</p>
+          </div>
+          <div className="text-center p-4 bg-white rounded-lg border border-gray-200">
+            <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900">Build Audience</h3>
+            <p className="text-sm text-gray-600">Grow your following</p>
+          </div>
+        </div>
+          </>
+        )}
       </div>
     </div>
   );

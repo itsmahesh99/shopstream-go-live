@@ -15,7 +15,7 @@ const promotions = [{
   color: "bg-gradient-to-r from-kein-blue to-blue-400",
   image: "/lovable-uploads/f570e76e-9e2b-48d1-b582-8f7c2732629c.png",
   buttonText: "Watch Now",
-  buttonLink: "/kein-live"
+  buttonLink: "/play"
 }, {
   id: "reels",
   title: "Influencer Reels",

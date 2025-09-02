@@ -1,8 +1,8 @@
 
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, ShoppingBag, Home, Heart, Play, User, Menu, X, Bell, Store, Headphones } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { ShoppingBag, Home, Heart, Play, User, Menu, X, Bell, Store, Headphones } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
@@ -13,7 +13,6 @@ const Navbar = () => {
   const { user, userProfile } = useAuth();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   
   // Helper function to get user display name based on role
   const getUserDisplayName = () => {
@@ -48,7 +47,6 @@ const Navbar = () => {
     { path: "/home", label: "Home", icon: Home },
     { path: "/shop", label: "Shop", icon: Store },
     { path: "/play", label: "Live", icon: Play },
-    { path: "/wishlist", label: "Wishlist", icon: Heart },
   ];
   
   return (
@@ -165,18 +163,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Search Bar */}
-        <div className="md:hidden mt-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search products..."
-              className="pl-10 pr-4 py-2 w-full rounded-full border-gray-200"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
+
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (

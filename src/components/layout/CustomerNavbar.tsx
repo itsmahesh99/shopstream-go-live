@@ -1,28 +1,42 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useCart } from '@/contexts/CartContext';
-import { Button } from '@/components/ui/button';
-import { 
-  Home, 
-  Store, 
-  Play, 
-  Heart, 
-  Search, 
-  ShoppingCart, 
-  User,
-  Bell
-} from 'lucide-react';
 
-const CustomerNavbar = () => {
-  const { userProfile, signOut } = useAuth();
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { ShoppingBag, Home, Heart, Play, User, Menu, X, Bell, Store, Headphones } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+
+export const CustomerNavbar = () => {
   const { totalItems } = useCart();
+  const { user, userProfile } = useAuth();
   const location = useLocation();
-
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Helper function to get user display name based on role
   const getUserDisplayName = () => {
-    if (!userProfile?.profile) return 'Customer';
-    const profile = userProfile.profile as any;
-    return profile.first_name || 'Customer';
+    if (!userProfile?.profile) return user?.email?.split('@')[0] || 'User';
+    
+    const profile = userProfile.profile;
+    const role = userProfile.role;
+    
+    switch (role) {
+      case 'customer':
+        const customer = profile as any;
+        return customer.first_name || user?.email?.split('@')[0] || 'Customer';
+      
+      case 'wholesaler':
+        const wholesaler = profile as any;
+        return wholesaler.contact_person_name || wholesaler.business_name || user?.email?.split('@')[0] || 'Wholesaler';
+      
+      case 'influencer':
+        const influencer = profile as any;
+        return influencer.display_name || influencer.first_name || user?.email?.split('@')[0] || 'Influencer';
+      
+      default:
+        return user?.email?.split('@')[0] || 'User';
+    }
   };
   
   const isActive = (path: string) => {
@@ -31,9 +45,8 @@ const CustomerNavbar = () => {
 
   const navItems = [
     { path: "/home", label: "Home", icon: Home },
-    { path: "/shop/browse", label: "Shop", icon: Store },
+    { path: "/shop", label: "Shop", icon: Store },
     { path: "/play", label: "Live", icon: Play },
-    { path: "/wishlist", label: "Wishlist", icon: Heart },
   ];
   
   return (
@@ -72,89 +85,137 @@ const CustomerNavbar = () => {
             })}
           </nav>
 
-          {/* Search Bar */}
-          <div className="hidden md:flex items-center space-x-4 flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-kein-blue focus:border-transparent"
-              />
-            </div>
-          </div>
+        
           
-          {/* Right Section */}
-          <div className="flex items-center space-x-4">
-            {/* Notifications */}
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="h-5 w-5" />
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5 text-gray-600" />
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
+                3
+              </Badge>
             </Button>
-
-            {/* Cart */}
+            
+            <Button variant="ghost" size="icon" className="relative">
+              <Headphones className="h-5 w-5 text-gray-600" />
+            </Button>
+            
             <Link to="/cart">
-              <Button variant="ghost" size="sm" className="relative">
-                <ShoppingCart className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingBag className="h-5 w-5 text-gray-600" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-kein-blue text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
                     {totalItems}
-                  </span>
+                  </Badge>
                 )}
               </Button>
             </Link>
 
-            {/* Profile Dropdown */}
-            <div className="relative group">
-              <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-                <User className="h-5 w-5" />
-                <span className="hidden md:block">{getUserDisplayName()}</span>
-              </Button>
-              
-              {/* Dropdown Menu */}
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <div className="py-2">
-                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                    Profile
-                  </Link>
-                  <Link to="/account-settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                    Settings
-                  </Link>
-                  <hr className="my-1" />
-                  <button
-                    onClick={signOut}
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
-                  >
-                    Sign Out
-                  </button>
+            <div className="flex items-center space-x-2 border-l pl-4">
+              {user ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded-full bg-kein-blue flex items-center justify-center">
+                    <User className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="hidden lg:block">
+                    <Link to="/profile" className="hover:text-kein-blue transition-colors">
+                      <p className="text-sm font-medium">{getUserDisplayName()}</p>
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" className="border-kein-blue text-kein-blue hover:bg-kein-blue hover:text-white" asChild>
+                    <Link to="/login">Sign In</Link>
+                  </Button>
+                  <Button size="sm" className="bg-kein-blue hover:bg-kein-blue/90" asChild>
+                    <Link to="/signup">Sign Up</Link>
+                  </Button>
+                </>
+              )}
             </div>
+          </div>
+
+          {/* Mobile Actions */}
+          <div className="flex md:hidden items-center space-x-2">
+            <Link to="/cart">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingBag className="h-5 w-5 text-gray-600" />
+                {totalItems > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
+                    {totalItems}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
+
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5 text-gray-600" />
+              ) : (
+                <Menu className="h-5 w-5 text-gray-600" />
+              )}
+            </Button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
-        <nav className="lg:hidden mt-4 flex justify-around border-t pt-3">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link 
-                key={item.path}
-                to={item.path}
-                className={`flex flex-col items-center space-y-1 px-2 py-1 rounded-lg ${
-                  isActive(item.path) 
-                    ? "text-kein-blue" 
-                    : "text-gray-600"
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="text-xs">{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
+
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden mt-4 pb-4 border-t pt-4">
+            <nav className="space-y-2">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link 
+                    key={item.path}
+                    to={item.path} 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center space-x-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      isActive(item.path) 
+                        ? "text-kein-blue bg-kein-blue/5" 
+                        : "text-gray-600 hover:text-kein-blue hover:bg-gray-50"
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+            
+            <div className="mt-4 pt-4 border-t space-y-2">
+              {user ? (
+                <div className="flex items-center space-x-3 px-3 py-2">
+                  <div className="w-8 h-8 rounded-full bg-kein-blue flex items-center justify-center">
+                    <User className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-kein-blue transition-colors">
+                      <p className="text-sm font-medium">{getUserDisplayName()}</p>
+                    </Link>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Button variant="outline" className="w-full border-kein-blue text-kein-blue" asChild>
+                    <Link to="/login">Sign In</Link>
+                  </Button>
+                  <Button className="w-full bg-kein-blue hover:bg-kein-blue/90" asChild>
+                    <Link to="/signup">Sign Up</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
 };
-
-export default CustomerNavbar;

@@ -1,433 +1,379 @@
-import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { Send, Heart, Share2, ShoppingBag, X, ChevronLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LiveBadge from "@/components/common/LiveBadge";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { LiveStreamingService } from '@/services/liveStreamingService';
+import { LiveStreamSession } from '@/types/live-streaming';
+import { LiveStream } from '@/components/live-stream';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  ArrowLeft, 
+  Users, 
+  Eye, 
+  Heart, 
+  MessageCircle, 
+  Share, 
+  Radio,
+  Clock,
+  AlertCircle,
+  ShoppingBag
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { formatDistanceToNow } from 'date-fns';
 
-// Mock data
-const streamer = {
-  id: "1",
-  name: "Disha Bhola",
-  image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-  followers: 45600,
-};
+interface LiveStreamWithInfluencer extends LiveStreamSession {
+  influencer?: {
+    display_name: string;
+    followers_count: number;
+    avatar_url?: string;
+  };
+}
 
-const products = [
-  {
-    id: "1",
-    title: "Women solid top and jeans",
-    price: 999,
-    discountPrice: 499,
-    discountPercentage: 50,
-    image: "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
-    category: "Clothing"
-  },
-  {
-    id: "2",
-    title: "Premium headphones with noise cancellation",
-    price: 2499,
-    discountPrice: 1999,
-    discountPercentage: 20,
-    image: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
-    category: "Electronics"
-  },
-  {
-    id: "3",
-    title: "Stylish sunglasses UV protection",
-    price: 1299,
-    discountPrice: 999,
-    discountPercentage: 23,
-    image: "/lovable-uploads/521c827c-efca-4963-a702-2af0e528830c.png",
-    category: "Accessories"
-  },
-];
-
-const chatMessages = [
-  { id: "1", user: "amysmith15", message: "Just joined! What's the giveaway today?", time: "2m ago" },
-  { id: "2", user: "alex_styles", message: "I bought that top last week and it's amazing! Highly recommend.", time: "1m ago" },
-  { id: "3", user: "rositaflores", message: "💕💕💕", time: "1m ago" },
-];
-
-const LiveStreamPage = () => {
+const LiveStreamViewerPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { toast } = useToast();
-  const [isChatOpen, setIsChatOpen] = useState(true);
-  const [currentProduct, setCurrentProduct] = useState(products[0]);
-  const [message, setMessage] = useState("");
-  const [isLiked, setIsLiked] = useState(false);
-  const [viewCount, setViewCount] = useState(2530);
-  
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    if (!isLiked) {
-      toast({
-        title: "Liked stream",
-        description: "You liked Disha's stream",
-      });
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [session, setSession] = useState<LiveStreamWithInfluencer | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isJoining, setIsJoining] = useState(false);
+  const [hasJoined, setHasJoined] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      fetchSession(id);
+    }
+  }, [id]);
+
+  const fetchSession = async (sessionId: string) => {
+    try {
+      setLoading(true);
+      const { data, error } = await LiveStreamingService.getSession(sessionId);
+      
+      if (error) {
+        console.error('Error fetching session:', error);
+        setError('Failed to load live stream session');
+        return;
+      }
+
+      if (!data) {
+        setError('Live stream session not found');
+        return;
+      }
+
+      setSession(data as LiveStreamWithInfluencer);
+    } catch (err) {
+      console.error('Error fetching session:', err);
+      setError('Failed to load live stream session');
+    } finally {
+      setLoading(false);
     }
   };
-  
-  const handleAddToCart = () => {
-    toast({
-      title: "Added to cart",
-      description: `${currentProduct.title} has been added to your cart`,
-    });
+
+  const formatViewerCount = (count: number) => {
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`;
+    }
+    return count.toString();
   };
-  
-  const handleBuyNow = () => {
-    toast({
-      title: "Proceeding to checkout",
-      description: "Taking you to the checkout page",
-    });
-  };
-  
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim()) {
-      toast({
-        title: "Message sent",
-        description: "Your message has been sent to the chat",
-      });
-      setMessage("");
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'live':
+        return (
+          <Badge className="bg-red-500 text-white">
+            <Radio className="w-3 h-3 mr-1" />
+            LIVE
+          </Badge>
+        );
+      case 'scheduled':
+        return (
+          <Badge variant="secondary" className="bg-blue-500 text-white">
+            <Clock className="w-3 h-3 mr-1" />
+            SCHEDULED
+          </Badge>
+        );
+      case 'ended':
+        return (
+          <Badge variant="secondary" className="bg-gray-500 text-white">
+            ENDED
+          </Badge>
+        );
+      default:
+        return null;
     }
   };
+
+  const handleJoinStream = () => {
+    setIsJoining(true);
+    setHasJoined(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading live stream...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-6 text-center">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold mb-2">Stream Not Found</h2>
+            <p className="text-gray-600 mb-4">
+              {error || 'This live stream could not be found or may have ended.'}
+            </p>
+            <Button onClick={() => navigate('/play')} className="w-full">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Live Streams
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If user has joined and stream is live, show the actual video component
+  if (hasJoined && session.status === 'live' && session.room_code) {
+    return (
+      <div className="h-screen">
+        <LiveStream />
+      </div>
+    );
+  }
+
+  // Show stream preview/details
+  const influencerName = session.influencer?.display_name || 'Unknown Host';
+  const followerCount = session.influencer?.followers_count || 0;
+  const thumbnailUrl = session.thumbnail_url || '/placeholder.svg';
 
   return (
-    <div className="h-screen bg-white overflow-hidden">
-      {/* Mobile Layout */}
-      <div className="md:hidden flex flex-col h-screen">
-        {/* Video and streamer info */}
-        <div className="relative flex-1 bg-pink-100">
-          <div className="aspect-[9/16] max-h-[60vh] overflow-hidden">
-            <img 
-              src="/lovable-uploads/f570e76e-9e2b-48d1-b582-8f7c2732629c.png" 
-              alt="Live stream" 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
-          <div className="absolute top-0 left-0 right-0 flex justify-between items-start p-4">
-            <Link to="/home" className="p-1 rounded-full bg-black/30">
-              <ChevronLeft className="h-6 w-6 text-white" />
-            </Link>
-            
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-1 bg-black/30 rounded-full px-2 py-1">
-                <div className="h-2 w-2 rounded-full bg-red-500"></div>
-                <span className="text-white text-xs">{viewCount.toLocaleString()}</span>
-              </div>
-              
-              <button className="p-1 rounded-full bg-black/30">
-                <Share2 className="h-5 w-5 text-white" />
-              </button>
-              
-              <button 
-                className="p-1 rounded-full bg-black/30"
-                onClick={() => setIsChatOpen(!isChatOpen)}
-              >
-                <X className="h-5 w-5 text-white" />
-              </button>
-            </div>
-          </div>
-          
-          <div className="absolute top-0 left-0 mt-16 ml-4 flex items-center space-x-2">
-            <img 
-              src={streamer.image} 
-              alt={streamer.name} 
-              className="h-10 w-10 rounded-full border-2 border-white object-cover"
-            />
-            <div>
-              <div className="flex items-center">
-                <h2 className="text-white text-sm font-bold mr-2">{streamer.name}</h2>
-                <LiveBadge size="sm" />
-              </div>
-              <p className="text-white/80 text-xs">Apr 2, 2025 at 7PM</p>
-            </div>
-          </div>
-          
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <div className="flex items-center space-x-1">
-                  <span className="text-red-500 font-bold text-sm">00:58</span>
-                  <span className="text-white font-bold text-sm">Women solid top #08</span>
-                </div>
-                <div className="flex space-x-4 text-xs">
-                  <div className="text-white/80">
-                    <span className="line-through">MRP: ₹999/-</span>
-                  </div>
-                  <div className="text-white/80">
-                    <span>Discount: -50%</span>
-                  </div>
-                </div>
-                <div className="text-xs text-white/80 mt-1">
-                  As shown, no cancellation
-                </div>
-                <div className="text-xs flex items-center">
-                  <span className="text-white/80">Shippable to your pincode:</span>
-                  <span className="text-green-400 ml-2 font-bold">₹499/-</span>
-                </div>
-              </div>
-              <button
-                className={`p-2 rounded-full ${isLiked ? 'bg-red-500' : 'bg-black/30'}`}
-                onClick={handleLike}
-              >
-                <Heart className={`h-6 w-6 ${isLiked ? 'text-white fill-current' : 'text-white'}`} />
-              </button>
-            </div>
-            <Button 
-              className="w-full bg-kein-blue hover:bg-kein-blue/90 text-white"
-              onClick={handleAddToCart}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/play')}
+              className="flex items-center gap-2"
             >
-              Add to cart
+              <ArrowLeft className="w-4 h-4" />
+              Back
             </Button>
+            
+            <div className="flex-1">
+              <h1 className="font-semibold text-lg">{session.title}</h1>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <span>by {influencerName}</span>
+                {getStatusBadge(session.status)}
+              </div>
+            </div>
           </div>
-        </div>
-        
-        {/* Chat and Products tabs */}
-        <div className="flex-1 overflow-hidden">
-          <Tabs defaultValue="chat" className="w-full h-full">
-            <TabsList className="w-full h-12 grid grid-cols-2 bg-gray-100">
-              <TabsTrigger value="chat" className="text-sm">Chat</TabsTrigger>
-              <TabsTrigger value="products" className="text-sm">Products</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="chat" className="h-[calc(100%-3rem)] flex flex-col">
-              <div className="flex-grow overflow-y-auto p-4 space-y-4">
-                {chatMessages.map((msg) => (
-                  <div key={msg.id} className="flex items-start space-x-2">
-                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-gray-200"></div>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium text-sm">{msg.user}</span>
-                        <span className="text-xs text-gray-400">{msg.time}</span>
-                      </div>
-                      <p className="text-sm">{msg.message}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <form 
-                onSubmit={handleSendMessage}
-                className="p-4 border-t flex items-center space-x-2"
-              >
-                <Input
-                  placeholder="Say something..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="flex-grow"
-                />
-                <Button type="submit" size="icon" className="bg-kein-blue">
-                  <Send className="h-5 w-5" />
-                </Button>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="products" className="h-[calc(100%-3rem)] overflow-y-auto p-4">
-              <div className="space-y-4">
-                <h3 className="font-bold text-lg">BIG SHOW PART 2 Non Stop Givey's</h3>
-                
-                <div className="flex space-x-3 pb-3 border-b">
-                  <button className="text-sm font-medium text-kein-blue border-b-2 border-kein-blue pb-1">Products</button>
-                  <button className="text-sm text-gray-500">Buy Now</button>
-                  <button className="text-sm text-gray-500">Giveaways</button>
-                  <button className="text-sm text-gray-500">Sold</button>
-                </div>
-                
-                <div className="flex border rounded-full overflow-hidden p-1">
-                  <Input
-                    placeholder="Search products..."
-                    className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
-                </div>
-                
-                <div className="text-sm text-gray-500">3,178 Products</div>
-                
-                <div className="space-y-4">
-                  {products.map((product) => (
-                    <div key={product.id} className="flex border-b pb-4">
-                      <div className="w-1/4">
-                        <img
-                          src={product.image}
-                          alt={product.title}
-                          className="w-full aspect-square object-cover rounded-md"
-                        />
-                      </div>
-                      <div className="flex-1 ml-4">
-                        <h4 className="font-medium text-sm line-clamp-2">{product.title}</h4>
-                        <div className="flex items-center mt-1">
-                          <span className="text-sm font-medium mr-2">₹{product.discountPrice}</span>
-                          <span className="text-xs text-gray-500 line-through">₹{product.price}</span>
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1">1 Available</div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          No cancellations. Please watch live show for details on item, sizing and colors.
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
         </div>
       </div>
 
-      {/* Desktop Layout */}
-      <div className="hidden md:flex h-screen">
-        {/* Main Video Area */}
-        <div className="flex-1 relative bg-black">
-          <img 
-            src="/lovable-uploads/f570e76e-9e2b-48d1-b582-8f7c2732629c.png" 
-            alt="Live stream" 
-            className="w-full h-full object-cover"
-          />
-          
-          {/* Video Overlay */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-            <div className="flex items-center space-x-4">
-              <Link to="/home" className="p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors">
-                <ChevronLeft className="h-6 w-6 text-white" />
-              </Link>
-              <div className="flex items-center space-x-2 bg-black/50 rounded-full px-3 py-1">
-                <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse"></div>
-                <span className="text-white text-sm font-medium">LIVE</span>
-                <span className="text-white text-sm">{viewCount.toLocaleString()} watching</span>
+      <div className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main content */}
+          <div className="lg:col-span-2">
+            {/* Video preview */}
+            <div className="relative aspect-video mb-6 bg-black rounded-lg overflow-hidden">
+              <img
+                src={thumbnailUrl}
+                alt={session.title}
+                className="w-full h-full object-cover"
+              />
+              
+              {/* Status overlay */}
+              <div className="absolute top-4 left-4">
+                {getStatusBadge(session.status)}
+              </div>
+
+              {/* Viewer count for live streams */}
+              {session.status === 'live' && (
+                <div className="absolute top-4 right-4">
+                  <Badge variant="secondary" className="bg-black/70 text-white">
+                    <Eye className="w-3 h-3 mr-1" />
+                    {formatViewerCount(session.current_viewers || 0)} watching
+                  </Badge>
+                </div>
+              )}
+
+              {/* Play button / Join button */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                {session.status === 'live' ? (
+                  <Button
+                    onClick={handleJoinStream}
+                    disabled={isJoining || !user}
+                    size="lg"
+                    className="bg-red-500 hover:bg-red-600 text-white"
+                  >
+                    {isJoining ? 'Joining...' : 'Join Live Stream'}
+                  </Button>
+                ) : session.status === 'scheduled' ? (
+                  <div className="text-center text-white">
+                    <Clock className="w-12 h-12 mx-auto mb-2" />
+                    <p className="text-lg">Stream starts {formatDistanceToNow(new Date(session.scheduled_start_time!), { addSuffix: true })}</p>
+                  </div>
+                ) : (
+                  <div className="text-center text-white">
+                    <p className="text-lg">This stream has ended</p>
+                  </div>
+                )}
               </div>
             </div>
-            
-            <div className="flex items-center space-x-2">
-              <button className="p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors">
-                <Share2 className="h-6 w-6 text-white" />
-              </button>
-            </div>
-          </div>
 
-          {/* Streamer Info */}
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="bg-black/70 rounded-lg p-4 backdrop-blur-sm">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-3">
-                  <img 
-                    src={streamer.image} 
-                    alt={streamer.name} 
-                    className="h-12 w-12 rounded-full border-2 border-white object-cover"
-                  />
+            {/* Stream info */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4 mb-4">
+                  <Avatar className="w-12 h-12">
+                    <AvatarImage src={session.influencer?.avatar_url} />
+                    <AvatarFallback>{influencerName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+
+                  <div className="flex-1">
+                    <h2 className="font-semibold text-xl mb-1">{session.title}</h2>
+                    <Link 
+                      to={`/influencer/${session.influencer_id}`}
+                      className="text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      {influencerName}
+                      <Users className="w-4 h-4" />
+                      {formatViewerCount(followerCount)} followers
+                    </Link>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      <Heart className="w-4 h-4 mr-1" />
+                      {session.total_reactions || 0}
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Share className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {session.description && (
+                  <p className="text-gray-700 mb-4">{session.description}</p>
+                )}
+
+                {/* Stream stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
-                    <h2 className="text-white font-bold">{streamer.name}</h2>
-                    <p className="text-white/80 text-sm">Apr 2, 2025 at 7PM</p>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {formatViewerCount(session.current_viewers || 0)}
+                    </div>
+                    <div className="text-sm text-gray-600">Current Viewers</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {formatViewerCount(session.peak_viewers || 0)}
+                    </div>
+                    <div className="text-sm text-gray-600">Peak Viewers</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {session.total_messages || 0}
+                    </div>
+                    <div className="text-sm text-gray-600">Messages</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-red-600">
+                      {session.total_reactions || 0}
+                    </div>
+                    <div className="text-sm text-gray-600">Reactions</div>
                   </div>
                 </div>
-                <button
-                  className={`p-3 rounded-full ${isLiked ? 'bg-red-500' : 'bg-white/20'} hover:bg-red-500 transition-colors`}
-                  onClick={handleLike}
-                >
-                  <Heart className={`h-6 w-6 text-white ${isLiked ? 'fill-current' : ''}`} />
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-white/80 text-sm">Now Showing</div>
-                  <div className="text-white font-medium">Women solid top #08</div>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <span className="text-green-400 font-bold">₹499/-</span>
-                    <span className="text-white/80 text-sm line-through">₹999/-</span>
-                    <span className="text-red-400 text-sm">50% OFF</span>
-                  </div>
-                </div>
-                <Button 
-                  className="bg-kein-blue hover:bg-kein-blue/90 h-12"
-                  onClick={handleAddToCart}
-                >
-                  Add to Cart
-                </Button>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
 
-        {/* Right Sidebar */}
-        <div className="w-96 bg-white border-l flex flex-col">
-          <Tabs defaultValue="chat" className="flex-1 flex flex-col">
-            <TabsList className="grid grid-cols-2 m-4 mb-0">
-              <TabsTrigger value="chat">Chat</TabsTrigger>
-              <TabsTrigger value="products">Products</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="chat" className="flex-1 flex flex-col m-4 mt-2">
-              <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-                {chatMessages.map((msg) => (
-                  <div key={msg.id} className="flex items-start space-x-2">
-                    <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-kein-blue to-purple-500 flex items-center justify-center">
-                      <span className="text-white text-xs font-medium">{msg.user[0]}</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium text-sm">{msg.user}</span>
-                        <span className="text-xs text-gray-400">{msg.time}</span>
-                      </div>
-                      <p className="text-sm text-gray-700">{msg.message}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <form 
-                onSubmit={handleSendMessage}
-                className="mt-4 flex items-center space-x-2"
-              >
-                <Input
-                  placeholder="Say something..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="flex-1"
-                />
-                <Button type="submit" size="icon" className="bg-kein-blue">
-                  <Send className="h-5 w-5" />
-                </Button>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="products" className="flex-1 m-4 mt-2 overflow-y-auto">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-bold text-lg mb-2">Featured Products</h3>
-                  <div className="text-sm text-gray-500">3,178 Products available</div>
-                </div>
-                
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Stream status */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Stream Status</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-3">
-                  {products.map((product) => (
-                    <div key={product.id} className="flex space-x-3 p-3 rounded-lg border hover:bg-gray-50 transition-colors">
-                      <img
-                        src={product.image}
-                        alt={product.title}
-                        className="w-16 h-16 object-cover rounded-md"
-                      />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm line-clamp-2">{product.title}</h4>
-                        <div className="flex items-center mt-1">
-                          <span className="text-lg font-bold text-kein-coral">₹{product.discountPrice}</span>
-                          <span className="text-sm text-gray-500 line-through ml-2">₹{product.price}</span>
-                        </div>
-                        <Button size="sm" className="mt-2 w-full bg-kein-blue text-xs hover:bg-kein-blue/90">
-                          Add to Cart
-                        </Button>
-                      </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Status</span>
+                    {getStatusBadge(session.status)}
+                  </div>
+                  
+                  {session.actual_start_time && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Started</span>
+                      <span className="text-sm">
+                        {formatDistanceToNow(new Date(session.actual_start_time), { addSuffix: true })}
+                      </span>
                     </div>
-                  ))}
+                  )}
+
+                  {session.scheduled_start_time && session.status === 'scheduled' && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Scheduled</span>
+                      <span className="text-sm">
+                        {formatDistanceToNow(new Date(session.scheduled_start_time), { addSuffix: true })}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Visibility</span>
+                    <Badge variant="outline">
+                      {session.visibility?.toUpperCase()}
+                    </Badge>
+                  </div>
                 </div>
-              </div>
-            </TabsContent>
-          </Tabs>
+              </CardContent>
+            </Card>
+
+            {/* Products (if any) */}
+            {session.is_products_showcase && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <ShoppingBag className="w-5 h-5" />
+                    Featured Products
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-sm">
+                    Products will be showcased during the live stream
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Authentication prompt */}
+            {!user && session.status === 'live' && (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Please <Link to="/login" className="underline text-blue-600">sign in</Link> to join live streams and interact with the host.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default LiveStreamPage;
+export default LiveStreamViewerPage;

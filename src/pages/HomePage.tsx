@@ -1,8 +1,20 @@
-
 import React, { useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { 
+  Play, 
+  Users, 
+  Clock, 
+  Heart,
+  ShoppingBag,
+  Zap,
+  Calendar,
+  Star,
+  Eye
+} from "lucide-react";
 
 // Lazy load heavy components
 const InfluencersRow = lazy(() => import("@/components/home/InfluencersRow"));
@@ -18,296 +30,385 @@ const Reels = lazy(() => import("@/components/shop/Reels"));
 
 // Simple loading component for sections
 const SectionLoader = () => (
-  <div className="w-full h-32 bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
-    <p className="text-gray-500 text-sm">Loading...</p>
+  <div className="flex items-center justify-center py-8">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
   </div>
 );
 
-// Mock data
-const influencers = [
-  { id: "1", name: "Sophie Lin", image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png", isLive: true },
-  { id: "2", name: "Alex Wang", image: "/lovable-uploads/9f9465c9-14a1-4b53-b185-257751bc97c5.png", isLive: true },
-  { id: "3", name: "Art vintage", image: "/lovable-uploads/4448d6cf-1254-4262-a2a2-cb90ffd97796.png", isLive: false },
-  { id: "4", name: "Mike Chen", image: "/lovable-uploads/a758d528-4f86-47ab-8952-b84d3f2e2b2c.png", isLive: false },
-  { id: "5", name: "Ryan Lee", image: "/lovable-uploads/0652f2bb-af03-464d-856b-32325f54b8c6.png", isLive: false },
-];
-
-const liveStreams = [
-  {
-    id: "1",
-    title: "Tech Review - Latest smartphones",
-    influencer: "Mike Chen",
-    thumbnail: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
-    viewCount: 2530,
-    isLive: true,
-  },
-  {
-    id: "2",
-    title: "Women's Fashion Summer Collection",
-    influencer: "Sophie Lin",
-    thumbnail: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-    viewCount: 1845,
-    isLive: true,
-  },
-];
-
-const products = [
-  {
-    id: "1",
-    title: "Women solid top and jeans",
-    price: 999,
-    discountPrice: 499,
-    discountPercentage: 50,
-    image: "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
-    category: "Clothing"
-  },
-  {
-    id: "2",
-    title: "Premium headphones with noise cancellation",
-    price: 2499,
-    discountPrice: 1999,
-    discountPercentage: 20,
-    image: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
-    category: "Electronics"
-  },
-  {
-    id: "3",
-    title: "Stylish sunglasses UV protection",
-    price: 1299,
-    discountPrice: 999,
-    discountPercentage: 23,
-    image: "/lovable-uploads/521c827c-efca-4963-a702-e528830c.png",
-    category: "Accessories"
-  },
-  {
-    id: "4",
-    title: "Casual summer dress floral pattern",
-    price: 1499,
-    discountPrice: 1199,
-    discountPercentage: 20,
-    image: "/lovable-uploads/d9b61dc1-74ba-423d-8b21-9e83e8e1ff97.png",
-    category: "Clothing"
-  },
-];
-
-const categories = [
-  { id: "1", name: "Clothing", count: 359, image: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png" },
-  { id: "2", name: "Shoes", count: 230, image: "/lovable-uploads/bcb73b7f-2144-4a7d-aaca-a22c1dce107d.png" },
-  { id: "3", name: "Bags", count: 87, image: "/lovable-uploads/2840b6e9-4e3c-4070-8eb6-13ed21836285.png" },
-  { id: "4", name: "Lingerie", count: 218, image: "/lovable-uploads/1842d9df-d938-4f42-b696-292518197638.png" },
-  { id: "5", name: "Watch", count: 234, image: "/lovable-uploads/5238184c-1188-4352-a959-30046823f005.png" },
-  { id: "6", name: "Hoodies", count: 218, image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png" },
-  { id: "7", name: "Mobile phones", count: 87, image: "/lovable-uploads/5112d7a4-a073-42da-9f08-2f9ad3a1c2ce.png" },
-  { id: "8", name: "Laptops", count: 218, image: "/lovable-uploads/7954c3c0-a433-4e95-9d0e-e746eb76a920.png" },
-];
-
-// Add more detailed live streams data for the carousel
-const currentLiveStreams = [
-  {
-    id: "1",
-    title: "Unboxing the latest iPhone Pro",
-    influencer: "Mike Chen",
-    influencerImage: "/lovable-uploads/a758d528-4f86-47ab-8952-b84d3f2e2b2c.png",
-    thumbnail: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
-    viewCount: 2532,
-    isLive: true,
-  },
-  {
-    id: "2",
-    title: "Summer Fashion Haul 2025",
-    influencer: "Sophie Lin",
-    influencerImage: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-    thumbnail: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-    viewCount: 1845,
-    isLive: true,
-  },
-  {
-    id: "3",
-    title: "Best Accessories under $50",
-    influencer: "Emma Lou",
-    influencerImage: "/lovable-uploads/bcb73b7f-2144-4a7d-aaca-a22c1dce107d.png",
-    thumbnail: "/lovable-uploads/521c827c-efca-4963-a702-e528830c.png",
-    viewCount: 1247,
-    isLive: true,
-  },
-  {
-    id: "4",
-    title: "Vintage Clothing Collection",
-    influencer: "Art vintage",
-    influencerImage: "/lovable-uploads/4448d6cf-1254-4262-a2a2-cb90ffd97796.png",
-    thumbnail: "/lovable-uploads/37fa901f-5b94-426f-ac68-07a4249941e7.png",
-    viewCount: 958,
-    isLive: true,
-  },
-];
-
-// Promotions data for homepage
-const homePromotions = [{
-  id: "1",
-  title: "Welcome to Kein!",
-  description: "Watch live streams from your favorite influencers and shop your desired products with just one click!",
-  color: "bg-gradient-to-r from-kein-blue to-blue-400",
-  image: "/lovable-uploads/f570e76e-9e2b-48d1-b582-8f7c2732629c.png",
-  buttonText: "Watch Now",
-  buttonLink: "/kein-live"
-}, {
-  id: "reels",
-  title: "Influencer Reels",
-  description: "Watch short videos from influencers showcasing trending products!",
-  color: "bg-gradient-to-r from-purple-600 to-pink-600",
-  image: "/lovable-uploads/521c827c-efca-4963-a702-2af0e528830c.png",
-  buttonText: "Watch Reels",
-  buttonLink: "#reels",
-  isReels: true
-}, {
-  id: "2",
-  title: "Flash Deals",
-  description: "Limited time offers - Up to 70% off!",
-  color: "bg-gradient-to-r from-kein-coral to-red-400",
-  image: "/lovable-uploads/b919bc4e-ae0e-4d85-9cba-1168285b252c.png",
-  buttonText: "Shop Now",
-  buttonLink: "/shop"
-}, {
-  id: "3",
-  title: "New Arrivals",
-  description: "Check out our latest collection",
-  color: "bg-gradient-to-r from-kein-yellow to-yellow-400",
-  image: "/lovable-uploads/2840b6e9-4e3c-4070-8eb6-13ed21836285.png",
-  buttonText: "Explore",
-  buttonLink: "/shop"
-}];
-
 const HomePage = () => {
-  const [showReels, setShowReels] = useState(false);
   const { user, userProfile } = useAuth();
-  
-  // Helper function to get user display name based on role
-  const getUserDisplayName = () => {
-    if (!userProfile?.profile) return user?.email?.split('@')[0] || 'Guest';
-    
-    const profile = userProfile.profile;
-    const role = userProfile.role;
-    
-    switch (role) {
-      case 'customer':
-        const customer = profile as any; // Customer type
-        return customer.first_name || user?.email?.split('@')[0] || 'Customer';
-      
-      case 'wholesaler':
-        const wholesaler = profile as any; // Wholesaler type
-        return wholesaler.contact_person_name || wholesaler.business_name || user?.email?.split('@')[0] || 'Wholesaler';
-      
-      case 'influencer':
-        const influencer = profile as any; // Influencer type
-        return influencer.display_name || influencer.first_name || user?.email?.split('@')[0] || 'Influencer';
-      
-      default:
-        return user?.email?.split('@')[0] || 'User';
+
+  // Mock data inspired by Whatnot
+  const liveStreams = [
+    {
+      id: "1",
+      title: "🔥 SNEAKER DROP - JORDAN RETRO COLLECTION",
+      influencer: "culturedinsoles",
+      thumbnail: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
+      viewCount: 208,
+      category: "Sneakers",
+      isLive: true,
+      price: "₹12,999",
+      originalPrice: "₹15,999"
+    },
+    {
+      id: "2", 
+      title: "📱 TECH SHOWCASE - Latest Electronics",
+      influencer: "techwithsid",
+      thumbnail: "/lovable-uploads/9f9465c9-14a1-4b53-b185-257751bc97c5.png",
+      viewCount: 156,
+      category: "Electronics",
+      isLive: true,
+      price: "₹8,999",
+      originalPrice: "₹11,999"
+    },
+    {
+      id: "3",
+      title: "👗 FASHION FRIDAY - Designer Wear",
+      influencer: "fashionista_maya", 
+      thumbnail: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
+      viewCount: 342,
+      category: "Fashion",
+      isLive: true,
+      price: "₹2,499",
+      originalPrice: "₹4,999"
+    },
+    {
+      id: "4",
+      title: "⚽ SPORTS GEAR - Authentic Jerseys",
+      influencer: "sportscentral",
+      thumbnail: "/lovable-uploads/4448d6cf-1254-4262-a2a2-cb90ffd97796.png", 
+      viewCount: 89,
+      category: "Sports",
+      isLive: true,
+      price: "₹1,999",
+      originalPrice: "₹3,499"
     }
-  };
-  
-  return (
-    <div className="container mx-auto px-4 pb-20">
-      {/* Welcome banner for non-authenticated users */}
-      {!user && (
-        <div className="bg-gradient-to-r from-kein-blue to-blue-600 text-white rounded-xl p-6 mb-6 mt-4">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">Welcome to Kein!</h2>
-            <p className="mb-4 opacity-90">
-              Join thousands of users shopping live with their favorite influencers
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button 
-                variant="secondary" 
-                className="bg-white text-kein-blue hover:bg-gray-100"
-                asChild
-              >
-                <Link to="/signup">Get Started</Link>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="border-white text-white hover:bg-white hover:text-kein-blue"
-                asChild
-              >
-                <Link to="/login">Sign In</Link>
-              </Button>
+  ];
+
+  const upcomingStreams = [
+    {
+      id: "1",
+      title: "🎮 GAMING SETUP GIVEAWAY",
+      influencer: "gamingpro_raj",
+      thumbnail: "/lovable-uploads/a758d528-4f86-47ab-8952-b84d3f2e2b2c.png",
+      scheduledTime: "Today 2:00 PM",
+      category: "Gaming",
+      expectedViewers: 500
+    },
+    {
+      id: "2", 
+      title: "💄 BEAUTY HAUL - Korean Skincare",
+      influencer: "beautybypriya",
+      thumbnail: "/lovable-uploads/b70ed579-11af-4d52-af36-34b2f78386c0.png",
+      scheduledTime: "Today 8:00 PM", 
+      category: "Beauty",
+      expectedViewers: 300
+    },
+    {
+      id: "3",
+      title: "🏠 HOME DECOR - Festive Collection",
+      influencer: "homedecor_expert",
+      thumbnail: "/lovable-uploads/5238184c-1188-4352-a959-30046823f005.png",
+      scheduledTime: "Tomorrow 6:30 PM",
+      category: "Home",
+      expectedViewers: 250
+    }
+  ];
+
+  const categories = [
+    { name: "Sneakers", color: "from-orange-500 to-red-600", icon: "👟", bgClass: "bg-gradient-to-br from-orange-500 to-red-600" },
+    { name: "Electronics", color: "from-blue-500 to-purple-600", icon: "📱", bgClass: "bg-gradient-to-br from-blue-500 to-purple-600" },
+    { name: "Fashion", color: "from-pink-500 to-purple-600", icon: "👗", bgClass: "bg-gradient-to-br from-pink-500 to-purple-600" }, 
+    { name: "Beauty", color: "from-rose-500 to-pink-600", icon: "💄", bgClass: "bg-gradient-to-br from-rose-500 to-pink-600" },
+    { name: "Sports", color: "from-emerald-500 to-teal-600", icon: "⚽", bgClass: "bg-gradient-to-br from-emerald-500 to-teal-600" },
+    { name: "Gaming", color: "from-purple-500 to-indigo-600", icon: "🎮", bgClass: "bg-gradient-to-br from-purple-500 to-indigo-600" },
+    { name: "Home", color: "from-amber-500 to-orange-600", icon: "🏠", bgClass: "bg-gradient-to-br from-amber-500 to-orange-600" },
+    { name: "Books", color: "from-cyan-500 to-blue-600", icon: "📚", bgClass: "bg-gradient-to-br from-cyan-500 to-blue-600" }
+  ];
+
+  // Live stories data for circular story-like updates
+  const liveStories = [
+    {
+      id: "1",
+      title: "🔥 SNEAKER DROP",
+      influencer: "culturedinsoles",
+      thumbnail: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
+      isLive: true,
+      category: "Sneakers"
+    },
+    {
+      id: "2",
+      title: "📱 TECH SHOW",
+      influencer: "techwithsid", 
+      thumbnail: "/lovable-uploads/9f9465c9-14a1-4b53-b185-257751bc97c5.png",
+      isLive: true,
+      category: "Electronics"
+    },
+    {
+      id: "3",
+      title: "👗 FASHION",
+      influencer: "fashionista_maya",
+      thumbnail: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
+      isLive: true,
+      category: "Fashion"
+    },
+    {
+      id: "4",
+      title: "💄 BEAUTY",
+      influencer: "beautybypriya",
+      thumbnail: "/lovable-uploads/b70ed579-11af-4d52-af36-34b2f78386c0.png",
+      isLive: true,
+      category: "Beauty"
+    },
+    {
+      id: "5",
+      title: "⚽ SPORTS",
+      influencer: "sportscentral",
+      thumbnail: "/lovable-uploads/4448d6cf-1254-4262-a2a2-cb90ffd97796.png",
+      isLive: true,
+      category: "Sports"
+    }
+  ];
+
+  const LiveStoryCard = ({ story }: { story: any }) => (
+    <div className="flex flex-col items-center space-y-2 cursor-pointer group">
+      <div className="relative">
+        <div className="w-16 h-16 rounded-full p-1 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
+          <div className="w-full h-full rounded-full overflow-hidden border-2 border-white">
+            <img 
+              src={story.thumbnail} 
+              alt={story.influencer}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+        {story.isLive && (
+          <div className="absolute -bottom-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
+            LIVE
+          </div>
+        )}
+      </div>
+      <div className="text-center">
+        <p className="text-xs font-medium text-gray-900 truncate w-16">{story.category}</p>
+        <p className="text-xs text-gray-500 truncate w-16">@{story.influencer}</p>
+      </div>
+    </div>
+  );
+
+  const LiveStreamCard = ({ stream }: { stream: any }) => (
+    <Card className="group cursor-pointer overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl">
+      <div className="relative">
+        <img 
+          src={stream.thumbnail} 
+          alt={stream.title}
+          className="w-full h-48 object-cover"
+        />
+        <div className="absolute top-2 left-2">
+          <Badge className="bg-red-600 text-white px-2 py-1 text-xs font-bold">
+            <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></div>
+            Live • {stream.viewCount}
+          </Badge>
+        </div>
+        <div className="absolute top-2 right-2">
+          <Badge variant="secondary" className="text-xs">
+            {stream.category}
+          </Badge>
+        </div>
+        <div className="absolute bottom-2 left-2 right-2">
+          <div className="bg-black/70 rounded-lg p-2 text-white">
+            <div className="flex items-center justify-between">
+              <span className="text-lg font-bold">{stream.price}</span>
+              <span className="text-sm line-through text-gray-300">{stream.originalPrice}</span>
             </div>
           </div>
         </div>
-      )}
-
-      {/* Personalized welcome for authenticated users */}
-      {user && (
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 mb-6 mt-4">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">
-              Welcome back, {getUserDisplayName()}!
-            </h2>
-            <p className="opacity-90">
-              Discover new products from your favorite influencers
-            </p>
+      </div>
+      <CardContent className="p-3">
+        <h3 className="font-semibold text-sm line-clamp-2 mb-1">{stream.title}</h3>
+        <p className="text-xs text-gray-600 mb-2">@{stream.influencer}</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-1 text-xs text-gray-500">
+            <Eye className="w-3 h-3" />
+            <span>{stream.viewCount} watching</span>
           </div>
+          <Button size="sm" className="h-6 px-2 text-xs">
+            <Play className="w-3 h-3 mr-1" />
+            Watch
+          </Button>
         </div>
-      )}
+      </CardContent>
+    </Card>
+  );
 
-      <Suspense fallback={<SectionLoader />}>
-        <InfluencersRow influencers={influencers} />
-      </Suspense>
-      
-      {/* Welcome banner */}
-      <h1 className="text-2xl font-bold mt-4 mb-4">
-        {user ? "Continue Shopping" : "Shop Live, Buy Instant!"}
-      </h1>
-      
-      {/* Promotions carousel */}
-      <Suspense fallback={<SectionLoader />}>
-        <PromotionsCarousel 
-          promotions={homePromotions} 
-          onReelsClick={() => setShowReels(true)}
+  const UpcomingStreamCard = ({ stream }: { stream: any }) => (
+    <Card className="group cursor-pointer overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
+      <div className="relative">
+        <img 
+          src={stream.thumbnail} 
+          alt={stream.title}
+          className="w-full h-32 object-cover"
         />
-      </Suspense>
-      
-      {/* Live Now carousel */}
-      <Suspense fallback={<SectionLoader />}>
-        <LiveNowCarousel streams={currentLiveStreams} />
-      </Suspense>
-      
-      {/* Hero carousel */}
-      <Suspense fallback={<SectionLoader />}>
-        <HeroCarousel />
-      </Suspense>
-      
-      {/* Categories section */}
-      <Suspense fallback={<SectionLoader />}>
-        <CategoriesSection categories={categories} />
-      </Suspense>
-      
-      {/* Live shopping section */}
-      <Suspense fallback={<SectionLoader />}>
-        <LiveShoppingSection streams={liveStreams} />
-      </Suspense>
-      
-      {/* Big show banners */}
-      <Suspense fallback={<SectionLoader />}>
-        <BigShowBanners />
-      </Suspense>
-      
-      {/* Featured products section */}
-      <Suspense fallback={<SectionLoader />}>
-        <FeaturedProducts products={products} />
-      </Suspense>
-      
-      {/* Upcoming show banners */}
-      <Suspense fallback={<SectionLoader />}>
-        <UpcomingShows />
-      </Suspense>
-      
-      {/* Reels Modal */}
-      {showReels && (
+        <div className="absolute top-2 left-2">
+          <Badge className="bg-blue-600 text-white px-2 py-1 text-xs font-bold">
+            <Clock className="w-3 h-3 mr-1" />
+            {stream.scheduledTime}
+          </Badge>
+        </div>
+        <div className="absolute bottom-2 right-2">
+          <Button size="sm" variant="secondary" className="h-6 px-2 text-xs">
+            <Heart className="w-3 h-3 mr-1" />
+            Remind
+          </Button>
+        </div>
+      </div>
+      <CardContent className="p-3">
+        <h4 className="font-semibold text-sm line-clamp-2 mb-1">{stream.title}</h4>
+        <p className="text-xs text-gray-600 mb-1">@{stream.influencer}</p>
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <span>{stream.expectedViewers} expected</span>
+          <Badge variant="outline" className="text-xs">{stream.category}</Badge>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Live Stories Section */}
         <Suspense fallback={<SectionLoader />}>
-          <Reels onClose={() => setShowReels(false)} />
+          <div className="mb-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center">
+              <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
+              Live Now
+            </h2>
+            <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+              {liveStories.map((story) => (
+                <div key={story.id} className="flex-shrink-0">
+                  <LiveStoryCard story={story} />
+                </div>
+              ))}
+            </div>
+          </div>
         </Suspense>
-      )}
+
+        {/* Categories Section with Lazy Loading */}
+        <Suspense fallback={<SectionLoader />}>
+          <div className="mb-8">
+            {/* Filter Pills */}
+            
+            
+            <h2 className="text-xl font-bold mb-4">Categories You Might Like</h2>
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+              {categories.map((category) => (
+                <Link key={category.name} to={`/shop/category/${category.name.toLowerCase()}`}>
+                  <div className="flex-shrink-0 border border-gray-300 rounded-full px-6 py-3 flex items-center gap-2 text-gray-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:border-gray-400 cursor-pointer bg-white">
+                    <span className="text-lg">{category.icon}</span>
+                    <span className="text-sm font-semibold whitespace-nowrap">{category.name}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </Suspense>
+
+        {/* Featured Live Streams Section */}
+        <Suspense fallback={<SectionLoader />}>
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold flex items-center">
+                <Zap className="w-5 h-5 mr-2 text-red-500" />
+                Featured Live Streams
+              </h2>
+              <Link to="/play">
+                <Button variant="outline" size="sm">Show All</Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {liveStreams.map((stream) => (
+                <LiveStreamCard key={stream.id} stream={stream} />
+              ))}
+            </div>
+          </div>
+        </Suspense>
+
+        {/* Upcoming Section with Lazy Loading */}
+        <Suspense fallback={<SectionLoader />}>
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold flex items-center">
+                <Calendar className="w-5 h-5 mr-2 text-blue-500" />
+                Upcoming Shows
+              </h2>
+              <Link to="/schedule">
+                <Button variant="outline" size="sm">Show All</Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {upcomingStreams.map((stream) => (
+                <UpcomingStreamCard key={stream.id} stream={stream} />
+              ))}
+            </div>
+          </div>
+        </Suspense>
+
+        {/* For You Section with Lazy Loading */}
+        <Suspense fallback={<SectionLoader />}>
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4 flex items-center">
+              <Star className="w-5 h-5 mr-2 text-yellow-500" />
+              For You
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Mix of live and upcoming for personalized feed */}
+              {[...liveStreams.slice(0, 2), ...upcomingStreams.slice(0, 2)].map((stream, index) => (
+                index < 2 ? 
+                  <LiveStreamCard key={`foryou-${stream.id}`} stream={stream} /> :
+                  <UpcomingStreamCard key={`foryou-${stream.id}`} stream={stream} />
+              ))}
+            </div>
+          </div>
+        </Suspense>
+
+        {/* Quick Actions with Lazy Loading */}
+        <Suspense fallback={<SectionLoader />}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+              <CardContent className="p-6 text-center">
+                <Users className="w-12 h-12 mx-auto mb-4" />
+                <h3 className="text-xl font-bold mb-2">Become an Influencer</h3>
+                <p className="mb-4">Start your own live shows and earn money</p>
+                <Link to="/signup/influencer">
+                  <Button variant="secondary">Get Started</Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+              <CardContent className="p-6 text-center">
+                <ShoppingBag className="w-12 h-12 mx-auto mb-4" />
+                <h3 className="text-xl font-bold mb-2">Sell Your Products</h3>
+                <p className="mb-4">Join as a wholesaler and reach thousands</p>
+                <Link to="/signup/wholesaler">
+                  <Button variant="secondary">Start Selling</Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+              <CardContent className="p-6 text-center">
+                <Heart className="w-12 h-12 mx-auto mb-4" />
+                <h3 className="text-xl font-bold mb-2">Join the Community</h3>
+                <p className="mb-4">Connect with sellers and buyers worldwide</p>
+                <Link to="/signup/customer">
+                  <Button variant="secondary">Join Now</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </Suspense>
+      </div>
     </div>
   );
 };

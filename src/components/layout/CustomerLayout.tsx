@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import CustomerNavbar from '@/components/layout/CustomerNavbar';
+import { CustomerNavbar } from '@/components/layout/CustomerNavbar';
 import Footer from '@/components/layout/Footer';
 import BottomNav from '@/components/layout/BottomNav';
 

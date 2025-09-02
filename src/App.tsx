@@ -14,6 +14,7 @@ import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import RoleBasedRedirect from "./components/common/RoleBasedRedirect";
+import LiveStreamErrorBoundary from "./components/common/LiveStreamErrorBoundary";
 
 // Lazy load authentication pages
 const CustomerSignupPage = React.lazy(() => import("./pages/CustomerSignupPage"));
@@ -21,15 +22,29 @@ const WholesalerSignupPage = React.lazy(() => import("./pages/WholesalerSignupPa
 const InfluencerSignupPage = React.lazy(() => import("./pages/InfluencerSignupPage"));
 const LoginPage = React.lazy(() => import("./pages/LoginPage"));
 const ForgotPasswordPage = React.lazy(() => import("./pages/ForgotPasswordPage"));
+const AuthCallbackPage = React.lazy(() => import("./pages/AuthCallbackPage"));
 
 // Lazy load dashboard pages
 const CustomerDashboard = React.lazy(() => import("./pages/CustomerDashboard"));
 const WholesalerDashboard = React.lazy(() => import("./pages/WholesalerDashboard"));
-const InfluencerDashboard = React.lazy(() => import("./pages/InfluencerDashboard"));
+// const InfluencerDashboard = React.lazy(() => import("./pages/InfluencerDashboard")); // File doesn't exist - using InfluencerDashboardMain instead
+
+// Lazy load admin pages
+const AdminPanel = React.lazy(() => import("./pages/admin/AdminPanel"));
+const AdminLogin = React.lazy(() => import("./pages/admin/AdminLogin"));
+const AdminProtectedRoute = React.lazy(() => import("./components/admin/AdminProtectedRoute"));
+const AdminLayout = React.lazy(() => import("./components/layout/AdminLayout"));
 
 // Lazy load influencer pages
-const InfluencerDashboardMain = React.lazy(() => import("./pages/influencer/InfluencerDashboardMain"));
+const InfluencerDashboardWrapper = React.lazy(() => import("./components/influencer/InfluencerDashboardWrapper"));
+const InfluencerProfileCompletionPage = React.lazy(() => import("./pages/InfluencerProfileCompletionPage"));
 const InfluencerLiveManagement = React.lazy(() => import("./pages/influencer/InfluencerLiveManagement"));
+const InfluencerLiveStreamPageNew = React.lazy(() => import("./pages/influencer/InfluencerLiveStreamPage"));
+// const InfluencerAnalytics = React.lazy(() => import("./pages/influencer/InfluencerAnalytics")); // Removed for MVP
+const InfluencerSchedule = React.lazy(() => import("./pages/influencer/InfluencerSchedule"));
+// const InfluencerAudience = React.lazy(() => import("./pages/influencer/InfluencerAudience")); // Removed for MVP
+const InfluencerSettings = React.lazy(() => import("./pages/influencer/InfluencerSettings"));
+const InfluencerProfile = React.lazy(() => import("./pages/influencer/InfluencerProfile"));
 
 // Lazy load shop pages
 const ShopPage = React.lazy(() => import("./pages/ShopPage"));
@@ -39,6 +54,7 @@ const CartPage = React.lazy(() => import("./pages/CartPage"));
 
 // Lazy load live streaming pages
 const LiveStreamPage = React.lazy(() => import("./pages/LiveStreamPage"));
+const LiveStreamViewerPage = React.lazy(() => import("./pages/LiveStreamViewerPage"));
 const PlayPage = React.lazy(() => import("./pages/PlayPage"));
 const PlayFeedPage = React.lazy(() => import("./pages/PlayFeedPage"));
 const KeinLivePage = React.lazy(() => import("./pages/KeinLivePage"));
@@ -46,13 +62,15 @@ const KeinLivePage = React.lazy(() => import("./pages/KeinLivePage"));
 // Lazy load other pages
 const ReelsPage = React.lazy(() => import("./pages/ReelsPage"));
 const ProfilePage = React.lazy(() => import("./pages/ProfilePage"));
-const WishlistPage = React.lazy(() => import("./pages/WishlistPage"));
 const SearchPage = React.lazy(() => import("./pages/SearchPage"));
 const SellerDashboardPage = React.lazy(() => import("./pages/SellerDashboardPage"));
 const MobileLandingPage = React.lazy(() => import("./pages/MobileLandingPage"));
 const AccountSettingsPage = React.lazy(() => import("./pages/AccountSettingsPage"));
 const AuthDemoPage = React.lazy(() => import("./pages/AuthDemoPage"));
 const SupabaseTestPage = React.lazy(() => import("./pages/SupabaseTestPage"));
+const InfluencerTestPage = React.lazy(() => import("./pages/InfluencerTestPage"));
+const LiveStreamTestPage = React.lazy(() => import("./pages/LiveStreamTestPage"));
+const LiveStreamDemoPage = React.lazy(() => import("./pages/LiveStreamDemoPage"));
 
 // Loading component
 const PageLoader = () => (
@@ -117,6 +135,10 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/auth/callback" 
+            element={<AuthCallbackPage />} 
+          />
 
           {/* Role-Based Dashboard Routes */}
           
@@ -124,11 +146,7 @@ function App() {
           <Route element={<CustomerLayout />}>
             <Route 
               path="/home" 
-              element={
-                <ProtectedRoute allowedRoles={['customer']}>
-                  <HomePage />
-                </ProtectedRoute>
-              } 
+              element={<HomePage />}
             />
             <Route 
               path="/shop" 
@@ -167,14 +185,6 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['customer']}>
                   <CartPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/wishlist" 
-              element={
-                <ProtectedRoute allowedRoles={['customer']}>
-                  <WishlistPage />
                 </ProtectedRoute>
               } 
             />
@@ -223,10 +233,18 @@ function App() {
           {/* Influencer Routes - Creator dashboard */}
           <Route element={<InfluencerLayout />}>
             <Route 
+              path="/influencer/profile-completion" 
+              element={
+                <ProtectedRoute allowedRoles={['influencer']}>
+                  <InfluencerProfileCompletionPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/influencer/dashboard" 
               element={
                 <ProtectedRoute allowedRoles={['influencer']}>
-                  <InfluencerDashboardMain />
+                  <InfluencerDashboardWrapper />
                 </ProtectedRoute>
               } 
             />
@@ -234,7 +252,9 @@ function App() {
               path="/influencer/live" 
               element={
                 <ProtectedRoute allowedRoles={['influencer']}>
-                  <InfluencerLiveManagement />
+                  <LiveStreamErrorBoundary>
+                    <InfluencerLiveStreamPageNew />
+                  </LiveStreamErrorBoundary>
                 </ProtectedRoute>
               } 
             />
@@ -242,39 +262,39 @@ function App() {
               path="/influencer/schedule" 
               element={
                 <ProtectedRoute allowedRoles={['influencer']}>
-                  <div className="p-6">Schedule Management - Coming Soon</div>
+                  <InfluencerSchedule />
                 </ProtectedRoute>
               } 
             />
             <Route 
+              path="/influencer/profile" 
+              element={
+                <ProtectedRoute allowedRoles={['influencer']}>
+                  <InfluencerProfile />
+                </ProtectedRoute>
+              } 
+            />
+            {/* <Route 
               path="/influencer/analytics" 
               element={
                 <ProtectedRoute allowedRoles={['influencer']}>
-                  <div className="p-6">Analytics Dashboard - Coming Soon</div>
+                  <InfluencerAnalytics />
                 </ProtectedRoute>
               } 
-            />
-            <Route 
+            /> */}
+            {/* <Route 
               path="/influencer/audience" 
               element={
                 <ProtectedRoute allowedRoles={['influencer']}>
-                  <div className="p-6">Audience Management - Coming Soon</div>
+                  <InfluencerAudience />
                 </ProtectedRoute>
               } 
-            />
-            <Route 
-              path="/influencer/earnings" 
-              element={
-                <ProtectedRoute allowedRoles={['influencer']}>
-                  <div className="p-6">Earnings Dashboard - Coming Soon</div>
-                </ProtectedRoute>
-              } 
-            />
+            /> */}
             <Route 
               path="/influencer/settings" 
               element={
                 <ProtectedRoute allowedRoles={['influencer']}>
-                  <div className="p-6">Settings - Coming Soon</div>
+                  <InfluencerSettings />
                 </ProtectedRoute>
               } 
             />
@@ -302,7 +322,7 @@ function App() {
           <Route element={<Layout />}>
             <Route 
               path="/livestream/:id" 
-              element={<LiveStreamPage />} 
+              element={<LiveStreamViewerPage />} 
             />
             <Route 
               path="/kein-live" 
@@ -328,6 +348,36 @@ function App() {
               path="/supabase-test" 
               element={<SupabaseTestPage />} 
             />
+            <Route 
+              path="/influencer-test" 
+              element={<InfluencerTestPage />} 
+            />
+            <Route 
+              path="/live-stream-test" 
+              element={<LiveStreamTestPage />} 
+            />
+            <Route 
+              path="/live-stream-demo" 
+              element={<LiveStreamDemoPage />} 
+            />
+
+          </Route>
+
+          {/* Admin Routes - Separate layout without bottom navigation */}
+          <Route element={<AdminLayout />}>
+            <Route 
+              path="/admin/login" 
+              element={<AdminLogin />} 
+            />
+            <Route 
+              path="/admin" 
+              element={
+                <AdminProtectedRoute>
+                  <AdminPanel />
+                </AdminProtectedRoute>
+              } 
+            />
+
           </Route>
 
           {/* Fallback Routes */}

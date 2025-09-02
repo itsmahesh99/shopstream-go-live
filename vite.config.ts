@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => ({
           'dashboard-pages': [
             './src/pages/CustomerDashboard.tsx',
             './src/pages/WholesalerDashboard.tsx',
-            './src/pages/InfluencerDashboard.tsx'
+            './src/pages/influencer/InfluencerDashboardMain.tsx'
           ],
           'shop-pages': [
             './src/pages/ShopPage.tsx',
