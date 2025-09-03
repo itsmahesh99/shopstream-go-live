@@ -30,7 +30,7 @@ const BottomNav = () => {
               <div className="w-2.5 h-2.5 text-white bg-gray-500" style={{ clipPath: 'polygon(0% 0%, 0% 100%, 100% 50%)' }}></div>
             </div>
           </div>
-          <span className="text-xs mt-1">Shop</span>
+          <span className="text-xs mt-1">Reels</span>
         </Link>
         
         <Link to="/profile" className={`flex flex-col items-center justify-center w-full h-full ${isActive("/profile") ? "text-kein-blue" : "text-gray-500"}`}>

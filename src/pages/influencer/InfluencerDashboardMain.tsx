@@ -13,7 +13,8 @@ import {
   Clock,
   Star,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Package
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { InfluencerStatsService, InfluencerDashboardStats, StreamStats } from '@/services/influencerStatsService';
@@ -155,7 +156,7 @@ const InfluencerDashboardMain = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Button 
           onClick={handleStartLiveStream}
           className="h-auto p-4 bg-purple-500 hover:bg-purple-600 flex items-center justify-center space-x-2"
@@ -170,6 +171,14 @@ const InfluencerDashboardMain = () => {
         >
           <Calendar className="h-5 w-5" />
           <span>Schedule Stream</span>
+        </Button>
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/influencer/products')}
+          className="h-auto p-4 flex items-center justify-center space-x-2 border-green-200 text-green-700 hover:bg-green-50"
+        >
+          <Package className="h-5 w-5" />
+          <span>Manage Products</span>
         </Button>
       </div>
 

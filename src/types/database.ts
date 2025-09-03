@@ -144,7 +144,7 @@ export interface Influencer {
 
 export interface Product {
   id: string
-  wholesaler_id: string
+  influencer_id: string  // Changed from wholesaler_id to influencer_id
   
   // Basic Product Information
   name: string
@@ -160,8 +160,8 @@ export interface Product {
   tags?: string[]
   
   // Pricing
-  wholesale_price: number
-  retail_price: number
+  compare_price?: number    // Compare at price for showing discounts
+  retail_price: number     // Main selling price
   sale_price?: number
   discount_percentage?: number
   
@@ -192,7 +192,8 @@ export interface Product {
   // Status and Flags
   is_active?: boolean
   is_featured?: boolean
-  is_live_stream_eligible?: boolean
+  is_live_streamable?: boolean   // Renamed for clarity
+  is_bulk_sale?: boolean         // Added for bulk sales capability
   status?: 'active' | 'inactive' | 'out_of_stock' | 'discontinued'
   
   // Ratings and Reviews
@@ -205,7 +206,7 @@ export interface Product {
   updated_at?: string
   
   // Relations (populated when needed)
-  wholesaler?: Wholesaler
+  influencer?: Influencer  // Changed from wholesaler to influencer
 }
 
 // =============================================================================
@@ -509,7 +510,7 @@ export interface ProductForm {
   subcategory?: string
   brand?: string
   tags?: string[]
-  wholesale_price: number
+  compare_price?: number
   retail_price: number
   sale_price?: number
   stock_quantity: number
@@ -584,11 +585,11 @@ export interface LiveSessionForm {
 // UTILITY TYPES
 // =============================================================================
 
-export type UserRole = 'customer' | 'wholesaler' | 'influencer' | 'admin'
+export type UserRole = 'customer' | 'influencer' | 'admin'
 
 export interface UserProfile {
   role: UserRole
-  profile: Customer | Wholesaler | Influencer
+  profile: Customer | Influencer
 }
 
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'

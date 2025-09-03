@@ -1,7 +1,6 @@
 import React from 'react';
 import { useInfluencer } from '@/hooks/useInfluencer';
 import InfluencerDashboardMain from '@/pages/influencer/InfluencerDashboardMain';
-import InfluencerProfileSetup from '@/components/influencer/InfluencerProfileSetup';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -48,12 +47,8 @@ const InfluencerDashboardWrapper: React.FC = () => {
     );
   }
 
-  // Show profile setup if no profile exists
-  if (!hasProfile && !loading) {
-    return <InfluencerProfileSetup onProfileCreated={fetchInfluencer} />;
-  }
-
-  // Show main dashboard
+  // ProfileCompletionGuard handles the profile check and redirect
+  // If we reach here, profile exists, so show main dashboard
   return <InfluencerDashboardMain />;
 };
 

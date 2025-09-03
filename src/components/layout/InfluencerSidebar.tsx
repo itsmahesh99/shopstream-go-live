@@ -12,7 +12,8 @@ import {
   Eye,
   LogOut,
   Home,
-  User
+  User,
+  Package
 } from 'lucide-react';
 
 interface InfluencerSidebarProps {
@@ -51,6 +52,12 @@ const InfluencerSidebar: React.FC<InfluencerSidebarProps> = ({
       label: "Live Streaming", 
       icon: Video,
       description: "Start & manage streams"
+    },
+    { 
+      path: "/influencer/products", 
+      label: "Product Catalog", 
+      icon: Package,
+      description: "Manage your products"
     },
     { 
       path: "/influencer/profile", 

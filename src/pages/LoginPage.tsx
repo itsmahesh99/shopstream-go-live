@@ -41,9 +41,6 @@ const LoginPage = () => {
           case 'customer':
             navigate('/home');
             break;
-          case 'wholesaler':
-            navigate('/wholesaler/dashboard');
-            break;
           case 'influencer':
             navigate('/influencer/dashboard');
             break;

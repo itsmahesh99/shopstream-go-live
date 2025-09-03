@@ -102,37 +102,6 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Newsletter Section */}
-      <div className="bg-gradient-to-r from-kein-blue to-kein-coral">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="text-center text-white">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Stay in the Loop
-            </h2>
-            <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
-              Get the latest updates on new products, exclusive deals, and live shopping events
-            </p>
-            
-            <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
-              <Input
-                type="email"
-                placeholder="Enter your email address"
-                className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30"
-              />
-              <Button 
-                className="bg-white text-kein-blue hover:bg-gray-100 font-semibold px-8"
-              >
-                Subscribe
-              </Button>
-            </div>
-            
-            <p className="text-sm opacity-75 mt-4">
-              By subscribing, you agree to our Privacy Policy and consent to receive updates from our company.
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12">

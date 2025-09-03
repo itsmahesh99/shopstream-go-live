@@ -54,8 +54,6 @@ export class ViewerHMSService {
           display_name,
           hms_room_code,
           hms_auth_token,
-          hms_viewer_room_code,
-          hms_viewer_auth_token,
           hms_room_id,
           is_streaming_enabled
         `)
@@ -84,7 +82,66 @@ export class ViewerHMSService {
     try {
       console.log('Fetching session with HMS credentials for sessionId:', sessionId);
       
-      // Get session with influencer's main HMS credentials
+      // Try to use the function that bypasses RLS first
+      try {
+        const { data: funcData, error: funcError } = await supabase.rpc('get_live_session_with_hms_credentials', {
+          p_session_id: sessionId
+        });
+
+        if (!funcError && funcData && funcData.length > 0) {
+          const sessionData = funcData[0];
+          console.log('Using RLS bypass function - Raw session data:', {
+            session_id: sessionData.id,
+            session_status: sessionData.status,
+            influencer_has_hms_auth_token: !!sessionData.hms_auth_token,
+            influencer_has_hms_room_code: !!sessionData.hms_room_code,
+            influencer_has_viewer_auth_token: !!sessionData.hms_viewer_auth_token
+          });
+
+          // Transform function result to match expected format
+          const transformedData: LiveStreamWithHMSCredentials = {
+            id: sessionData.id,
+            influencer_id: sessionData.influencer_id,
+            title: sessionData.title,
+            description: sessionData.description,
+            status: sessionData.status,
+            room_code: sessionData.room_code || sessionData.hms_room_code,
+            current_viewers: 0, // Default values
+            peak_viewers: 0,
+            total_messages: 0,
+            total_reactions: 0,
+            actual_start_time: sessionData.actual_start_time,
+            scheduled_start_time: sessionData.scheduled_start_time,
+            visibility: sessionData.visibility,
+            thumbnail_url: sessionData.thumbnail_url,
+            is_products_showcase: sessionData.is_products_showcase,
+            // HMS credentials
+            hms_viewer_room_code: sessionData.hms_viewer_room_code || sessionData.hms_room_code,
+            hms_viewer_auth_token: sessionData.hms_viewer_auth_token || sessionData.hms_auth_token,
+            influencer: {
+              display_name: sessionData.influencer_display_name || 'Unknown Host',
+              followers_count: sessionData.influencer_followers_count || 0
+            }
+          };
+
+          console.log('Transformed session data from function:', {
+            sessionId: transformedData.id,
+            title: transformedData.title,
+            status: transformedData.status,
+            hasViewerAuthToken: !!transformedData.hms_viewer_auth_token,
+            hasViewerRoomCode: !!transformedData.hms_viewer_room_code,
+            viewerAuthTokenPreview: transformedData.hms_viewer_auth_token ? `${transformedData.hms_viewer_auth_token.substring(0, 20)}...` : 'none',
+            viewerRoomCode: transformedData.hms_viewer_room_code,
+            influencerName: transformedData.influencer?.display_name
+          });
+
+          return { data: transformedData, error: null };
+        }
+      } catch (funcError) {
+        console.log('RLS bypass function failed, falling back to direct query:', funcError);
+      }
+
+      // Fallback to original query method
       const { data, error } = await supabase
         .from('live_stream_sessions')
         .select(`
@@ -111,14 +168,22 @@ export class ViewerHMSService {
         return { data: null, error: 'Session not found' };
       }
 
+      console.log('Raw session data from database:', {
+        session_id: data.id,
+        session_status: data.status,
+        influencer_data: data.influencer,
+        influencer_has_hms_auth_token: !!data.influencer?.hms_auth_token,
+        influencer_has_hms_room_code: !!data.influencer?.hms_room_code
+      });
+
       // Transform the data to include HMS credentials at the top level
-      // Use influencer's dedicated viewer credentials (as suggested)
+      // Use the existing hms_viewer_auth_token that contains the auth token
       const transformedData: LiveStreamWithHMSCredentials = {
         ...data,
-        // Use influencer's viewer room code (or fallback to main room code)
-        hms_viewer_room_code: data.influencer?.hms_viewer_room_code || data.influencer?.hms_room_code || data.room_code || null,
-        // Use influencer's dedicated viewer auth token (your suggestion)
-        hms_viewer_auth_token: data.influencer?.hms_viewer_auth_token || null,
+        // Use influencer's room code for viewers
+        hms_viewer_room_code: data.influencer?.hms_room_code || data.room_code || null,
+        // Use the existing hms_viewer_auth_token field that has the token
+        hms_viewer_auth_token: data.influencer?.hms_viewer_auth_token || data.influencer?.hms_auth_token || null,
         influencer: {
           display_name: data.influencer?.display_name || 'Unknown Host',
           followers_count: data.influencer?.followers_count || 0
@@ -135,9 +200,11 @@ export class ViewerHMSService {
         viewerRoomCode: transformedData.hms_viewer_room_code,
         influencerName: transformedData.influencer?.display_name,
         rawInfluencerData: {
+          hms_auth_token: data.influencer?.hms_auth_token ? 'present' : 'missing',
           hms_viewer_auth_token: data.influencer?.hms_viewer_auth_token ? 'present' : 'missing',
+          hms_room_code: data.influencer?.hms_room_code || 'missing',
           hms_viewer_room_code: data.influencer?.hms_viewer_room_code || 'missing',
-          hms_room_code: data.influencer?.hms_room_code || 'missing'
+          full_influencer_object: data.influencer
         }
       });
 
@@ -156,7 +223,7 @@ export class ViewerHMSService {
     error: any;
   }> {
     try {
-      // First try with HMS viewer fields
+      // Use influencer's main HMS credentials for viewers
       let { data, error } = await supabase
         .from('live_stream_sessions')
         .select(`
@@ -164,33 +231,13 @@ export class ViewerHMSService {
           influencer:influencers(
             display_name,
             followers_count,
-            hms_viewer_room_code,
-            hms_viewer_auth_token
+            hms_room_code,
+            hms_auth_token
           )
         `)
         .eq('status', status)
         .eq('visibility', 'public')
         .order('actual_start_time', { ascending: false });
-
-      // If HMS viewer fields don't exist, fallback to basic query
-      if (error && error.code === '42703') {
-        console.log('HMS viewer fields not found, using fallback query for live streams');
-        const fallbackResult = await supabase
-          .from('live_stream_sessions')
-          .select(`
-            *,
-            influencer:influencers(
-              display_name,
-              followers_count
-            )
-          `)
-          .eq('status', status)
-          .eq('visibility', 'public')
-          .order('actual_start_time', { ascending: false });
-        
-        data = fallbackResult.data;
-        error = fallbackResult.error;
-      }
 
       if (error) {
         console.error('Error fetching live streams with HMS credentials:', error);
@@ -198,10 +245,11 @@ export class ViewerHMSService {
       }
 
       // Transform the data to include HMS credentials at the top level
+      // Use influencer's main credentials for viewers
       const transformedData: LiveStreamWithHMSCredentials[] = (data || []).map(session => ({
         ...session,
-        hms_viewer_room_code: session.influencer?.hms_viewer_room_code || null,
-        hms_viewer_auth_token: session.influencer?.hms_viewer_auth_token || null,
+        hms_viewer_room_code: session.influencer?.hms_room_code || null,
+        hms_viewer_auth_token: session.influencer?.hms_auth_token || null,
         influencer: {
           display_name: session.influencer?.display_name || 'Unknown Host',
           followers_count: session.influencer?.followers_count || 0
@@ -229,7 +277,7 @@ export class ViewerHMSService {
         return { hasCredentials: false, error };
       }
 
-      const hasCredentials = !!(data?.hms_viewer_room_code && data?.hms_viewer_auth_token);
+      const hasCredentials = !!(data?.hms_room_code && data?.hms_auth_token);
       
       return { hasCredentials, error: null };
     } catch (error) {
@@ -277,7 +325,7 @@ export class ViewerHMSService {
    * Get viewer auth token (using influencer's main auth token)
    */
   static getViewerAuthToken(session: LiveStreamWithHMSCredentials): string | null {
-    // Use influencer's main auth token for viewers (as suggested)
+    // Use influencer's main auth token for viewers to join the stream
     const token = session.hms_viewer_auth_token;
     
     console.log('Getting viewer auth token:', {
