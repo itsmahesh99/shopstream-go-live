@@ -48,54 +48,166 @@ export class AdminServiceSimple {
     try {
       console.log('Fetching all influencers for admin...');
       
-      // First check if current user is admin
+      // First check if current user is admin using admin session
       const isAdmin = await this.isUserAdmin();
       if (!isAdmin) {
         throw new Error('Unauthorized: Admin access required');
       }
 
-      // Use admin-specific function that bypasses RLS and gets ALL influencers
-      const { data: influencers, error } = await supabase.rpc('admin_get_all_influencers');
+      // Get current admin session to pass to the function
+      const currentAdmin = AdminAuthService.getCurrentAdmin();
+      if (!currentAdmin) {
+        throw new Error('No admin session found');
+      }
 
+      console.log('Current admin session:', currentAdmin.email);
+
+      // Use admin function with admin email verification
+      console.log('Calling admin function with admin email...');
+      const { data: influencers, error } = await supabase.rpc('admin_get_all_influencers_by_email', {
+        admin_email: currentAdmin.email
+      });
+      
       if (error) {
-        console.error('Error fetching influencers via admin function:', error);
-        // Fallback to direct query if function doesn't exist
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('influencers')
-          .select(`
-            id,
-            email,
-            first_name,
-            last_name,
-            display_name,
-            hms_room_code,
-            hms_auth_token,
-            hms_viewer_room_code,
-            hms_viewer_auth_token,
-            hms_room_id,
-            is_streaming_enabled,
-            token_created_at,
-            created_at,
-            updated_at,
-            verification_status,
-            is_verified,
-            is_active
-          `)
-          .order('created_at', { ascending: false });
+        console.error('Error calling admin function:', error);
+        console.log('Falling back to direct query with service role...');
         
-        if (fallbackError) {
+        // Fallback: Use direct query without RLS dependency
+        try {
+          const fallbackData = await this.getInfluencersDirectly(currentAdmin.email);
+          console.log('Fallback query successful, found influencers:', fallbackData?.length || 0);
+          return this.transformInfluencerData(fallbackData || []);
+        } catch (fallbackError) {
           console.error('Fallback query also failed:', fallbackError);
           throw fallbackError;
         }
-        
-        console.log('Using fallback query results');
-        return this.transformInfluencerData(fallbackData || []);
       }
-
-      console.log('Admin query successful, fetched influencers:', influencers?.length || 0);
+      
+      console.log('Admin function successful, found influencers:', influencers?.length || 0);
       return this.transformInfluencerData(influencers || []);
     } catch (error) {
       console.error('Error in getAllInfluencers:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Direct query to get influencers without RLS dependency
+   */
+  private static async getInfluencersDirectly(adminEmail: string): Promise<any[]> {
+    try {
+      console.log('Direct query: Verifying admin access for:', adminEmail);
+      
+      // First verify admin exists in admin_users table (without .single() to avoid errors)
+      const { data: adminCheck, error: adminError } = await supabase
+        .from('admin_users')
+        .select('id, email, is_active')
+        .eq('email', adminEmail)
+        .eq('is_active', true)
+        .limit(1);
+
+      if (adminError) {
+        console.error('Admin verification error:', adminError);
+        throw new Error(`Admin verification failed: ${adminError.message}`);
+      }
+
+      if (!adminCheck || adminCheck.length === 0) {
+        console.error('Admin not found or inactive:', adminEmail);
+        throw new Error('Admin verification failed: Admin not found or inactive');
+      }
+
+      console.log('Admin verified successfully:', adminCheck[0].email);
+
+      // Use a simpler direct query that should work regardless of RLS
+      console.log('Querying influencers table...');
+      const { data: influencers, error } = await supabase
+        .from('influencers')
+        .select(`
+          id,
+          user_id,
+          email,
+          first_name,
+          last_name,
+          display_name,
+          hms_room_code,
+          hms_auth_token,
+          hms_viewer_room_code,
+          hms_viewer_auth_token,
+          hms_room_id,
+          is_streaming_enabled,
+          token_created_at,
+          created_at,
+          updated_at,
+          verification_status,
+          is_verified,
+          is_active
+        `)
+        .order('created_at', { ascending: false })
+        .limit(100); // Add a reasonable limit
+
+      if (error) {
+        console.error('Influencers query error:', error);
+        throw new Error(`Failed to fetch influencers: ${error.message}`);
+      }
+
+      console.log('Direct query successful, found influencers:', influencers?.length || 0);
+      return influencers || [];
+    } catch (error) {
+      console.error('Direct query error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get dashboard stats for admin panel
+   */
+  static async getDashboardStats(): Promise<{
+    total_influencers: number;
+    active_streamers: number;
+    verified_influencers: number;
+    live_streams: number;
+    with_broadcaster_tokens: number;
+    with_viewer_tokens: number;
+  }> {
+    try {
+      console.log('Fetching dashboard stats for admin...');
+      
+      // Check admin permissions
+      const isAdmin = await this.isUserAdmin();
+      if (!isAdmin) {
+        throw new Error('Unauthorized: Admin access required');
+      }
+
+      // Get current admin session
+      const currentAdmin = AdminAuthService.getCurrentAdmin();
+      if (!currentAdmin) {
+        throw new Error('No admin session found');
+      }
+
+      // Try to use the dashboard stats function with email verification
+      const { data: stats, error } = await supabase.rpc('get_admin_dashboard_stats_by_email', {
+        admin_email: currentAdmin.email
+      });
+      
+      if (error || !stats) {
+        console.log('Dashboard stats function not available, calculating manually...');
+        
+        // Fallback to manual calculation
+        const influencers = await this.getAllInfluencers();
+        return {
+          total_influencers: influencers.length,
+          active_streamers: influencers.filter(i => i.is_streaming_enabled).length,
+          verified_influencers: influencers.filter(i => i.is_verified).length,
+          live_streams: influencers.reduce((sum, i) => sum + i.currently_live_streams, 0),
+          with_broadcaster_tokens: influencers.filter(i => i.has_auth_token).length,
+          with_viewer_tokens: influencers.filter(i => i.has_viewer_auth_token).length,
+        };
+      }
+      
+      console.log('Dashboard stats retrieved:', stats);
+      return stats;
+    } catch (error) {
+      console.error('Error getting dashboard stats:', error);
       throw error;
     }
   }

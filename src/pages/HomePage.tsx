@@ -1,411 +1,498 @@
-import React, { useState, lazy, Suspense } from "react";
+import React, { useState, lazy, Suspense, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { ProductsService, Product, Category } from "@/services/productsService";
+import { LiveStreamingService } from "@/services/liveStreamingService";
+import { LiveStreamSession } from "@/types/live-streaming";
 import { 
-  Play, 
-  Users, 
-  Clock, 
   Heart,
   ShoppingBag,
-  Zap,
   Calendar,
   Star,
-  Eye
+  Package,
+  Filter,
+  Search,
+  Grid,
+  List
 } from "lucide-react";
 
-// Lazy load heavy components
-const InfluencersRow = lazy(() => import("@/components/home/InfluencersRow"));
-const HeroCarousel = lazy(() => import("@/components/home/HeroCarousel"));
-const LiveNowCarousel = lazy(() => import("@/components/home/LiveNowCarousel"));
-const CategoriesSection = lazy(() => import("@/components/home/CategoriesSection"));
-const LiveShoppingSection = lazy(() => import("@/components/home/LiveShoppingSection"));
-const BigShowBanners = lazy(() => import("@/components/home/BigShowBanners"));
-const FeaturedProducts = lazy(() => import("@/components/home/FeaturedProducts"));
-const UpcomingShows = lazy(() => import("@/components/home/UpcomingShows"));
-const PromotionsCarousel = lazy(() => import("@/components/common/PromotionsCarousel"));
-const Reels = lazy(() => import("@/components/shop/Reels"));
-
-// Simple loading component for sections
+// Loading component
 const SectionLoader = () => (
-  <div className="flex items-center justify-center py-8">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+  <div className="animate-pulse">
+    <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+    <div className="grid grid-cols-4 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="h-48 bg-gray-200 rounded"></div>
+      ))}
+    </div>
   </div>
 );
 
+// Category icon mapping
+const getCategoryIcon = (categoryName: string) => {
+  const icons: { [key: string]: string } = {
+    'Electronics': '📱',
+    'Fashion': '👗',
+    'Beauty': '💄',
+    'Sports': '⚽',
+    'Gaming': '🎮',
+    'Home': '🏠',
+    'Books': '📚',
+    'Sneakers': '👟',
+    'Home & Garden': '🏡'
+  };
+  return icons[categoryName] || '📦';
+};
+
 const HomePage = () => {
   const { user, userProfile } = useAuth();
+  
+  // State management
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [liveStories, setLiveStories] = useState<LiveStreamSession[]>([]);
+  const [dbCategories, setDbCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [loading, setLoading] = useState(true);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data inspired by Whatnot
-  const liveStreams = [
-    {
-      id: "1",
-      title: "🔥 SNEAKER DROP - JORDAN RETRO COLLECTION",
-      influencer: "culturedinsoles",
-      thumbnail: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
-      viewCount: 208,
-      category: "Sneakers",
-      isLive: true,
-      price: "₹12,999",
-      originalPrice: "₹15,999"
-    },
-    {
-      id: "2", 
-      title: "📱 TECH SHOWCASE - Latest Electronics",
-      influencer: "techwithsid",
-      thumbnail: "/lovable-uploads/9f9465c9-14a1-4b53-b185-257751bc97c5.png",
-      viewCount: 156,
-      category: "Electronics",
-      isLive: true,
-      price: "₹8,999",
-      originalPrice: "₹11,999"
-    },
-    {
-      id: "3",
-      title: "👗 FASHION FRIDAY - Designer Wear",
-      influencer: "fashionista_maya", 
-      thumbnail: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-      viewCount: 342,
-      category: "Fashion",
-      isLive: true,
-      price: "₹2,499",
-      originalPrice: "₹4,999"
-    },
-    {
-      id: "4",
-      title: "⚽ SPORTS GEAR - Authentic Jerseys",
-      influencer: "sportscentral",
-      thumbnail: "/lovable-uploads/4448d6cf-1254-4262-a2a2-cb90ffd97796.png", 
-      viewCount: 89,
-      category: "Sports",
-      isLive: true,
-      price: "₹1,999",
-      originalPrice: "₹3,499"
+  // Fetch initial data
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        console.log('HomePage: Starting to fetch initial data...');
+        setLoading(true);
+        
+        // Fetch products and categories first (critical data)
+        const [productsData, categoriesData] = await Promise.all([
+          ProductsService.getFeaturedProducts(12),
+          ProductsService.getCategories()
+        ]);
+        
+        console.log('HomePage: Critical data loaded:', {
+          products: productsData?.length || 0,
+          categories: categoriesData?.length || 0
+        });
+        
+        console.log('Featured products before setState:', productsData);
+        
+        setFeaturedProducts(productsData);
+        setDbCategories(categoriesData);
+        setError(null);
+        
+        console.log('Featured products after setState (should trigger re-render):', productsData?.length || 0);
+        
+        // Try to fetch live stories for the top section (non-critical)
+        try {
+          console.log('Attempting to fetch live stories...');
+          const { data: liveStoriesData, error: liveError } = await LiveStreamingService.getLiveSessions();
+          
+          if (liveError) {
+            console.error('Error fetching live streams:', liveError);
+            setLiveStories([]);
+          } else if (liveStoriesData && liveStoriesData.length > 0) {
+            console.log('Live stories loaded:', liveStoriesData.length);
+            setLiveStories(liveStoriesData.slice(0, 5)); // Limit to 5 for the stories section
+          } else {
+            console.log('No live streams found');
+            setLiveStories([]);
+          }
+        } catch (liveStoriesError) {
+          console.warn('Failed to load live stories, continuing without them:', liveStoriesError);
+          setLiveStories([]); // Set empty array so the UI doesn't show loading
+        }
+        
+      } catch (err) {
+        console.error('HomePage: Error fetching critical data:', err);
+        setError('Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
+  // Filter products by category
+  const filterProductsByCategory = async (categoryId: string | null) => {
+    try {
+      setProductsLoading(true);
+      setSelectedCategory(categoryId);
+      setSearchQuery(''); // Clear search when filtering by category
+      
+      let products;
+      if (categoryId) {
+        products = await ProductsService.getProductsByCategory(categoryId, 12);
+      } else {
+        products = await ProductsService.getFeaturedProducts(12);
+      }
+      
+      setFeaturedProducts(products);
+    } catch (err) {
+      console.error('Error filtering products:', err);
+    } finally {
+      setProductsLoading(false);
     }
-  ];
+  };
 
-  const upcomingStreams = [
-    {
-      id: "1",
-      title: "🎮 GAMING SETUP GIVEAWAY",
-      influencer: "gamingpro_raj",
-      thumbnail: "/lovable-uploads/a758d528-4f86-47ab-8952-b84d3f2e2b2c.png",
-      scheduledTime: "Today 2:00 PM",
-      category: "Gaming",
-      expectedViewers: 500
-    },
-    {
-      id: "2", 
-      title: "💄 BEAUTY HAUL - Korean Skincare",
-      influencer: "beautybypriya",
-      thumbnail: "/lovable-uploads/b70ed579-11af-4d52-af36-34b2f78386c0.png",
-      scheduledTime: "Today 8:00 PM", 
-      category: "Beauty",
-      expectedViewers: 300
-    },
-    {
-      id: "3",
-      title: "🏠 HOME DECOR - Festive Collection",
-      influencer: "homedecor_expert",
-      thumbnail: "/lovable-uploads/5238184c-1188-4352-a959-30046823f005.png",
-      scheduledTime: "Tomorrow 6:30 PM",
-      category: "Home",
-      expectedViewers: 250
+  // Search products
+  const searchProducts = async (query: string) => {
+    try {
+      setProductsLoading(true);
+      setSearchQuery(query);
+      setSelectedCategory(null); // Clear category filter when searching
+      
+      if (query.trim()) {
+        const products = await ProductsService.searchProducts(query, 12);
+        setFeaturedProducts(products);
+      } else {
+        const products = await ProductsService.getFeaturedProducts(12);
+        setFeaturedProducts(products);
+      }
+    } catch (err) {
+      console.error('Error searching products:', err);
+    } finally {
+      setProductsLoading(false);
     }
+  };
+
+  // Fallback categories
+  const fallbackCategories = [
+    { id: "1", name: "Sneakers", icon: "👟" },
+    { id: "2", name: "Electronics", icon: "📱" },
+    { id: "3", name: "Fashion", icon: "👗" }, 
+    { id: "4", name: "Beauty", icon: "💄" },
+    { id: "5", name: "Sports", icon: "⚽" },
+    { id: "6", name: "Gaming", icon: "🎮" },
+    { id: "7", name: "Home", icon: "🏠" },
+    { id: "8", name: "Books", icon: "📚" }
   ];
 
-  const categories = [
-    { name: "Sneakers", color: "from-orange-500 to-red-600", icon: "👟", bgClass: "bg-gradient-to-br from-orange-500 to-red-600" },
-    { name: "Electronics", color: "from-blue-500 to-purple-600", icon: "📱", bgClass: "bg-gradient-to-br from-blue-500 to-purple-600" },
-    { name: "Fashion", color: "from-pink-500 to-purple-600", icon: "👗", bgClass: "bg-gradient-to-br from-pink-500 to-purple-600" }, 
-    { name: "Beauty", color: "from-rose-500 to-pink-600", icon: "💄", bgClass: "bg-gradient-to-br from-rose-500 to-pink-600" },
-    { name: "Sports", color: "from-emerald-500 to-teal-600", icon: "⚽", bgClass: "bg-gradient-to-br from-emerald-500 to-teal-600" },
-    { name: "Gaming", color: "from-purple-500 to-indigo-600", icon: "🎮", bgClass: "bg-gradient-to-br from-purple-500 to-indigo-600" },
-    { name: "Home", color: "from-amber-500 to-orange-600", icon: "🏠", bgClass: "bg-gradient-to-br from-amber-500 to-orange-600" },
-    { name: "Books", color: "from-cyan-500 to-blue-600", icon: "📚", bgClass: "bg-gradient-to-br from-cyan-500 to-blue-600" }
-  ];
-
-  // Live stories data for circular story-like updates
-  const liveStories = [
-    {
-      id: "1",
-      title: "🔥 SNEAKER DROP",
-      influencer: "culturedinsoles",
-      thumbnail: "/lovable-uploads/7c48c057-d4b0-4193-9473-be6c8eee605c.png",
-      isLive: true,
-      category: "Sneakers"
-    },
-    {
-      id: "2",
-      title: "📱 TECH SHOW",
-      influencer: "techwithsid", 
-      thumbnail: "/lovable-uploads/9f9465c9-14a1-4b53-b185-257751bc97c5.png",
-      isLive: true,
-      category: "Electronics"
-    },
-    {
-      id: "3",
-      title: "👗 FASHION",
-      influencer: "fashionista_maya",
-      thumbnail: "/lovable-uploads/f8d1a83b-970d-4d3a-966a-e0e1deaddb20.png",
-      isLive: true,
-      category: "Fashion"
-    },
-    {
-      id: "4",
-      title: "💄 BEAUTY",
-      influencer: "beautybypriya",
-      thumbnail: "/lovable-uploads/b70ed579-11af-4d52-af36-34b2f78386c0.png",
-      isLive: true,
-      category: "Beauty"
-    },
-    {
-      id: "5",
-      title: "⚽ SPORTS",
-      influencer: "sportscentral",
-      thumbnail: "/lovable-uploads/4448d6cf-1254-4262-a2a2-cb90ffd97796.png",
-      isLive: true,
-      category: "Sports"
-    }
-  ];
-
-  const LiveStoryCard = ({ story }: { story: any }) => (
-    <div className="flex flex-col items-center space-y-2 cursor-pointer group">
+  // Component definitions
+  const LiveStoryCard = ({ story }: { story: LiveStreamSession }) => (
+    <div className="flex flex-col items-center space-y-3 cursor-pointer group min-w-[80px]">
       <div className="relative">
-        <div className="w-16 h-16 rounded-full p-1 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
-          <div className="w-full h-full rounded-full overflow-hidden border-2 border-white">
+        {/* Profile Circle with Live Border */}
+        <div className="w-16 h-16 rounded-full p-0.5 bg-gradient-to-r from-red-500 via-pink-500 to-red-600">
+          <div className="w-full h-full rounded-full overflow-hidden border-2 border-white bg-white">
             <img 
-              src={story.thumbnail} 
-              alt={story.influencer}
+              src={story.thumbnail_url || '/placeholder.svg'} 
+              alt={story.title || 'Live Stream'}
               className="w-full h-full object-cover"
             />
           </div>
         </div>
-        {story.isLive && (
-          <div className="absolute -bottom-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
-            LIVE
+        
+        {/* Live Badge */}
+        {story.status === 'live' && (
+          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
+            <Badge className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+              Live • {story.current_viewers || 0}
+            </Badge>
           </div>
         )}
       </div>
+      
+      {/* Username */}
       <div className="text-center">
-        <p className="text-xs font-medium text-gray-900 truncate w-16">{story.category}</p>
-        <p className="text-xs text-gray-500 truncate w-16">@{story.influencer}</p>
+        <p className="text-xs font-medium text-gray-900 truncate max-w-[80px]">
+          @{story.influencer_id ? story.influencer_id.slice(-8) : 'host'}
+        </p>
+        <p className="text-[10px] text-gray-500 truncate max-w-[80px]">
+          {story.title?.slice(0, 15) || 'Live Stream'}
+        </p>
       </div>
     </div>
   );
 
-  const LiveStreamCard = ({ stream }: { stream: any }) => (
-    <Card className="group cursor-pointer overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl">
-      <div className="relative">
-        <img 
-          src={stream.thumbnail} 
-          alt={stream.title}
-          className="w-full h-48 object-cover"
-        />
-        <div className="absolute top-2 left-2">
-          <Badge className="bg-red-600 text-white px-2 py-1 text-xs font-bold">
-            <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></div>
-            Live • {stream.viewCount}
-          </Badge>
+  const ProductCard = ({ product }: { product: Product }) => {
+    const discountPercentage = product.compare_price 
+      ? Math.round(((product.compare_price - product.retail_price) / product.compare_price) * 100)
+      : 0;
+
+    return (
+      <Card className="group cursor-pointer overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-0 bg-white rounded-xl">
+        <div className="relative">
+          {product.images && product.images.length > 0 ? (
+            <img 
+              src={product.images[0]} 
+              alt={product.name}
+              className="w-full h-56 object-cover"
+            />
+          ) : (
+            <div className="w-full h-56 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <Package className="h-16 w-16 text-gray-400" />
+            </div>
+          )}
+          
+          {/* Discount Badge */}
+          {discountPercentage > 0 && (
+            <div className="absolute top-3 left-3">
+              <Badge className="bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-md">
+                {discountPercentage}% OFF
+              </Badge>
+            </div>
+          )}
+          
+          {/* Category Badge */}
+          {product.category && (
+            <div className="absolute top-3 right-3">
+              <Badge variant="secondary" className="bg-white/90 text-gray-700 text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
+                {product.category.name}
+              </Badge>
+            </div>
+          )}
+          
+          {/* Wishlist Button */}
+          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full">
+              <Heart className="h-4 w-4 text-gray-600" />
+            </Button>
+          </div>
         </div>
-        <div className="absolute top-2 right-2">
-          <Badge variant="secondary" className="text-xs">
-            {stream.category}
-          </Badge>
-        </div>
-        <div className="absolute bottom-2 left-2 right-2">
-          <div className="bg-black/70 rounded-lg p-2 text-white">
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-bold">{stream.price}</span>
-              <span className="text-sm line-through text-gray-300">{stream.originalPrice}</span>
+        
+        <CardContent className="p-4">
+          {/* Brand/Influencer */}
+          <div className="mb-2">
+            <p className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+              {product.brand || (product.influencer ? `@${product.influencer.display_name || product.influencer.first_name}` : 'KEIN')}
+            </p>
+          </div>
+          
+          {/* Product Name */}
+          <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-3 min-h-[2.5rem]">
+            {product.name}
+          </h3>
+          
+          {/* Rating */}
+          <div className="flex items-center mb-3">
+            <div className="flex items-center">
+              <span className="text-sm font-medium text-gray-900">4.3</span>
+              <div className="flex ml-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <svg key={star} className="w-3 h-3 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                  </svg>
+                ))}
+              </div>
+              <span className="text-xs text-gray-500 ml-1">| {Math.floor(Math.random() * 500) + 100}</span>
             </div>
           </div>
-        </div>
-      </div>
-      <CardContent className="p-3">
-        <h3 className="font-semibold text-sm line-clamp-2 mb-1">{stream.title}</h3>
-        <p className="text-xs text-gray-600 mb-2">@{stream.influencer}</p>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-1 text-xs text-gray-500">
-            <Eye className="w-3 h-3" />
-            <span>{stream.viewCount} watching</span>
+          
+          {/* Pricing */}
+          <div className="mb-3">
+            <div className="flex items-baseline space-x-2">
+              <span className="text-lg font-bold text-gray-900">
+                Rs. {product.retail_price.toLocaleString()}
+              </span>
+              {product.compare_price && (
+                <span className="text-sm text-gray-500 line-through">
+                  Rs. {product.compare_price.toLocaleString()}
+                </span>
+              )}
+              {discountPercentage > 0 && (
+                <span className="text-xs text-green-600 font-medium">
+                  ({discountPercentage}% OFF)
+                </span>
+              )}
+            </div>
           </div>
-          <Button size="sm" className="h-6 px-2 text-xs">
-            <Play className="w-3 h-3 mr-1" />
-            Watch
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+          
+          {/* Stock Info */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-1 text-xs text-gray-500">
+              <Package className="w-3 h-3" />
+              <span>{product.stock_quantity || 0} in stock</span>
+            </div>
+            <Button size="sm" className="h-8 px-4 text-xs font-medium bg-gray-900 hover:bg-gray-800 text-white rounded-md">
+              <ShoppingBag className="w-3 h-3 mr-1" />
+              Buy
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
-  const UpcomingStreamCard = ({ stream }: { stream: any }) => (
-    <Card className="group cursor-pointer overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
-      <div className="relative">
-        <img 
-          src={stream.thumbnail} 
-          alt={stream.title}
-          className="w-full h-32 object-cover"
-        />
-        <div className="absolute top-2 left-2">
-          <Badge className="bg-blue-600 text-white px-2 py-1 text-xs font-bold">
-            <Clock className="w-3 h-3 mr-1" />
-            {stream.scheduledTime}
-          </Badge>
-        </div>
-        <div className="absolute bottom-2 right-2">
-          <Button size="sm" variant="secondary" className="h-6 px-2 text-xs">
-            <Heart className="w-3 h-3 mr-1" />
-            Remind
-          </Button>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <SectionLoader />
         </div>
       </div>
-      <CardContent className="p-3">
-        <h4 className="font-semibold text-sm line-clamp-2 mb-1">{stream.title}</h4>
-        <p className="text-xs text-gray-600 mb-1">@{stream.influencer}</p>
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <span>{stream.expectedViewers} expected</span>
-          <Badge variant="outline" className="text-xs">{stream.category}</Badge>
-        </div>
-      </CardContent>
-    </Card>
-  );
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Live Stories Section */}
         <Suspense fallback={<SectionLoader />}>
-          <div className="mb-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center">
               <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
               Live Now
             </h2>
-            <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
-              {liveStories.map((story) => (
-                <div key={story.id} className="flex-shrink-0">
-                  <LiveStoryCard story={story} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </Suspense>
-
-        {/* Categories Section with Lazy Loading */}
-        <Suspense fallback={<SectionLoader />}>
-          <div className="mb-8">
-            {/* Filter Pills */}
-            
-            
-            <h2 className="text-xl font-bold mb-4">Categories You Might Like</h2>
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-              {categories.map((category) => (
-                <Link key={category.name} to={`/shop/category/${category.name.toLowerCase()}`}>
-                  <div className="flex-shrink-0 border border-gray-300 rounded-full px-6 py-3 flex items-center gap-2 text-gray-700 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:border-gray-400 cursor-pointer bg-white">
-                    <span className="text-lg">{category.icon}</span>
-                    <span className="text-sm font-semibold whitespace-nowrap">{category.name}</span>
+            {liveStories.length > 0 ? (
+              <div className="flex space-x-3 sm:space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+                {liveStories.map((story) => (
+                  <div key={story.id} className="flex-shrink-0">
+                    <LiveStoryCard story={story} />
                   </div>
-                </Link>
-              ))}
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500">No live streams available right now</p>
+              </div>
+            )}
+          </div>
+        </Suspense>
+
+        {/* Categories Filter Section */}
+        <Suspense fallback={<SectionLoader />}>
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                <h2 className="text-lg sm:text-xl font-bold">Shop by Category</h2>
+                
+                {/* Search Input */}
+                <div className="relative flex-1 sm:max-w-md sm:ml-4">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => searchProducts(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  />
+                </div>
+              </div>
+              
+              {/* Category Filters */}
+              <div className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide pb-2">
+                {/* All Products Filter */}
+                <Button
+                  variant={selectedCategory === null && !searchQuery ? "default" : "outline"}
+                  onClick={() => filterProductsByCategory(null)}
+                  className="flex-shrink-0 rounded-full px-4 sm:px-6 py-2 transition-all duration-300"
+                  size="sm"
+                >
+                  <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">All Products</span>
+                </Button>
+                
+                {/* Category Filters */}
+                {dbCategories.length > 0 ? (
+                  dbCategories.map((category) => (
+                    <Button
+                      key={category.id}
+                      variant={selectedCategory === category.id ? "default" : "outline"}
+                      onClick={() => filterProductsByCategory(category.id)}
+                      className="flex-shrink-0 rounded-full px-4 sm:px-6 py-2 transition-all duration-300"
+                      size="sm"
+                    >
+                      <span className="text-sm sm:text-lg mr-1 sm:mr-2">{getCategoryIcon(category.name)}</span>
+                      <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">{category.name}</span>
+                    </Button>
+                  ))
+                ) : (
+                  fallbackCategories.map((category) => (
+                    <Button
+                      key={category.id}
+                      variant={selectedCategory === category.id ? "default" : "outline"}
+                      onClick={() => filterProductsByCategory(category.id)}
+                      className="flex-shrink-0 rounded-full px-4 sm:px-6 py-2 transition-all duration-300"
+                      size="sm"
+                    >
+                      <span className="text-sm sm:text-lg mr-1 sm:mr-2">{category.icon}</span>
+                      <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">{category.name}</span>
+                    </Button>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </Suspense>
 
-        {/* Featured Live Streams Section */}
+        {/* Featured Products Section */}
         <Suspense fallback={<SectionLoader />}>
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold flex items-center">
-                <Zap className="w-5 h-5 mr-2 text-red-500" />
-                Featured Live Streams
-              </h2>
-              <Link to="/play">
-                <Button variant="outline" size="sm">Show All</Button>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {liveStreams.map((stream) => (
-                <LiveStreamCard key={stream.id} stream={stream} />
-              ))}
-            </div>
-          </div>
-        </Suspense>
-
-        {/* Upcoming Section with Lazy Loading */}
-        <Suspense fallback={<SectionLoader />}>
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold flex items-center">
-                <Calendar className="w-5 h-5 mr-2 text-blue-500" />
-                Upcoming Shows
-              </h2>
-              <Link to="/schedule">
-                <Button variant="outline" size="sm">Show All</Button>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {upcomingStreams.map((stream) => (
-                <UpcomingStreamCard key={stream.id} stream={stream} />
-              ))}
-            </div>
-          </div>
-        </Suspense>
-
-        {/* For You Section with Lazy Loading */}
-        <Suspense fallback={<SectionLoader />}>
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 flex items-center">
-              <Star className="w-5 h-5 mr-2 text-yellow-500" />
-              For You
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Mix of live and upcoming for personalized feed */}
-              {[...liveStreams.slice(0, 2), ...upcomingStreams.slice(0, 2)].map((stream, index) => (
-                index < 2 ? 
-                  <LiveStreamCard key={`foryou-${stream.id}`} stream={stream} /> :
-                  <UpcomingStreamCard key={`foryou-${stream.id}`} stream={stream} />
-              ))}
-            </div>
-          </div>
-        </Suspense>
-
-        {/* Quick Actions with Lazy Loading */}
-        <Suspense fallback={<SectionLoader />}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-            <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
-              <CardContent className="p-6 text-center">
-                <Users className="w-12 h-12 mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">Become an Influencer</h3>
-                <p className="mb-4">Start your own live shows and earn money</p>
-                <Link to="/signup/influencer">
-                  <Button variant="secondary">Get Started</Button>
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+                  <Package className="w-5 sm:w-6 h-5 sm:h-6 mr-2 sm:mr-3 text-green-500" />
+                  {searchQuery ? 'Search Results' : selectedCategory ? 'Filtered Products' : 'Featured Products'}
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                  {searchQuery 
+                    ? `Showing results for "${searchQuery}"`
+                    : selectedCategory 
+                    ? 'Products in selected category' 
+                    : 'Handpicked products just for you'
+                  }
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                >
+                  <Grid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+                <Link to="/shop">
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                    Show All
+                  </Button>
                 </Link>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
-              <CardContent className="p-6 text-center">
-                <ShoppingBag className="w-12 h-12 mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">Sell Your Products</h3>
-                <p className="mb-4">Join as a wholesaler and reach thousands</p>
-                <Link to="/signup/wholesaler">
-                  <Button variant="secondary">Start Selling</Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-purple-500 to-pink-600 text-white">
-              <CardContent className="p-6 text-center">
-                <Heart className="w-12 h-12 mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">Join the Community</h3>
-                <p className="mb-4">Connect with sellers and buyers worldwide</p>
-                <Link to="/signup/customer">
-                  <Button variant="secondary">Join Now</Button>
-                </Link>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+            {productsLoading ? (
+              <SectionLoader />
+            ) : error ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">{error}</p>
+              </div>
+            ) : featuredProducts.length > 0 ? (
+              <div className={`grid gap-4 sm:gap-6 ${
+                viewMode === 'grid' 
+                  ? 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+                  : 'grid-cols-1 sm:grid-cols-2'
+              }`}>
+                {featuredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 mb-2">No products available</p>
+                <p className="text-sm text-gray-400">
+                  {searchQuery 
+                    ? `No results found for "${searchQuery}". Try a different search term.`
+                    : selectedCategory 
+                    ? 'Try selecting a different category' 
+                    : 'Check back soon for amazing deals!'
+                  }
+                </p>
+                <p className="text-xs text-gray-300 mt-2">
+                  Debug: Featured products count: {featuredProducts.length}
+                </p>
+              </div>
+            )}
           </div>
         </Suspense>
       </div>

@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import CustomerLayout from "./components/layout/CustomerLayout";
 import InfluencerLayout from "./components/layout/InfluencerLayout";
-import WholesalerLayout from "./components/layout/WholesalerLayout";
 import Index from "./pages/Index";
 import WelcomePage from "./pages/WelcomePage";
 import HomePage from "./pages/HomePage";
@@ -18,16 +17,11 @@ import LiveStreamErrorBoundary from "./components/common/LiveStreamErrorBoundary
 
 // Lazy load authentication pages
 const CustomerSignupPage = React.lazy(() => import("./pages/CustomerSignupPage"));
-const WholesalerSignupPage = React.lazy(() => import("./pages/WholesalerSignupPage"));
 const InfluencerSignupPage = React.lazy(() => import("./pages/InfluencerSignupPage"));
 const LoginPage = React.lazy(() => import("./pages/LoginPage"));
 const ForgotPasswordPage = React.lazy(() => import("./pages/ForgotPasswordPage"));
 const AuthCallbackPage = React.lazy(() => import("./pages/AuthCallbackPage"));
 
-// Lazy load dashboard pages
-const CustomerDashboard = React.lazy(() => import("./pages/CustomerDashboard"));
-const WholesalerDashboard = React.lazy(() => import("./pages/WholesalerDashboard"));
-// const InfluencerDashboard = React.lazy(() => import("./pages/InfluencerDashboard")); // File doesn't exist - using InfluencerDashboardMain instead
 
 // Lazy load admin pages
 const AdminPanel = React.lazy(() => import("./pages/admin/AdminPanel"));
@@ -38,13 +32,12 @@ const AdminLayout = React.lazy(() => import("./components/layout/AdminLayout"));
 // Lazy load influencer pages
 const InfluencerDashboardWrapper = React.lazy(() => import("./components/influencer/InfluencerDashboardWrapper"));
 const InfluencerProfileCompletionPage = React.lazy(() => import("./pages/InfluencerProfileCompletionPage"));
-const InfluencerLiveManagement = React.lazy(() => import("./pages/influencer/InfluencerLiveManagement"));
+const ProfileCompletionGuard = React.lazy(() => import("./components/influencer/ProfileCompletionGuard"));
 const InfluencerLiveStreamPageNew = React.lazy(() => import("./pages/influencer/InfluencerLiveStreamPage"));
-// const InfluencerAnalytics = React.lazy(() => import("./pages/influencer/InfluencerAnalytics")); // Removed for MVP
 const InfluencerSchedule = React.lazy(() => import("./pages/influencer/InfluencerSchedule"));
-// const InfluencerAudience = React.lazy(() => import("./pages/influencer/InfluencerAudience")); // Removed for MVP
 const InfluencerSettings = React.lazy(() => import("./pages/influencer/InfluencerSettings"));
 const InfluencerProfile = React.lazy(() => import("./pages/influencer/InfluencerProfile"));
+const ProductCatalogManager = React.lazy(() => import("./components/product-catalog/ProductCatalogManager"));
 
 // Lazy load shop pages
 const ShopPage = React.lazy(() => import("./pages/ShopPage"));
@@ -53,7 +46,6 @@ const ProductPage = React.lazy(() => import("./pages/ProductPage"));
 const CartPage = React.lazy(() => import("./pages/CartPage"));
 
 // Lazy load live streaming pages
-const LiveStreamPage = React.lazy(() => import("./pages/LiveStreamPage"));
 const LiveStreamViewerPage = React.lazy(() => import("./pages/LiveStreamViewerPage"));
 const PlayPage = React.lazy(() => import("./pages/PlayPage"));
 const PlayFeedPage = React.lazy(() => import("./pages/PlayFeedPage"));
@@ -102,10 +94,6 @@ function App() {
                 <CustomerSignupPage />
               </ProtectedRoute>
             } 
-          />
-          <Route 
-            path="/signup/wholesaler" 
-            element={<WholesalerSignupPage />} 
           />
           <Route 
             path="/signup/influencer" 
@@ -244,7 +232,9 @@ function App() {
               path="/influencer/dashboard" 
               element={
                 <ProtectedRoute allowedRoles={['influencer']}>
-                  <InfluencerDashboardWrapper />
+                  <ProfileCompletionGuard>
+                    <InfluencerDashboardWrapper />
+                  </ProfileCompletionGuard>
                 </ProtectedRoute>
               } 
             />
@@ -252,9 +242,11 @@ function App() {
               path="/influencer/live" 
               element={
                 <ProtectedRoute allowedRoles={['influencer']}>
-                  <LiveStreamErrorBoundary>
-                    <InfluencerLiveStreamPageNew />
-                  </LiveStreamErrorBoundary>
+                  <ProfileCompletionGuard>
+                    <LiveStreamErrorBoundary>
+                      <InfluencerLiveStreamPageNew />
+                    </LiveStreamErrorBoundary>
+                  </ProfileCompletionGuard>
                 </ProtectedRoute>
               } 
             />
@@ -262,7 +254,9 @@ function App() {
               path="/influencer/schedule" 
               element={
                 <ProtectedRoute allowedRoles={['influencer']}>
-                  <InfluencerSchedule />
+                  <ProfileCompletionGuard>
+                    <InfluencerSchedule />
+                  </ProfileCompletionGuard>
                 </ProtectedRoute>
               } 
             />
@@ -270,49 +264,29 @@ function App() {
               path="/influencer/profile" 
               element={
                 <ProtectedRoute allowedRoles={['influencer']}>
-                  <InfluencerProfile />
+                  <ProfileCompletionGuard>
+                    <InfluencerProfile />
+                  </ProfileCompletionGuard>
                 </ProtectedRoute>
               } 
             />
-            {/* <Route 
-              path="/influencer/analytics" 
-              element={
-                <ProtectedRoute allowedRoles={['influencer']}>
-                  <InfluencerAnalytics />
-                </ProtectedRoute>
-              } 
-            /> */}
-            {/* <Route 
-              path="/influencer/audience" 
-              element={
-                <ProtectedRoute allowedRoles={['influencer']}>
-                  <InfluencerAudience />
-                </ProtectedRoute>
-              } 
-            /> */}
             <Route 
               path="/influencer/settings" 
               element={
                 <ProtectedRoute allowedRoles={['influencer']}>
-                  <InfluencerSettings />
+                  <ProfileCompletionGuard>
+                    <InfluencerSettings />
+                  </ProfileCompletionGuard>
                 </ProtectedRoute>
               } 
             />
-          </Route>
-
-          {/* Wholesaler Routes - Business dashboard (ON HOLD as requested) */}
-          <Route element={<WholesalerLayout />}>
             <Route 
-              path="/wholesaler/dashboard" 
+              path="/influencer/products" 
               element={
-                <ProtectedRoute allowedRoles={['wholesaler']}>
-                  <div className="p-6">
-                    <div className="text-center py-12">
-                      <h1 className="text-2xl font-bold text-gray-900 mb-4">Wholesaler Dashboard</h1>
-                      <p className="text-gray-600">This feature is currently under development.</p>
-                      <p className="text-sm text-gray-500 mt-2">Please check back soon for updates.</p>
-                    </div>
-                  </div>
+                <ProtectedRoute allowedRoles={['influencer']}>
+                  <ProfileCompletionGuard>
+                    <ProductCatalogManager />
+                  </ProfileCompletionGuard>
                 </ProtectedRoute>
               } 
             />

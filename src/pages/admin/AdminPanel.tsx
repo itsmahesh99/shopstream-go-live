@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AdminService } from '@/services/adminServiceSimple';
 import { AdminAuthService } from '@/services/adminAuthService';
 import { TokenInputModal } from '@/components/admin/TokenInputModal';
+import AdminDebugTest from '@/components/admin/AdminDebugTest';
 import { toast } from 'sonner';
 
 interface InfluencerData {
@@ -99,11 +100,16 @@ const AdminPanel: React.FC = () => {
   const loadInfluencers = async () => {
     try {
       setLoading(true);
+      console.log('Admin Panel: Starting to load influencers...');
+      
       const data = await AdminService.getAllInfluencers();
+      console.log('Admin Panel: Received influencer data:', data);
+      console.log('Admin Panel: Number of influencers:', data.length);
+      
       setInfluencers(data);
     } catch (error) {
-      console.error('Error loading influencers:', error);
-      toast.error('Failed to load influencers');
+      console.error('Admin Panel: Error loading influencers:', error);
+      toast.error(`Failed to load influencers: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -410,29 +416,34 @@ const AdminPanel: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>Admin Settings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <h3 className="font-medium">Auto-generate tokens for new influencers</h3>
-                    <p className="text-sm text-gray-600">Automatically create auth tokens when influencers complete their profile</p>
+          <div className="space-y-6">
+            {/* Debug Component */}
+            <AdminDebugTest />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <h3 className="font-medium">Auto-generate tokens for new influencers</h3>
+                      <p className="text-sm text-gray-600">Automatically create auth tokens when influencers complete their profile</p>
+                    </div>
+                    <Button variant="outline">Configure</Button>
                   </div>
-                  <Button variant="outline">Configure</Button>
-                </div>
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <h3 className="font-medium">Token expiration policy</h3>
-                    <p className="text-sm text-gray-600">Set how long auth tokens remain valid</p>
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <h3 className="font-medium">Token expiration policy</h3>
+                      <p className="text-sm text-gray-600">Set how long auth tokens remain valid</p>
+                    </div>
+                    <Button variant="outline">Configure</Button>
                   </div>
-                  <Button variant="outline">Configure</Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
 

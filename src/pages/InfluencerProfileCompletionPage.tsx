@@ -8,11 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { toast } from '@/hooks/use-toast'
+import { useToast } from "@/hooks/use-toast"
 
 const InfluencerProfileCompletionPage = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     first_name: '',
@@ -78,10 +79,56 @@ const InfluencerProfileCompletionPage = () => {
           followers_count: profile.followers_count || 0
         })
       } else {
-        console.log('No existing profile found - this should not happen after signup')
+        console.log('No existing profile found - creating minimal profile first')
+        // Create minimal influencer profile if it doesn't exist
+        await createMinimalProfile()
       }
     } catch (error) {
       console.error('Error checking profile completion:', error)
+    }
+  }
+
+  const createMinimalProfile = async () => {
+    if (!user) return
+
+    try {
+      console.log('Creating minimal influencer profile for user:', user.id)
+      
+      const minimalProfileData = {
+        user_id: user.id,
+        email: user.email,
+        first_name: '',
+        last_name: '',
+        display_name: user.email?.split('@')[0] || 'New Creator',
+        phone: null,
+        bio: null,
+        category: null,
+        instagram_handle: null,
+        youtube_channel: null,
+        tiktok_handle: null,
+        experience_years: 0,
+        followers_count: 0
+      }
+
+      const { data, error } = await supabase
+        .from('influencers')
+        .insert(minimalProfileData)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error creating minimal profile:', error)
+        throw error
+      }
+
+      console.log('Minimal profile created successfully:', data)
+    } catch (error) {
+      console.error('Failed to create minimal profile:', error)
+      toast({
+        title: 'Profile Creation Failed',
+        description: 'Unable to create your profile. Please try again.',
+        variant: 'destructive'
+      })
     }
   }
 
@@ -256,8 +303,8 @@ const InfluencerProfileCompletionPage = () => {
           console.log('Profile created successfully:', createData)
           
           toast({
-            title: "Success!",
-            description: "Your profile has been created successfully."
+            title: "Welcome to Kein! 🎉",
+            description: "Your profile has been created successfully. You can now access all creator features!"
           })
 
           navigate('/influencer/dashboard')
@@ -282,8 +329,8 @@ const InfluencerProfileCompletionPage = () => {
       console.log('Profile updated successfully:', data)
 
       toast({
-        title: "Success!",
-        description: "Your profile has been completed successfully."
+        title: "Profile Updated! ✨",
+        description: "Your profile has been completed successfully. Welcome to your creator dashboard!"
       })
 
       navigate('/influencer/dashboard')

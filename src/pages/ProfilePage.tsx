@@ -82,10 +82,6 @@ const ProfilePage = () => {
         const customer = profile as any;
         return customer.first_name || user?.email?.split('@')[0] || 'Customer';
       
-      case 'wholesaler':
-        const wholesaler = profile as any;
-        return wholesaler.contact_person_name || wholesaler.business_name || user?.email?.split('@')[0] || 'Wholesaler';
-      
       case 'influencer':
         const influencer = profile as any;
         return influencer.display_name || influencer.first_name || user?.email?.split('@')[0] || 'Influencer';

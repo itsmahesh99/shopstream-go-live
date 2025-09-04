@@ -37,8 +37,7 @@ const AuthCallbackPage = () => {
           if (profileData && userRole) {
             try {
               // First check if profile already exists
-              const tableName = userRole === 'customer' ? 'customers' : 
-                               userRole === 'wholesaler' ? 'wholesalers' : 'influencers'
+              const tableName = userRole === 'customer' ? 'customers' : 'influencers'
               
               const { data: existingProfile } = await supabase
                 .from(tableName)
@@ -76,9 +75,6 @@ const AuthCallbackPage = () => {
               break
             case 'influencer':
               navigate('/influencer/profile-completion')
-              break
-            case 'wholesaler':
-              navigate('/wholesaler/dashboard')
               break
             default:
               navigate('/home')

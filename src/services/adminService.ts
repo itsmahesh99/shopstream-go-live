@@ -47,12 +47,56 @@ export class AdminService {
         throw new Error('Unauthorized: Admin access required');
       }
 
-      const { data, error } = await supabase
+      // Try to fetch from the view first
+      let { data, error } = await supabase
         .from('influencer_analytics_admin')
         .select('*')
         .order('profile_created_at', { ascending: false });
 
-      if (error) {
+      // If view fails, fallback to direct table query
+      if (error && error.code === '42P01') {
+        console.log('View not found, querying influencers table directly...');
+        const { data: influencerData, error: influencerError } = await supabase
+          .from('influencers')
+          .select(`
+            id,
+            email,
+            first_name,
+            last_name,
+            display_name,
+            hms_room_code,
+            hms_auth_token,
+            is_streaming_enabled,
+            token_created_at,
+            created_at,
+            updated_at,
+            verification_status,
+            is_verified,
+            is_active
+          `)
+          .order('created_at', { ascending: false });
+
+        if (influencerError) {
+          console.error('Error fetching from influencers table:', influencerError);
+          throw influencerError;
+        }
+
+        // Transform the data to match the expected format
+        data = influencerData?.map(influencer => ({
+          ...influencer,
+          role: 'influencer' as const,
+          has_auth_token: !!influencer.hms_auth_token,
+          profile_created_at: influencer.created_at,
+          profile_updated_at: influencer.updated_at,
+          total_streams: 0,
+          total_viewers: 0,
+          avg_viewers_per_stream: 0,
+          max_peak_viewers: 0,
+          last_stream_date: null,
+          streams_last_30_days: 0,
+          currently_live_streams: 0
+        })) || [];
+      } else if (error) {
         console.error('Error fetching influencers:', error);
         throw error;
       }

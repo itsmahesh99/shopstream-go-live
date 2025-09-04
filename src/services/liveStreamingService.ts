@@ -212,7 +212,7 @@ export class LiveStreamingService {
   static async getLiveSessions(): Promise<{ data: LiveStreamSession[] | null; error: any }> {
     try {
       const { data, error } = await supabase
-        .from('live_sessions_with_influencer')
+        .from('live_sessions_with_details')
         .select('*')
         .eq('status', 'live')
         .order('actual_start_time', { ascending: false });
